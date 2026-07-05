@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from app.admin.router import router as admin_router
 from app.auth.router import router as auth_router
@@ -38,6 +40,8 @@ from app.reviews.models import Review  # noqa: F401
 from app.work_requests.models import WorkRequest, WorkRequestApplication  # noqa: F401
 from app.work_requests.router import router as work_requests_router
 from app.workers.router import router as workers_router
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 @asynccontextmanager
@@ -78,3 +82,18 @@ def health():
         message="KaamSetu API is healthy",
         data={"database": "up" if ping_database() else "down"},
     )
+
+
+@app.get("/", include_in_schema=False)
+def homepage():
+    return FileResponse(BASE_DIR / "homepage.html")
+
+
+@app.get("/find-workers", include_in_schema=False)
+def find_workers_page():
+    return FileResponse(BASE_DIR / "find_workers.html")
+
+
+@app.get("/worker-profile", include_in_schema=False)
+def worker_profile_page():
+    return FileResponse(BASE_DIR / "worker_profile.html")

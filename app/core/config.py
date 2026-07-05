@@ -1,6 +1,7 @@
 from functools import lru_cache
+import json
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,11 +11,11 @@ class Settings(BaseSettings):
     app_name: str = "KaamSetu API"
     app_env: str = "development"
     backend_url: str = "http://localhost:8000"
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str | None = None
     database_url: str = "sqlite:///./kaamsetu.db"
     google_client_id: str = "demo-client-id"
     google_client_secret: str = "demo-client-secret"
-    google_redirect_uri: str = "http://localhost:8000/auth/google/callback"
+    google_redirect_uri: str | None = None
     jwt_secret_key: str = "change-me"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
@@ -22,6 +23,30 @@ class Settings(BaseSettings):
     map_geocoder_provider: str = "nominatim"
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value):
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            stripped = value.strip()
+            if not stripped:
+                return []
+            if stripped.startswith("["):
+                return json.loads(stripped)
+            return [item.strip() for item in stripped.split(",") if item.strip()]
+        return value
+
+    @property
+    def effective_google_redirect_uri(self) -> str:
+        if self.google_redirect_uri:
+            return self.google_redirect_uri
+        return f"{self.backend_url.rstrip('/')}/auth/google/callback"
+
+    @property
+    def effective_frontend_url(self) -> str:
+        return self.frontend_url or self.backend_url
 
 
 @lru_cache

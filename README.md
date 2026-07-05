@@ -59,6 +59,48 @@ uvicorn app.main:app --reload
 
 Swagger docs are available at `/docs`. Health is at `/health`.
 
+## Render deployment
+
+For a Render-only setup, deploy this repository as a single Render web service. The FastAPI app serves the API and the existing HTML pages from the same public origin.
+
+Recommended backend environment variables:
+
+```env
+APP_NAME=KaamSetu API
+APP_ENV=production
+BACKEND_URL=https://your-service.onrender.com
+FRONTEND_URL=https://your-service.onrender.com
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST/DBNAME?sslmode=require
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=https://your-service.onrender.com/auth/google/callback
+JWT_SECRET_KEY=generate-a-long-random-secret
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+REFRESH_TOKEN_EXPIRE_DAYS=7
+MAP_GEOCODER_PROVIDER=nominatim
+NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org
+CORS_ORIGINS=https://your-service.onrender.com
+```
+
+Use this Google OAuth Authorized redirect URI:
+
+```text
+https://your-service.onrender.com/auth/google/callback
+```
+
+If you also use local development, add:
+
+```text
+http://localhost:8000/auth/google/callback
+```
+
+The current app serves these frontend pages directly:
+
+- `/` -> `homepage.html`
+- `/find-workers` -> `find_workers.html`
+- `/worker-profile` -> `worker_profile.html`
+
 ## OAuth note
 
 The backend exposes the required OAuth endpoints. The callback route is scaffolded for production integration, but for local/backend-only development it currently accepts Google profile fields as query parameters so the rest of the auth and onboarding flow can be exercised before wiring the live token exchange.

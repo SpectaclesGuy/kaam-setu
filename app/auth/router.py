@@ -17,7 +17,7 @@ def google_login():
     redirect = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         f"?client_id={settings.google_client_id}"
-        f"&redirect_uri={settings.google_redirect_uri}"
+        f"&redirect_uri={settings.effective_google_redirect_uri}"
         "&response_type=code&scope=openid%20email%20profile"
     )
     return api_response("Google OAuth URL generated", {"authorization_url": redirect})
@@ -44,7 +44,7 @@ def google_callback(
     payload = {**build_auth_payload(user), "user": UserRead.model_validate(user).model_dump()}
     if redirect:
         return RedirectResponse(
-            url=f"{settings.frontend_url}?token={payload['access_token']}&profile_completed={user.profile_completed}"
+            url=f"{settings.effective_frontend_url}?token={payload['access_token']}&profile_completed={user.profile_completed}"
         )
     return api_response("Authentication successful", payload)
 
