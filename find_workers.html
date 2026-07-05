@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Find Workers | KaamSetu</title>
+<!-- Google Fonts: Montserrat -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#ffddb4",
+                        "surface-container-highest": "#dfe4de",
+                        "on-tertiary-fixed-variant": "#782e33",
+                        "on-secondary-fixed": "#291800",
+                        "primary-fixed-dim": "#82d8aa",
+                        "surface": "#f6faf5",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#3e030c",
+                        "surface-bright": "#f6faf5",
+                        "primary-fixed": "#9ef5c4",
+                        "surface-variant": "#dfe4de",
+                        "tertiary": "#883b3f",
+                        "surface-container-high": "#e5e9e4",
+                        "on-background": "#181d19",
+                        "on-surface-variant": "#3f4942",
+                        "outline": "#6f7a72",
+                        "on-surface": "#181d19",
+                        "on-primary-fixed-variant": "#005234",
+                        "surface-container-low": "#f1f5ef",
+                        "tertiary-fixed": "#ffdad9",
+                        "inverse-on-surface": "#eef2ec",
+                        "on-primary-fixed": "#002112",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#ebefe9",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#bec9c0",
+                        "surface-dim": "#d7dbd6",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#ffb955",
+                        "on-tertiary-container": "#ffe9e8",
+                        "on-secondary-fixed-variant": "#633f00",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#ffb3b4",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#82d8aa",
+                        "tertiary-container": "#a65256",
+                        "background": "#f6faf5",
+                        "inverse-surface": "#2d322e",
+                        "on-primary-container": "#aeffd1",
+                        "primary-container": "#1f7a53",
+                        "primary": "#00603e",
+                        "on-secondary-container": "#6b4500",
+                        "secondary-container": "#feae2c",
+                        "surface-tint": "#056c47",
+                        "on-error-container": "#93000a",
+                        "secondary": "#835500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "container-max": "1280px",
+                        "section-gap": "80px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "body-lg": ["Montserrat"],
+                        "display-lg-mobile": ["Montserrat"],
+                        "label-sm": ["Montserrat"],
+                        "display-lg": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "label-sm": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom range slider styling */
+        input[type=range]::-webkit-slider-runnable-track { background: #bec9c0; height: 4px; border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #00603e; margin-top: -6px; }
+        
+        .worker-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary">KaamSetu</div>
+<nav class="hidden md:flex items-center space-x-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Home</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="#">Find Workers</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Post Work</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">How It Works</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">For Businesses</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Pricing</a>
+</nav>
+<div class="flex items-center space-x-4">
+<button class="text-primary hover:scale-[1.02] transition-transform duration-200 font-label-sm text-label-sm">Login</button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full hover:scale-[1.02] active:scale-95 transition-all duration-200 font-label-sm text-label-sm shadow-sm">Sign Up</button>
+</div>
+</div>
+</header>
+<!-- Content Area (Padding for sticky header) -->
+<main class="pt-[76px] h-screen flex flex-col overflow-hidden">
+<!-- Filter Bar -->
+<div class="bg-surface border-b border-outline-variant/30 px-margin-desktop py-4 z-40">
+<div class="max-w-container-max mx-auto flex flex-wrap items-center gap-4">
+<!-- Category -->
+<div class="relative group">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">category</span>
+<span class="font-label-sm text-label-sm">Category</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<!-- Distance Slider -->
+<div class="flex flex-col min-w-[140px]">
+<div class="flex justify-between mb-1">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Distance</span>
+<span class="text-label-sm font-label-sm text-primary">15 km</span>
+</div>
+<input class="w-full h-1 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary" max="50" min="1" type="range" value="15"/>
+</div>
+<!-- Price Range -->
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="font-label-sm text-label-sm">Price Range</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<!-- Rating -->
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-sm text-label-sm">4.5+ Rating</span>
+</button>
+<!-- Availability Toggle -->
+<div class="flex items-center gap-3 ml-auto">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Available Now</span>
+<button class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 focus:outline-none bg-outline-variant" id="availability-toggle" onclick="this.classList.toggle('bg-primary'); this.querySelector('span').classList.toggle('translate-x-5')">
+<span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 translate-x-1"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Split View -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Side: Results List -->
+<div class="w-full lg:w-[450px] bg-surface-container-lowest overflow-y-auto hide-scrollbar flex-shrink-0 border-r border-outline-variant/30">
+<div class="p-6">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-6">Workers in Bangalore</h2>
+<div class="space-y-4">
+<!-- Worker Card 1 -->
+<div class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer">
+<div class="flex gap-4">
+<img class="w-20 h-20 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="A professional portrait of a skilled carpenter in his late 30s, wearing a clean forest green apron and a friendly expression. He is standing in a brightly lit, modern workshop with subtle wood textures in the background. The lighting is warm and natural, evoking a sense of reliability and craftsmanship. The image has a clean, premium digital aesthetic consistent with a high-end service platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAADtkH0sxXw8DO3iu53f1oLFBBOTCxb0rdjzjw-BSqPPEItggFGgze5RkS0i6GDAreNI5FooAvsqFowynsYtud9gbfJHpMJJk-XViycUE6jrNJyoGAMhjUifoEnHv92A7iLixsH74cf3qPxPp8ZZsQW6TIYy_SNV0-5rwkZezTl6xR2Z15LubSDO2iJ78BGauxk3IwzgW9lsPy_ZOc76hib08tZMpmeqy8IFxu3OdI5ca7frTzKpWi4LtcyuNgszGOb6z_aL606A"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-tight">Arun Kumar</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-primary text-label-sm font-label-sm">Verified Professional</span>
+</div>
+</div>
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm font-bold ml-1">4.9</span>
+</div>
+</div>
+<div class="mt-2 flex items-center gap-4 text-on-surface-variant text-label-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> 2.4 km</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">looks</span> Master Carpenter</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/30 flex justify-between items-center">
+<div class="text-on-surface">
+<span class="font-bold text-headline-md text-[18px]">₹450</span>
+<span class="text-on-surface-variant text-label-sm">/ hour</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform">Book Now</button>
+</div>
+</div>
+<!-- Worker Card 2 -->
+<div class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer">
+<div class="flex gap-4">
+<img class="w-20 h-20 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="A focused female electrician in her 20s, wearing professional gear and a small tool belt. She is posing confidently against a minimalist, light gray wall background. The style is sharp and modern, with soft studio lighting that highlights her professional demeanor and the warm tones of the forest green accents. The overall mood is trustworthy and efficient." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_chxSoFoj9gqpfHsRCoXzewN_G5cHRT7sI1Ar-ez-ZcEYWs3H9_zzErVXhbJNgA6NqJJJkkVw0ZhwvFUuoUocz0jppdf46vQzvFgCQ_DuQnFVMjVABNqkFi5-CWxVNnIuzEueL1zIwXiakttP7k_c3dEOXYnSPkqS437S_hAyX_IO-djHNXvHqJRjKJZgJ3pDJDbvKRZowGBA2Gw7HNOx_7venMS0dFpB-wmBkCTzyx6ZTvHTdH0ZlwrFXhcLILz17NUl6eSukw"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-tight">Priya Sharma</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-primary text-label-sm font-label-sm">Verified Professional</span>
+</div>
+</div>
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm font-bold ml-1">4.8</span>
+</div>
+</div>
+<div class="mt-2 flex items-center gap-4 text-on-surface-variant text-label-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> 0.8 km</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">electric_bolt</span> Electrician</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/30 flex justify-between items-center">
+<div class="text-on-surface">
+<span class="font-bold text-headline-md text-[18px]">₹350</span>
+<span class="text-on-surface-variant text-label-sm">/ hour</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform">Book Now</button>
+</div>
+</div>
+<!-- Worker Card 3 -->
+<div class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer">
+<div class="flex gap-4">
+<img class="w-20 h-20 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="A portrait of an experienced plumber in his 50s with a kind, weathered face, wearing a professional uniform. He is positioned in a modern, clean kitchen setting that is softly out of focus. The color palette is dominated by clean whites and the brand's primary forest green. The lighting is bright and airy, suggesting high quality and professionalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFK1o09ooFGE17mO8YSbuUWjYWNigxXC2Jo5Y4Y0xdvoTSD2JCYOlduqOvaEGfE4n-19KmB4p10dzUT4BweRPMNT5xbJHzGAY-MKZt8YW9p0sj06Q5SmdLhIbk9kP63_6NXi9ky_rQkF09I122ccKuj1AMmp4u1HBtKFfZSmvW-2eDk8rm-pXfMPUXwjV7XNY7u5zFyc29Fwfe0xS2M6_XBrgD_xvrfqcxKwfJxgWL3vMf0cemNeDKIzyaIYf6ubWmTA8GyITMMQ"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-tight">Ramesh Singh</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-primary text-label-sm font-label-sm">Verified Professional</span>
+</div>
+</div>
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm font-bold ml-1">4.7</span>
+</div>
+</div>
+<div class="mt-2 flex items-center gap-4 text-on-surface-variant text-label-sm">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> 5.2 km</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">plumbing</span> Master Plumber</span>
+</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/30 flex justify-between items-center">
+<div class="text-on-surface">
+<span class="font-bold text-headline-md text-[18px]">₹400</span>
+<span class="text-on-surface-variant text-label-sm">/ hour</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform">Book Now</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Map View -->
+<div class="hidden lg:block flex-1 relative bg-surface-dim">
+<!-- Map Placeholder -->
+<div class="absolute inset-0 w-full h-full grayscale-[20%] opacity-90" data-alt="A clean, minimalist digital map of a modern urban area, styled with a light mode aesthetic. The map features soft greens and greys, with simplified road networks and subtle 3D building outlines. Small forest green icons indicate worker locations, and one active primary accent marker shows a selected profile. The style is inspired by modern UI design systems like Stripe or Google Maps with high clarity and low visual noise." data-location="Bangalore" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA2o6diI7pR5KpShA0L2V8nrqkCzqY_gaF4z6sl97vfMcI8K2lCwqQDciwhsxHqKNBSMx7YJl7KXsDhtKHnAQYmti3GsHPQlrnG6xW7AnID5JcLImX0V-Hn9Fe7y-UISent1n3XXyHoQgs83ufchyy-zdvBYcQ6ci9pG8-Ck1tx7J51VQOICrSUbupi-etoIdmhRnpkapZBxRAt-4TV3qRi5OAUqgAq5VDP1l4XEv7ax3zNcVYETOrUXZ4Ggzt_2xy-P3q_nzykvw')">
+</div>
+<!-- Map UI Overlays -->
+<div class="absolute top-6 right-6 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center text-primary mt-4 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+<!-- Floating Interaction Guide -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-outline-variant/30 px-6 py-3 rounded-full shadow-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<span class="text-label-sm font-label-sm text-on-surface">Tap markers to view worker quick-profiles</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant/50 w-full py-section-gap px-margin-desktop relative z-50">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter max-w-container-max mx-auto">
+<div class="md:col-span-1">
+<div class="font-headline-md text-headline-md font-bold text-primary mb-4">KaamSetu</div>
+<p class="text-on-surface-variant font-body-md text-body-md mb-6">Empowering local hands through professional digital connectivity. Reliable, verified, and close by.</p>
+</div>
+<div class="flex flex-col space-y-3">
+<h4 class="font-label-sm text-label-sm text-primary mb-2">Company</h4>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Sitemap</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col space-y-3">
+<h4 class="font-label-sm text-label-sm text-primary mb-2">Support</h4>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Help Center</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Safety Guidelines</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Community</a>
+</div>
+<div class="flex flex-col space-y-3">
+<h4 class="font-label-sm text-label-sm text-primary mb-2">Connect</h4>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">LinkedIn</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Instagram</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Twitter (X)</a>
+</div>
+</div>
+<div class="max-w-container-max mx-auto mt-16 pt-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="text-on-surface-variant font-label-sm text-label-sm">© 2024 KaamSetu. Empowering local hands.</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-outline">language</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">English (India)</span>
+</div>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for worker cards
+        document.querySelectorAll('.worker-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'translateY(-4px) scale(1)';
+            });
+        });
+
+        // Toggle state logic for search markers would go here in a full app
+    </script>
+</body></html>

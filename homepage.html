@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KaamSetu | Find Trusted Local Workers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#ffddb4",
+                    "surface-container-highest": "#dfe4de",
+                    "on-tertiary-fixed-variant": "#782e33",
+                    "on-secondary-fixed": "#291800",
+                    "primary-fixed-dim": "#82d8aa",
+                    "surface": "#f6faf5",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#3e030c",
+                    "surface-bright": "#f6faf5",
+                    "primary-fixed": "#9ef5c4",
+                    "surface-variant": "#dfe4de",
+                    "tertiary": "#883b3f",
+                    "surface-container-high": "#e5e9e4",
+                    "on-background": "#181d19",
+                    "on-surface": "#181d19",
+                    "on-primary-fixed-variant": "#005234",
+                    "surface-container-low": "#f1f5ef",
+                    "tertiary-fixed": "#ffdad9",
+                    "inverse-on-surface": "#eef2ec",
+                    "on-primary-fixed": "#002112",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#ebefe9",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#bec9c0",
+                    "surface-dim": "#d7dbd6",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#ffb955",
+                    "on-tertiary-container": "#ffe9e8",
+                    "on-secondary-fixed-variant": "#633f00",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#ffb3b4",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#82d8aa",
+                    "tertiary-container": "#a65256",
+                    "background": "#f6faf5",
+                    "inverse-surface": "#2d322e",
+                    "on-primary-container": "#aeffd1",
+                    "primary-container": "#1f7a53",
+                    "primary": "#00603e",
+                    "on-secondary-container": "#6b4500",
+                    "secondary-container": "#feae2c",
+                    "surface-tint": "#056c47",
+                    "on-error-container": "#93000a",
+                    "secondary": "#835500",
+                    "on-surface-variant": "#3f4942",
+                    "outline": "#6f7a72"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "container-max": "1280px",
+                    "section-gap": "80px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Montserrat"],
+                    "body-md": ["Montserrat"],
+                    "body-lg": ["Montserrat"],
+                    "display-lg-mobile": ["Montserrat"],
+                    "label-sm": ["Montserrat"],
+                    "display-lg": ["Montserrat"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "label-sm": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 229, 225, 0.5);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #FCFCFA; /* Level 0 Surface */
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<nav class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-stack-lg">
+<a class="font-headline-md text-headline-md font-bold text-primary" href="#">KaamSetu</a>
+<div class="hidden md:flex items-center gap-stack-md">
+<a class="font-label-sm text-label-sm text-primary font-bold border-b-2 border-primary pb-1" href="#">Home</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Find Workers</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Post Work</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">How It Works</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">For Businesses</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Pricing</a>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="hidden sm:block font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors">Login</button>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-full font-label-sm text-label-sm font-bold hover:scale-[1.02] transition-transform duration-200 active:scale-95">Sign Up</button>
+</div>
+</nav>
+</header>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="relative px-margin-desktop py-section-gap max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-center">
+<div class="z-10">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-stack-md">
+                    Find Trusted Local <span class="text-primary">Workers</span> Near You
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-lg max-w-lg">
+                    Connecting you with skill-verified electricians, plumbers, carpenters, and more. Transparent pricing, reliable local professionals.
+                </p>
+<div class="glass-card p-2 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center gap-2 shadow-lg max-w-2xl">
+<div class="flex-1 flex items-center gap-2 px-4 py-3 border-b md:border-b-0 md:border-r border-outline-variant/30">
+<span class="material-symbols-outlined text-primary">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-md font-body-md outline-none" placeholder="Worker type (e.g. Plumber)" type="text"/>
+</div>
+<div class="flex-1 flex items-center gap-2 px-4 py-3">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+<input class="w-full bg-transparent border-none focus:ring-0 text-body-md font-body-md outline-none" placeholder="Your Location" type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 rounded-xl font-bold hover:scale-[1.02] transition-transform active:scale-95">Search</button>
+</div>
+<div class="mt-8 flex items-center gap-stack-md">
+<div class="flex -space-x-3">
+<img class="w-12 h-12 rounded-full border-2 border-surface object-cover" data-alt="Close-up headshot of a smiling, professional female electrician wearing a yellow safety helmet and blue work overalls against a soft out-of-focus urban background. Light mode aesthetic, sharp focus, vibrant forest green and amber color accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjMo5cSEXlZ0m7rWZ05yg_TIvCxeVmEIeJvR5RUdU_Yyov3DWw46eAeC0FLXBxy1eEBxd9CEHVfj-AgMI_SQ7DrSeSrrte_0eGVaAYPPFpuKOVyp5JnKIp4hU625hITJrp0rDqhmG-IBgfLPwoXGpTivtJRyuGSY31S_eCkQey3yTvEPeWLH_95M9BiV5c8noUp67KpASVgCweBrru-lfFs3WnUl1FNVYhQDTzAAYMFJdLMFkA9CrHhDUDV0WtcqyUyOxLhCwSFw"/>
+<img class="w-12 h-12 rounded-full border-2 border-surface object-cover" data-alt="A professional male plumber in a clean grey uniform, holding a wrench, smiling confidently. The lighting is warm and natural, suggesting a reliable local service professional. Minimalist clean background with subtle soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfjBBdvuomvk6WnuBmbeX70181aj8LdSL3g5B2k4jCbmYD3eN68xtZ4BfQpYlKBHR0DgzJN2WWCOIjWthiciJcMbTC2kmzzSv5GtMUiKfIH0ndJy99FGdOrXSd7MykFPqIiROP0zUMA0TfqQK1NDYouTJFz7S2bdVRfoo6eaLLFSj7KdNVcVzjcXFn-ij0Rq2cNedi2Y-VDAgQbKzHJv75BC7kKq8Y9u28fg0Oaw9HVz-8Oo0mdKKFBHk_7SqljQaUDEv9hbNpQA"/>
+<img class="w-12 h-12 rounded-full border-2 border-surface object-cover" data-alt="A professional house cleaner wearing a white apron and holding cleaning supplies, looking friendly and efficient. High-key lighting, modern soft UI aesthetic, emphasizing trust and cleanliness in a professional home environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuPez2SWJo0inl5vMfA0HzvLs5ATwEoU0-hyRrsd8C5Jz6gouEo3auKGBTnSBCTh3-MkmKOu56oKO6NUbEiMqc_ujv74ns6k0l5fLaYiAuNLG-YJmbmFyo6AgBN_ARvi0qyEiAczVG8yrahkZBzB7ok-r4uDuHpEtpf-0w8yJb2k8RGRIv2vNk3lb-lfrO5TIOlB0OdbRNqMcifUcXkBOLtW6KIPdOgxUrTEH-DoWEdCBDurZPDWJDRij6kdkwWAaHV88tywTygQ"/>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant"><span class="text-primary font-bold">12k+</span> Verified Workers Nearby</p>
+</div>
+</div>
+<div class="relative lg:h-[600px] flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-3xl transform -translate-x-12"></div>
+<div class="relative z-10 w-full h-full min-h-[400px] rounded-3xl overflow-hidden border border-outline-variant/30 shadow-2xl hover:translate-y-[-4px] transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="High-quality professional photography of a carpenter in a sunlit woodworking shop. The artisan is focused on measuring a piece of rich oak wood, with sawdust catching the morning light. The scene feels premium, authentic, and grounded, using a warm palette of wood tones and soft green accents from the design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZSRRyF7iNu9AUyoqeo2f3TllZE15FnlE-b4buOniMfCs77ZWxkhqb9gYvv-OOnUv17vQB8ulHTABbXIZphXQGP3TFuzojsPLIpqy1_CeoM1Dj3SEH8f621H-kQG_y4tab710qPf02vBFKbuWIYm4mGjnS--xOJEHe1l2QW2XaUdH7z83W8RJOYiAmSlfoVXu1T27pQWsQINkg_o0qSG3hBpC-NfTApZahswxBpxGIz5UQMyr1E93wjHzEIQdjkFwBNx5-ZwkA6A"/>
+<div class="absolute bottom-6 left-6 right-6 glass-card p-4 rounded-xl flex items-center gap-4">
+<div class="bg-secondary-fixed text-on-secondary-fixed p-3 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Verified Professionals</p>
+<p class="text-label-sm text-on-surface-variant">Identity &amp; Skill Checks Completed</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Popular Categories -->
+<section class="px-margin-desktop py-section-gap bg-surface-container-low/30">
+<div class="max-w-container-max mx-auto">
+<div class="flex justify-between items-end mb-stack-lg">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Popular Categories</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Top-rated services in your city</p>
+</div>
+<a class="text-primary font-bold hover:underline flex items-center gap-1" href="#">
+                        View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-stack-md">
+<!-- Category Cards -->
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">bolt</span>
+</div>
+<p class="font-bold text-center">Electrician</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">plumbing</span>
+</div>
+<p class="font-bold text-center">Plumber</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">format_paint</span>
+</div>
+<p class="font-bold text-center">Painter</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">carpenter</span>
+</div>
+<p class="font-bold text-center">Carpenter</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">directions_car</span>
+</div>
+<p class="font-bold text-center">Driver</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">home_repair_service</span>
+</div>
+<p class="font-bold text-center">Mechanic</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">mop</span>
+</div>
+<p class="font-bold text-center">Cleaner</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">agriculture</span>
+</div>
+<p class="font-bold text-center">Farm Worker</p>
+</button>
+<button class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/50 hover:translate-y-[-4px] hover:shadow-md transition-all duration-300 group lg:col-span-2">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 mx-auto group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">construction</span>
+</div>
+<p class="font-bold text-center">Construction Helper</p>
+</button>
+</div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="px-margin-desktop py-section-gap max-w-container-max mx-auto">
+<h2 class="font-headline-md text-headline-md text-center text-on-surface mb-16">Simple 3-Step Process</h2>
+<div class="relative grid grid-cols-1 md:grid-cols-3 gap-stack-lg">
+<!-- Connector Line (Desktop) -->
+<div class="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-[2px] bg-outline-variant/30 z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col items-center text-center px-6">
+<div class="w-20 h-20 bg-surface rounded-full border-4 border-primary flex items-center justify-center mb-6 shadow-xl">
+<span class="material-symbols-outlined text-primary text-4xl">search</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Find</h3>
+<p class="text-on-surface-variant">Search for local workers by category or specific skill needed for your task.</p>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center text-center px-6">
+<div class="w-20 h-20 bg-surface rounded-full border-4 border-secondary-container flex items-center justify-center mb-6 shadow-xl">
+<span class="material-symbols-outlined text-secondary text-4xl">chat</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Connect</h3>
+<p class="text-on-surface-variant">Check reviews, verify credentials, and connect directly with your chosen worker.</p>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center text-center px-6">
+<div class="w-20 h-20 bg-surface rounded-full border-4 border-primary-container flex items-center justify-center mb-6 shadow-xl">
+<span class="material-symbols-outlined text-primary-container text-4xl">task_alt</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Complete</h3>
+<p class="text-on-surface-variant">Get the work done professionally and pay securely through the KaamSetu platform.</p>
+</div>
+</div>
+</section>
+<!-- Trust Section -->
+<section class="px-margin-desktop py-section-gap bg-primary text-on-primary">
+<div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-2 gap-stack-lg items-center">
+<div>
+<h2 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-stack-md">Trusted by Millions</h2>
+<p class="font-body-lg text-body-lg opacity-90 mb-stack-lg">
+                        We prioritize quality and safety above everything. Every worker on our platform goes through a multi-level verification process.
+                    </p>
+<div class="flex flex-wrap gap-stack-md">
+<div class="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-fixed">workspace_premium</span>
+<span class="font-bold">Skill Verified</span>
+</div>
+<div class="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-fixed">phone_iphone</span>
+<span class="font-bold">Phone Verified</span>
+</div>
+<div class="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-fixed">id_card</span>
+<span class="font-bold">Identity Checked</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-stack-md">
+<div class="bg-on-primary-container/20 p-8 rounded-3xl text-center">
+<div class="text-display-lg-mobile font-extrabold mb-2">50k+</div>
+<div class="text-label-sm uppercase tracking-widest opacity-80">Workers Registered</div>
+</div>
+<div class="bg-on-primary-container/20 p-8 rounded-3xl text-center">
+<div class="text-display-lg-mobile font-extrabold mb-2">120+</div>
+<div class="text-label-sm uppercase tracking-widest opacity-80">Cities Covered</div>
+</div>
+<div class="bg-on-primary-container/20 p-8 rounded-3xl text-center col-span-2">
+<div class="text-display-lg-mobile font-extrabold mb-2">1M+</div>
+<div class="text-label-sm uppercase tracking-widest opacity-80">Jobs Successfully Completed</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="px-margin-desktop py-section-gap max-w-container-max mx-auto overflow-hidden">
+<h2 class="font-headline-md text-headline-md text-center text-on-surface mb-16">Success Stories</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Testimonial 1 (Employer) -->
+<div class="bg-white p-10 rounded-[2.5rem] border border-outline-variant/30 shadow-sm relative hover:shadow-xl transition-shadow duration-300">
+<span class="material-symbols-outlined text-6xl text-primary/10 absolute top-8 right-10">format_quote</span>
+<div class="flex items-center gap-stack-md mb-6">
+<img class="w-16 h-16 rounded-full object-cover" data-alt="Portrait of a professional young woman standing in a bright, modern living room. She is smiling confidently, representing a satisfied homeowner. High-end lifestyle photography, soft morning light, minimalist interior design context, premium light-mode UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFyMieKrKO10xMeqWup6Jytfm3R7aMK3z378RP0eROOwjGS4spyLVc-8CfvWHVtGFFJiA7hTC0kuwS2pvPyBQ1AFmwT-_wxsdcaNIrkWGSYBhugMc7OE7Y0Pd_E-Rf7RVp99Cc6xp8vlmuzrVyOUgZA02LdRiFC6nIBUc-BhDlfDzcaMjJUJSaM0M11dYhsdakoXylhFnC6lqLhC19UYHDe6XDRUEORMK_QzvdHMQIrPh089Ui7sfefhiLiSuNgNexmnCCWbHVFA"/>
+<div>
+<h4 class="font-bold text-lg">Priya Sharma</h4>
+<p class="text-label-sm text-on-surface-variant">Homeowner in Mumbai</p>
+</div>
+</div>
+<p class="italic text-on-surface-variant leading-relaxed">
+                        "I needed an emergency electrician late Sunday night. Through KaamSetu, I found Rajesh within 10 minutes. He was professional, verified, and fixed the issue at a very reasonable cost. The peace of mind is invaluable."
+                    </p>
+<div class="mt-6 flex text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<!-- Testimonial 2 (Worker) -->
+<div class="bg-white p-10 rounded-[2.5rem] border border-outline-variant/30 shadow-sm relative hover:shadow-xl transition-shadow duration-300">
+<span class="material-symbols-outlined text-6xl text-primary/10 absolute top-8 right-10">format_quote</span>
+<div class="flex items-center gap-stack-md mb-6">
+<img class="w-16 h-16 rounded-full object-cover" data-alt="Close-up of a middle-aged skilled male carpenter with a kind, hardworking expression, wearing a denim work shirt. He looks directly at the camera with pride. Professional workshop background, shallow depth of field, warm earth tones with primary green accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACdlKFdWXXABG_NJF1Jp95XNY1dl6usuv3EvqT74TKsJ6REkZXAoFxP8VbMX6hukC4BpxuAz_7pjagA7aUR6R499e9DHjD7UUTddLGdfpwRgVU6OkqtaetU8Vkdb6pUltZCL_0iFvHAvbriRocY0aQvJEl6ubYlh-IGymPOtZ2tiJI85qFPn9KaK6qkKmr4GKTTW7bOVpH7dBcxFD0QtSVzu4rv2FKGIeW2l5NekAh7G8KBX7PfwJWjOTTPITGBraCW8Q-HphwRA"/>
+<div>
+<h4 class="font-bold text-lg">Vikram Singh</h4>
+<p class="text-label-sm text-on-surface-variant">Master Carpenter (12 Years Exp.)</p>
+</div>
+</div>
+<p class="italic text-on-surface-variant leading-relaxed">
+                        "Before KaamSetu, I relied on word-of-mouth which was inconsistent. Now, my calendar is full of high-quality projects. Being a 'Verified Professional' has helped me build trust with premium clients instantly."
+                    </p>
+<div class="mt-6 flex text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-margin-desktop py-section-gap">
+<div class="max-w-container-max mx-auto bg-surface-container rounded-3xl p-12 text-center relative overflow-hidden">
+<div class="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -translate-x-16 -translate-y-16"></div>
+<div class="absolute bottom-0 right-0 w-64 h-64 bg-secondary-fixed/10 rounded-full translate-x-32 translate-y-32"></div>
+<h2 class="font-display-lg text-display-lg-mobile md:text-headline-md font-extrabold text-on-surface mb-6 relative z-10">Ready to get your work done?</h2>
+<p class="text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto relative z-10">Join thousands of satisfied customers who trust KaamSetu for their local service needs.</p>
+<div class="flex flex-col sm:flex-row justify-center gap-stack-md relative z-10">
+<button class="bg-primary text-on-primary px-10 py-5 rounded-2xl font-bold text-lg hover:scale-[1.02] transition-transform active:scale-95 shadow-lg">Find a Worker</button>
+<button class="bg-white border border-outline text-primary px-10 py-5 rounded-2xl font-bold text-lg hover:bg-surface transition-colors shadow-sm">Register as Worker</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-section-gap px-margin-desktop bg-surface-container-low border-t border-outline-variant/50">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1">
+<h3 class="font-headline-md text-headline-md font-bold text-primary mb-4">KaamSetu</h3>
+<p class="text-on-surface-variant mb-6">Empowering local hands and connecting communities through trusted service.</p>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Platform</h4>
+<ul class="space-y-4">
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Find Workers</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Post a Job</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Pricing Plans</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Safety First</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Company</h4>
+<ul class="space-y-4">
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">About Us</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Sitemap</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Help Center</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">LinkedIn</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Instagram</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Support</h4>
+<ul class="space-y-4">
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Privacy Policy</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Terms of Service</a></li>
+<li><a class="text-on-surface-variant hover:translate-x-1 hover:text-secondary transition-all inline-block" href="#">Contact Us</a></li>
+</ul>
+<div class="mt-8">
+<p class="text-label-sm font-label-sm text-on-surface-variant">© 2024 KaamSetu. Empowering local hands.</p>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple interactive effect for category cards
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+
+        // Sticky header transparency logic
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>
