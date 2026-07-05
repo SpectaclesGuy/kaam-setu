@@ -1,7 +1,7 @@
 from functools import lru_cache
 import json
 
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,21 +22,7 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     map_geocoder_provider: str = "nominatim"
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
-
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value):
-        if isinstance(value, list):
-            return value
-        if isinstance(value, str):
-            stripped = value.strip()
-            if not stripped:
-                return []
-            if stripped.startswith("["):
-                return json.loads(stripped)
-            return [item.strip() for item in stripped.split(",") if item.strip()]
-        return value
+    cors_origins_raw: str = Field(default="http://localhost:3000", alias="CORS_ORIGINS")
 
     @property
     def effective_google_redirect_uri(self) -> str:
@@ -47,6 +33,15 @@ class Settings(BaseSettings):
     @property
     def effective_frontend_url(self) -> str:
         return self.frontend_url or self.backend_url
+
+    @property
+    def cors_origins(self) -> list[str]:
+        stripped = self.cors_origins_raw.strip()
+        if not stripped:
+            return []
+        if stripped.startswith("["):
+            return json.loads(stripped)
+        return [item.strip() for item in stripped.split(",") if item.strip()]
 
 
 @lru_cache

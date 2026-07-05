@@ -97,3 +97,8 @@ def find_workers_page():
 @app.get("/worker-profile", include_in_schema=False)
 def worker_profile_page():
     return FileResponse(BASE_DIR / "worker_profile.html")
+
+
+@app.get("/workers/{worker_id}", include_in_schema=False)
+def worker_profile_detail_page(worker_id: str):
+    return FileResponse(BASE_DIR / "worker_profile.html")

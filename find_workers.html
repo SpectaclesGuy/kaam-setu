@@ -121,18 +121,18 @@
 <!-- TopNavBar -->
 <header class="fixed top-0 left-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
 <div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
-<div class="font-headline-md text-headline-md font-bold text-primary">KaamSetu</div>
+<a class="font-headline-md text-headline-md font-bold text-primary" href="/">KaamSetu</a>
 <nav class="hidden md:flex items-center space-x-6">
-<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Home</a>
-<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="#">Find Workers</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Post Work</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">How It Works</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">For Businesses</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Pricing</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="/">Home</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="/find-workers">Find Workers</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="/find-workers">Post Work</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="/#how-it-works">How It Works</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="/#trust-section">For Businesses</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="/#cta-section">Pricing</a>
 </nav>
 <div class="flex items-center space-x-4">
-<button class="text-primary hover:scale-[1.02] transition-transform duration-200 font-label-sm text-label-sm">Login</button>
-<button class="bg-primary text-on-primary px-6 py-2 rounded-full hover:scale-[1.02] active:scale-95 transition-all duration-200 font-label-sm text-label-sm shadow-sm">Sign Up</button>
+<a class="text-primary hover:scale-[1.02] transition-transform duration-200 font-label-sm text-label-sm inline-block" href="/worker-profile">Login</a>
+<a class="bg-primary text-on-primary px-6 py-2 rounded-full hover:scale-[1.02] active:scale-95 transition-all duration-200 font-label-sm text-label-sm shadow-sm inline-block" href="/worker-profile">Sign Up</a>
 </div>
 </div>
 </header>
@@ -185,7 +185,7 @@
 <h2 class="font-headline-md text-headline-md text-on-surface mb-6">Workers in Bangalore</h2>
 <div class="space-y-4">
 <!-- Worker Card 1 -->
-<div class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer">
+<a class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer block" href="/workers/arun-kumar">
 <div class="flex gap-4">
 <img class="w-20 h-20 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="A professional portrait of a skilled carpenter in his late 30s, wearing a clean forest green apron and a friendly expression. He is standing in a brightly lit, modern workshop with subtle wood textures in the background. The lighting is warm and natural, evoking a sense of reliability and craftsmanship. The image has a clean, premium digital aesthetic consistent with a high-end service platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAADtkH0sxXw8DO3iu53f1oLFBBOTCxb0rdjzjw-BSqPPEItggFGgze5RkS0i6GDAreNI5FooAvsqFowynsYtud9gbfJHpMJJk-XViycUE6jrNJyoGAMhjUifoEnHv92A7iLixsH74cf3qPxPp8ZZsQW6TIYy_SNV0-5rwkZezTl6xR2Z15LubSDO2iJ78BGauxk3IwzgW9lsPy_ZOc76hib08tZMpmeqy8IFxu3OdI5ca7frTzKpWi4LtcyuNgszGOb6z_aL606A"/>
 <div class="flex-1">
@@ -213,11 +213,11 @@
 <span class="font-bold text-headline-md text-[18px]">₹450</span>
 <span class="text-on-surface-variant text-label-sm">/ hour</span>
 </div>
-<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform">Book Now</button>
+<span class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform inline-block">Book Now</span>
 </div>
-</div>
+</a>
 <!-- Worker Card 2 -->
-<div class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer">
+<a class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer block" href="/workers/priya-sharma">
 <div class="flex gap-4">
 <img class="w-20 h-20 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="A focused female electrician in her 20s, wearing professional gear and a small tool belt. She is posing confidently against a minimalist, light gray wall background. The style is sharp and modern, with soft studio lighting that highlights her professional demeanor and the warm tones of the forest green accents. The overall mood is trustworthy and efficient." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_chxSoFoj9gqpfHsRCoXzewN_G5cHRT7sI1Ar-ez-ZcEYWs3H9_zzErVXhbJNgA6NqJJJkkVw0ZhwvFUuoUocz0jppdf46vQzvFgCQ_DuQnFVMjVABNqkFi5-CWxVNnIuzEueL1zIwXiakttP7k_c3dEOXYnSPkqS437S_hAyX_IO-djHNXvHqJRjKJZgJ3pDJDbvKRZowGBA2Gw7HNOx_7venMS0dFpB-wmBkCTzyx6ZTvHTdH0ZlwrFXhcLILz17NUl6eSukw"/>
 <div class="flex-1">
@@ -245,11 +245,11 @@
 <span class="font-bold text-headline-md text-[18px]">₹350</span>
 <span class="text-on-surface-variant text-label-sm">/ hour</span>
 </div>
-<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform">Book Now</button>
+<span class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform inline-block">Book Now</span>
 </div>
-</div>
+</a>
 <!-- Worker Card 3 -->
-<div class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer">
+<a class="worker-card bg-surface-container-lowest border border-outline-variant/50 p-4 rounded-xl transition-all duration-300 group cursor-pointer block" href="/workers/ramesh-singh">
 <div class="flex gap-4">
 <img class="w-20 h-20 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="A portrait of an experienced plumber in his 50s with a kind, weathered face, wearing a professional uniform. He is positioned in a modern, clean kitchen setting that is softly out of focus. The color palette is dominated by clean whites and the brand's primary forest green. The lighting is bright and airy, suggesting high quality and professionalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFK1o09ooFGE17mO8YSbuUWjYWNigxXC2Jo5Y4Y0xdvoTSD2JCYOlduqOvaEGfE4n-19KmB4p10dzUT4BweRPMNT5xbJHzGAY-MKZt8YW9p0sj06Q5SmdLhIbk9kP63_6NXi9ky_rQkF09I122ccKuj1AMmp4u1HBtKFfZSmvW-2eDk8rm-pXfMPUXwjV7XNY7u5zFyc29Fwfe0xS2M6_XBrgD_xvrfqcxKwfJxgWL3vMf0cemNeDKIzyaIYf6ubWmTA8GyITMMQ"/>
 <div class="flex-1">
@@ -277,9 +277,9 @@
 <span class="font-bold text-headline-md text-[18px]">₹400</span>
 <span class="text-on-surface-variant text-label-sm">/ hour</span>
 </div>
-<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform">Book Now</button>
+<span class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-sm text-label-sm hover:scale-[1.02] active:scale-95 transition-transform inline-block">Book Now</span>
 </div>
-</div>
+</a>
 </div>
 </div>
 </div>
@@ -317,7 +317,7 @@
 </div>
 <div class="flex flex-col space-y-3">
 <h4 class="font-label-sm text-label-sm text-primary mb-2">Company</h4>
-<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Sitemap</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="/">Sitemap</a>
 <a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Privacy Policy</a>
 <a class="text-on-surface-variant hover:text-secondary transition-colors hover:translate-x-1 transition-transform" href="#">Terms of Service</a>
 </div>

@@ -1,3 +1,7 @@
+from _bootstrap import ensure_project_root_on_path
+
+ensure_project_root_on_path()
+
 from app.admin.service import seed_categories
 from app.core.database import Base, SessionLocal, engine
 from app.profiles.models import WorkerProfile, WorkerSkill
