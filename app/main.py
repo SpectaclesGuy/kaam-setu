@@ -94,11 +94,21 @@ def find_workers_page():
     return FileResponse(BASE_DIR / "find_workers.html")
 
 
+@app.get("/services", include_in_schema=False)
+def services_page():
+    return FileResponse(BASE_DIR / "services.html")
+
+
+@app.get("/profile-setup", include_in_schema=False)
+def profile_setup_page():
+    return FileResponse(BASE_DIR / "profile_setup.html")
+
+
 @app.get("/worker-profile", include_in_schema=False)
 def worker_profile_page():
     return FileResponse(BASE_DIR / "worker_profile.html")
 
 
-@app.get("/workers/{worker_id}", include_in_schema=False)
+@app.get("/worker-profile/{worker_id}", include_in_schema=False)
 def worker_profile_detail_page(worker_id: str):
     return FileResponse(BASE_DIR / "worker_profile.html")

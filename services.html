@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services | KaamSetu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pine: "#0f5132",
+            clay: "#d46a3a",
+            mist: "#eef4ef",
+            ink: "#122018"
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"],
+            body: ["DM Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-stone-50 font-body text-ink">
+  <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaamSetu</a>
+      <div class="hidden gap-6 text-sm font-medium md:flex">
+        <a href="/" class="text-stone-600 hover:text-pine">Home</a>
+        <a href="/services" class="text-pine">Services</a>
+        <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
+        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Profile Setup</a>
+      </div>
+      <a href="/find-workers" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Search Workers</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-10">
+    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+      <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Services page</p>
+      <div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="max-w-3xl">
+          <h1 class="font-display text-4xl font-bold">See all worker categories backed by the API.</h1>
+          <p class="mt-3 text-sm leading-7 text-stone-600">This page reads directly from <code>GET /categories</code>, so the frontend stays aligned with the backend seed data and future admin-managed categories.</p>
+        </div>
+        <a href="/profile-setup" class="rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Set up a role</a>
+      </div>
+    </section>
+
+    <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading categories...</div>
+    <section id="categories" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></section>
+  </main>
+
+  <script>
+    async function loadCategories() {
+      const statusBox = document.getElementById("status");
+      const container = document.getElementById("categories");
+
+      try {
+        const response = await fetch("/categories");
+        const payload = await response.json();
+        const categories = payload.data || [];
+        statusBox.textContent = `${categories.length} service categories available.`;
+        container.innerHTML = categories.map((category) => `
+          <a href="/find-workers?category=${encodeURIComponent(category.name)}" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-mist font-display text-lg font-bold text-pine">${category.name.slice(0, 2).toUpperCase()}</div>
+            <h2 class="mt-5 font-display text-2xl font-bold text-ink">${category.name}</h2>
+            <p class="mt-2 text-sm text-stone-500">Slug: ${category.slug}</p>
+            <p class="mt-4 text-sm font-semibold text-pine">Search workers in this category</p>
+          </a>
+        `).join("");
+      } catch (error) {
+        statusBox.textContent = "Unable to load categories right now.";
+      }
+    }
+
+    loadCategories();
+  </script>
+</body>
+</html>

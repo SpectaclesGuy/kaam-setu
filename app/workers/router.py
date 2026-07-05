@@ -112,16 +112,31 @@ def get_worker(worker_id: str, db: Session = Depends(get_db)):
             "service_radius_km": worker.service_radius_km,
             "average_rating": worker.average_rating,
             "total_reviews": worker.total_reviews,
+            "verification_status": worker.verification_status.value,
             "available_today": worker.available_today,
             "daily_rate": float(worker.daily_rate),
             "bio": worker.bio,
+            "profile_photo_url": worker.profile_photo_url,
         },
     )
 
 
 @router.get("/workers/{worker_id}/reviews")
 def worker_reviews(worker_id: str, db: Session = Depends(get_db)):
-    return api_response("Worker reviews fetched", [review.id for review in get_worker_reviews(db, worker_id)])
+    reviews = get_worker_reviews(db, worker_id)
+    data = [
+        {
+            "id": review.id,
+            "booking_id": review.booking_id,
+            "reviewer_user_id": review.reviewer_user_id,
+            "reviewee_user_id": review.reviewee_user_id,
+            "rating": review.rating,
+            "comment": review.comment,
+            "created_at": review.created_at.isoformat() if review.created_at else None,
+        }
+        for review in reviews
+    ]
+    return api_response("Worker reviews fetched", data)
 
 
 @router.get("/workers/{worker_id}/distance")

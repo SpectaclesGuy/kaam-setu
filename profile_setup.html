@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Setup | KaamSetu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pine: "#0f5132",
+            clay: "#d46a3a",
+            mist: "#eef4ef",
+            ink: "#122018"
+          },
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"],
+            body: ["DM Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-stone-50 font-body text-ink">
+  <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaamSetu</a>
+      <div class="hidden gap-6 text-sm font-medium md:flex">
+        <a href="/" class="text-stone-600 hover:text-pine">Home</a>
+        <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
+        <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
+        <a href="/profile-setup" class="text-pine">Profile Setup</a>
+      </div>
+      <button id="oauth-start" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Continue with Google</button>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-10">
+    <section class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+      <div class="rounded-[2rem] bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white shadow-xl">
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Role-based onboarding</p>
+        <h1 class="mt-4 font-display text-4xl font-bold">Create the exact profile the backend expects.</h1>
+        <p class="mt-4 text-sm leading-7 text-emerald-50">After Google login, KaamSetu requires a role-specific profile. This page submits a payload matching <code>POST /profile/setup-role</code> for workers, employers, contractors, and local operators.</p>
+        <ul class="mt-8 space-y-3 text-sm text-emerald-50">
+          <li>Worker: skills, rates, service radius, languages, availability.</li>
+          <li>Employer: household, shop, business, farm, or event organizer setup.</li>
+          <li>Contractor: work categories, frequent locations, bulk hiring.</li>
+          <li>Operator: assigned area and verification permissions.</li>
+        </ul>
+      </div>
+
+      <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Profile setup</p>
+            <h2 class="mt-2 font-display text-3xl font-bold">Choose your role and complete onboarding</h2>
+          </div>
+          <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking session</span>
+        </div>
+
+        <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Load a session first or continue with Google.</div>
+
+        <form id="profile-form" class="mt-8 space-y-6">
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Role</span>
+              <select id="role" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                <option value="worker">Worker</option>
+                <option value="employer">Employer / Customer</option>
+                <option value="contractor">Contractor</option>
+                <option value="operator">Local Operator</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Full name</span>
+              <input id="full-name" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
+            </label>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Phone number</span>
+              <input id="phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Location text</span>
+              <input id="location-text" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Delhi, Bengaluru, Lucknow" required>
+            </label>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Latitude</span>
+              <input id="latitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" value="28.6139" required>
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Longitude</span>
+              <input id="longitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" value="77.2090" required>
+            </label>
+          </div>
+
+          <div id="dynamic-fields" class="space-y-6"></div>
+
+          <button class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white shadow-sm" type="submit">Submit profile setup</button>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const roleSelect = document.getElementById("role");
+    const dynamicFields = document.getElementById("dynamic-fields");
+    const statusBox = document.getElementById("status");
+    const authState = document.getElementById("auth-state");
+    const tokenFromQuery = new URLSearchParams(window.location.search).get("token");
+    if (tokenFromQuery) {
+      localStorage.setItem("kaamsetu_access_token", tokenFromQuery);
+      window.history.replaceState({}, "", "/profile-setup");
+    }
+
+    function splitList(value) {
+      return value.split(",").map((item) => item.trim()).filter(Boolean);
+    }
+
+    function workerFields() {
+      return `
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Gender</span><input id="gender" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Profile photo URL</span><input id="profile-photo-url" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Service radius km</span><input id="service-radius" type="number" min="1" max="100" value="10" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Experience years</span><input id="experience-years" type="number" min="0" value="0" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Daily rate</span><input id="daily-rate" type="number" min="1" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required></label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Hourly rate</span><input id="hourly-rate" type="number" min="1" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+        </div>
+        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Skills (comma separated)</span><input id="skills" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Electrician, Wiring, Repair"></label>
+        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Categories (comma separated)</span><input id="categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Electrician, Mechanic"></label>
+        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Languages (comma separated)</span><input id="languages" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Hindi, English"></label>
+        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Bio</span><textarea id="bio" class="min-h-28 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea></label>
+        <div class="flex flex-wrap gap-6">
+          <label class="flex items-center gap-3"><input id="available-today" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine"><span class="text-sm text-stone-700">Available today</span></label>
+          <label class="flex items-center gap-3"><input id="emergency-available" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine"><span class="text-sm text-stone-700">Emergency available</span></label>
+        </div>
+      `;
+    }
+
+    function employerFields() {
+      return `
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Employer type</span>
+            <select id="employer-type" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="household">Household</option>
+              <option value="shop">Shop</option>
+              <option value="business">Business</option>
+              <option value="farm">Farm</option>
+              <option value="event_organizer">Event organizer</option>
+            </select>
+          </label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Organization name</span><input id="organization-name" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+        </div>
+      `;
+    }
+
+    function contractorFields() {
+      return `
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Company name</span><input id="company-name" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Bulk hiring enabled</span><select id="bulk-hiring-enabled" class="w-full rounded-2xl border border-stone-300 px-4 py-3"><option value="false">No</option><option value="true">Yes</option></select></label>
+        </div>
+        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Work categories (comma separated)</span><input id="work-categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Frequent locations (comma separated)</span><input id="frequent-locations" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+      `;
+    }
+
+    function operatorFields() {
+      return `
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Assigned area</span><input id="assigned-area" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Verification permissions</span><select id="verification-permissions" class="w-full rounded-2xl border border-stone-300 px-4 py-3"><option value="false">No</option><option value="true">Yes</option></select></label>
+        </div>
+      `;
+    }
+
+    function renderRoleFields() {
+      if (roleSelect.value === "worker") dynamicFields.innerHTML = workerFields();
+      if (roleSelect.value === "employer") dynamicFields.innerHTML = employerFields();
+      if (roleSelect.value === "contractor") dynamicFields.innerHTML = contractorFields();
+      if (roleSelect.value === "operator") dynamicFields.innerHTML = operatorFields();
+    }
+
+    async function hydrateSessionState() {
+      const token = localStorage.getItem("kaamsetu_access_token");
+      if (!token) {
+        authState.textContent = "No session";
+        statusBox.textContent = "Continue with Google first. After login, come back here and submit your role profile.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) {
+          throw new Error("Session invalid");
+        }
+        const payload = await response.json();
+        authState.textContent = payload.data.profile_completed ? "Profile complete" : "Profile incomplete";
+        statusBox.textContent = `Logged in as ${payload.data.full_name || payload.data.email}. Complete your role-specific profile below.`;
+      } catch (error) {
+        authState.textContent = "Session invalid";
+        statusBox.textContent = "Stored session is invalid or expired. Continue with Google again.";
+      }
+    }
+
+    document.getElementById("oauth-start").addEventListener("click", async () => {
+      try {
+        const response = await fetch("/auth/google/login");
+        const payload = await response.json();
+        window.location.href = payload.data.authorization_url;
+      } catch (error) {
+        alert("Unable to start Google login right now.");
+      }
+    });
+
+    document.getElementById("profile-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const token = localStorage.getItem("kaamsetu_access_token");
+      if (!token) {
+        statusBox.textContent = "Login is required before profile setup.";
+        return;
+      }
+
+      const role = roleSelect.value;
+      const common = {
+        full_name: document.getElementById("full-name").value.trim(),
+        phone_number: document.getElementById("phone-number").value.trim(),
+        latitude: Number(document.getElementById("latitude").value),
+        longitude: Number(document.getElementById("longitude").value)
+      };
+
+      const payload = { role };
+      if (role === "worker") {
+        payload.worker_profile = {
+          ...common,
+          gender: document.getElementById("gender").value.trim() || null,
+          profile_photo_url: document.getElementById("profile-photo-url").value.trim() || null,
+          primary_location: document.getElementById("location-text").value.trim(),
+          service_radius_km: Number(document.getElementById("service-radius").value),
+          skills: splitList(document.getElementById("skills").value),
+          categories: splitList(document.getElementById("categories").value),
+          experience_years: Number(document.getElementById("experience-years").value),
+          daily_rate: Number(document.getElementById("daily-rate").value),
+          hourly_rate: document.getElementById("hourly-rate").value ? Number(document.getElementById("hourly-rate").value) : null,
+          languages: splitList(document.getElementById("languages").value),
+          available_today: document.getElementById("available-today").checked,
+          emergency_available: document.getElementById("emergency-available").checked,
+          bio: document.getElementById("bio").value.trim() || null,
+          work_gallery_urls: []
+        };
+      }
+      if (role === "employer") {
+        payload.employer_profile = {
+          ...common,
+          employer_type: document.getElementById("employer-type").value,
+          organization_name: document.getElementById("organization-name").value.trim() || null,
+          location: document.getElementById("location-text").value.trim()
+        };
+      }
+      if (role === "contractor") {
+        payload.contractor_profile = {
+          ...common,
+          company_name: document.getElementById("company-name").value.trim() || null,
+          work_categories: splitList(document.getElementById("work-categories").value),
+          frequent_locations: splitList(document.getElementById("frequent-locations").value),
+          bulk_hiring_enabled: document.getElementById("bulk-hiring-enabled").value === "true",
+          location: document.getElementById("location-text").value.trim()
+        };
+      }
+      if (role === "operator") {
+        payload.operator_profile = {
+          ...common,
+          assigned_area: document.getElementById("assigned-area").value.trim(),
+          verification_permissions: document.getElementById("verification-permissions").value === "true"
+        };
+      }
+
+      statusBox.textContent = "Submitting role profile...";
+      try {
+        const response = await fetch("/profile/setup-role", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const responsePayload = await response.json();
+        if (!response.ok) {
+          throw new Error(responsePayload.detail || responsePayload.message || "Profile setup failed");
+        }
+        statusBox.textContent = "Profile setup completed. You can now search workers or continue into role-specific flows.";
+      } catch (error) {
+        statusBox.textContent = error.message || "Profile setup failed.";
+      }
+    });
+
+    roleSelect.addEventListener("change", renderRoleFields);
+    renderRoleFields();
+    hydrateSessionState();
+  </script>
+</body>
+</html>
