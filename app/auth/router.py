@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.auth.schemas import AuthResponse, GoogleCallbackPayload, TokenRefreshRequest
-from app.auth.service import build_auth_payload, decode_token, upsert_google_user
+from app.auth.service import build_auth_payload, decode_token, exchange_google_code, upsert_google_user
 from app.common.utils import api_response
 from app.core.config import settings
 from app.core.dependencies import get_current_user, get_db
@@ -19,32 +19,41 @@ def google_login():
         f"?client_id={settings.google_client_id}"
         f"&redirect_uri={settings.effective_google_redirect_uri}"
         "&response_type=code&scope=openid%20email%20profile"
+        "&access_type=offline&prompt=consent&state=web"
     )
     return api_response("Google OAuth URL generated", {"authorization_url": redirect})
 
 
 @router.get("/google/callback")
-def google_callback(
-    google_id: str = Query(...),
-    email: str = Query(...),
-    full_name: str = Query(...),
+async def google_callback(
+    code: str | None = Query(default=None),
+    state: str | None = Query(default=None),
+    google_id: str | None = Query(default=None),
+    email: str | None = Query(default=None),
+    full_name: str | None = Query(default=None),
     profile_picture_url: str | None = Query(default=None),
-    redirect: bool = Query(default=False),
+    redirect: bool | None = Query(default=None),
     db: Session = Depends(get_db),
 ):
-    user = upsert_google_user(
-        db,
-        GoogleCallbackPayload(
+    if code:
+        google_payload = await exchange_google_code(code)
+    elif google_id and email and full_name:
+        google_payload = GoogleCallbackPayload(
             google_id=google_id,
             email=email,
             full_name=full_name,
             profile_picture_url=profile_picture_url,
-        ),
-    )
+        )
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing Google OAuth callback data")
+
+    user = upsert_google_user(db, google_payload)
     payload = {**build_auth_payload(user), "user": UserRead.model_validate(user).model_dump()}
-    if redirect:
+    should_redirect = redirect if redirect is not None else state == "web" or bool(code)
+    if should_redirect:
+        destination = "/profile-setup" if not user.profile_completed else "/find-workers"
         return RedirectResponse(
-            url=f"{settings.effective_frontend_url}?token={payload['access_token']}&profile_completed={user.profile_completed}"
+            url=f"{settings.effective_frontend_url.rstrip('/')}{destination}?token={payload['access_token']}&profile_completed={str(user.profile_completed).lower()}"
         )
     return api_response("Authentication successful", payload)
 

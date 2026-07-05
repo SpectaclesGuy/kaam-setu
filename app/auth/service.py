@@ -1,3 +1,4 @@
+import httpx
 from jose import jwt
 from sqlalchemy.orm import Session
 
@@ -36,3 +37,36 @@ def build_auth_payload(user: User) -> dict[str, str]:
 
 def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+
+
+async def exchange_google_code(code: str) -> GoogleCallbackPayload:
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        token_response = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": code,
+                "client_id": settings.google_client_id,
+                "client_secret": settings.google_client_secret,
+                "redirect_uri": settings.effective_google_redirect_uri,
+                "grant_type": "authorization_code",
+            },
+            headers={"Accept": "application/json"},
+        )
+        token_response.raise_for_status()
+        token_payload = token_response.json()
+        access_token = token_payload.get("access_token")
+        if not access_token:
+            raise ValueError("Google token response did not include an access token")
+
+        userinfo_response = await client.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        userinfo_response.raise_for_status()
+        userinfo = userinfo_response.json()
+        return GoogleCallbackPayload(
+            google_id=userinfo["id"],
+            email=userinfo["email"],
+            full_name=userinfo.get("name") or userinfo["email"],
+            profile_picture_url=userinfo.get("picture"),
+        )

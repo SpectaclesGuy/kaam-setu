@@ -35,7 +35,7 @@
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
         <a href="/find-workers" class="text-pine">Find Workers</a>
-        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Profile Setup</a>
+        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Join Us</a>
       </div>
       <div class="flex gap-3">
         <a href="/find-workers" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700">Back to Search</a>
@@ -48,8 +48,8 @@
     <div id="status" class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading worker profile...</div>
 
     <section id="profile-shell" class="mt-6 hidden">
-      <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
-        <div class="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+        <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+          <div class="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div class="flex flex-col gap-6 md:flex-row">
             <img id="worker-image" src="" alt="" class="h-28 w-28 rounded-[2rem] object-cover">
             <div>
@@ -64,8 +64,8 @@
                 <span id="worker-availability"></span>
               </div>
               <div class="mt-6 flex flex-wrap gap-3">
-                <a href="/find-workers" class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white">Book from Search Flow</a>
-                <a href="/profile-setup" class="rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Create employer profile</a>
+                <a href="/find-workers" class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white">Back to workers</a>
+                <a href="/profile-setup" class="rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Get started</a>
               </div>
             </div>
           </div>
@@ -121,6 +121,15 @@
   </main>
 
   <script>
+    const pageToken = new URLSearchParams(window.location.search).get("token");
+    if (pageToken) {
+      localStorage.setItem("kaamsetu_access_token", pageToken);
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("profile_completed");
+      window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+    }
+
     const pathParts = window.location.pathname.split("/").filter(Boolean);
     const workerId = pathParts[pathParts.length - 1];
     const statusBox = document.getElementById("status");
@@ -167,7 +176,7 @@
         document.getElementById("languages").innerHTML = (worker.languages || []).map(chip).join("") || chip("No languages listed");
         document.getElementById("summary-rating").textContent = Number(worker.average_rating).toFixed(1);
         document.getElementById("summary-reviews").textContent = worker.total_reviews;
-        document.getElementById("review-note").textContent = reviewIds.length ? "Latest review data is coming from the backend review endpoint." : "No review comments are available yet.";
+        document.getElementById("review-note").textContent = reviewIds.length ? "Recent customer feedback is shown below." : "No review comments are available yet.";
 
         const verificationBadge = document.getElementById("worker-verification");
         verificationBadge.textContent = worker.verification_status;

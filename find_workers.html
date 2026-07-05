@@ -35,7 +35,7 @@
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
         <a href="/find-workers" class="text-pine">Find Workers</a>
-        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Profile Setup</a>
+        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Join Us</a>
       </div>
       <div class="flex gap-3">
         <a href="/services" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700">Services</a>
@@ -46,11 +46,11 @@
 
   <main class="mx-auto max-w-6xl px-6 py-10">
     <section class="rounded-[2rem] bg-gradient-to-r from-pine to-emerald-700 px-8 py-10 text-white">
-      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100">Worker discovery</p>
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100">Find trusted help</p>
       <div class="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div class="max-w-2xl">
-          <h1 class="font-display text-4xl font-bold">Search workers using the same filters the backend supports.</h1>
-          <p class="mt-3 text-sm leading-7 text-emerald-50">This page is wired to category search, skill keyword, verification, rating, price range, distance, and availability-aware worker queries.</p>
+          <h1 class="font-display text-4xl font-bold">Search nearby workers by service, budget, and availability.</h1>
+          <p class="mt-3 text-sm leading-7 text-emerald-50">Filter local professionals by category, distance, price, ratings, and who is available today so you can choose faster.</p>
         </div>
         <button id="search-button" class="rounded-2xl bg-white px-6 py-4 text-sm font-semibold text-pine shadow-lg">Run Search</button>
       </div>
@@ -138,6 +138,15 @@
   </main>
 
   <script>
+    const pageToken = new URLSearchParams(window.location.search).get("token");
+    if (pageToken) {
+      localStorage.setItem("kaamsetu_access_token", pageToken);
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("profile_completed");
+      window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+    }
+
     const categorySelect = document.getElementById("category");
     const resultsContainer = document.getElementById("results");
     const statusBox = document.getElementById("status");

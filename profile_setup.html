@@ -35,7 +35,7 @@
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
         <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
-        <a href="/profile-setup" class="text-pine">Profile Setup</a>
+        <a href="/profile-setup" class="text-pine">Join Us</a>
       </div>
       <button id="oauth-start" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Continue with Google</button>
     </nav>
@@ -43,28 +43,25 @@
 
   <main class="mx-auto max-w-6xl px-6 py-10">
     <section class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-      <div class="rounded-[2rem] bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white shadow-xl">
-        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Role-based onboarding</p>
-        <h1 class="mt-4 font-display text-4xl font-bold">Create the exact profile the backend expects.</h1>
-        <p class="mt-4 text-sm leading-7 text-emerald-50">After Google login, KaamSetu requires a role-specific profile. This page submits a payload matching <code>POST /profile/setup-role</code> for workers, employers, contractors, and local operators.</p>
-        <ul class="mt-8 space-y-3 text-sm text-emerald-50">
-          <li>Worker: skills, rates, service radius, languages, availability.</li>
-          <li>Employer: household, shop, business, farm, or event organizer setup.</li>
-          <li>Contractor: work categories, frequent locations, bulk hiring.</li>
-          <li>Operator: assigned area and verification permissions.</li>
-        </ul>
+      <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl ring-1 ring-stone-200">
+        <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80" alt="A worker and customer meeting and smiling during a home service visit" class="h-64 w-full object-cover">
+        <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Join KaamSetu</p>
+          <h1 class="mt-4 font-display text-4xl font-bold">Tell us who you are so we can shape the right experience for you.</h1>
+          <p class="mt-4 text-sm leading-7 text-emerald-50">Whether you want to hire, get hired, manage multiple workers, or support local onboarding, this setup helps personalize your experience from day one.</p>
+        </div>
       </div>
 
       <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Profile setup</p>
-            <h2 class="mt-2 font-display text-3xl font-bold">Choose your role and complete onboarding</h2>
+            <h2 class="mt-2 font-display text-3xl font-bold">Choose your role and complete your profile</h2>
           </div>
-          <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking session</span>
+          <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking sign-in</span>
         </div>
 
-        <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Load a session first or continue with Google.</div>
+        <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Continue with Google to begin your KaamSetu profile.</div>
 
         <form id="profile-form" class="mt-8 space-y-6">
           <div class="grid gap-4 md:grid-cols-2">
@@ -202,7 +199,7 @@
       const token = localStorage.getItem("kaamsetu_access_token");
       if (!token) {
         authState.textContent = "No session";
-        statusBox.textContent = "Continue with Google first. After login, come back here and submit your role profile.";
+        statusBox.textContent = "Continue with Google first. Once you're signed in, you can finish your profile here.";
         return;
       }
 
@@ -214,11 +211,11 @@
           throw new Error("Session invalid");
         }
         const payload = await response.json();
-        authState.textContent = payload.data.profile_completed ? "Profile complete" : "Profile incomplete";
-        statusBox.textContent = `Logged in as ${payload.data.full_name || payload.data.email}. Complete your role-specific profile below.`;
+        authState.textContent = payload.data.profile_completed ? "Ready to go" : "Profile needed";
+        statusBox.textContent = `Signed in as ${payload.data.full_name || payload.data.email}. Choose your role and fill in your details below.`;
       } catch (error) {
-        authState.textContent = "Session invalid";
-        statusBox.textContent = "Stored session is invalid or expired. Continue with Google again.";
+        authState.textContent = "Sign-in needed";
+        statusBox.textContent = "Your session has expired or is invalid. Please continue with Google again.";
       }
     }
 
@@ -294,7 +291,7 @@
         };
       }
 
-      statusBox.textContent = "Submitting role profile...";
+      statusBox.textContent = "Saving your profile...";
       try {
         const response = await fetch("/profile/setup-role", {
           method: "POST",
@@ -308,9 +305,9 @@
         if (!response.ok) {
           throw new Error(responsePayload.detail || responsePayload.message || "Profile setup failed");
         }
-        statusBox.textContent = "Profile setup completed. You can now search workers or continue into role-specific flows.";
+        statusBox.textContent = "Your profile is ready. You can now explore services and connect with the right people.";
       } catch (error) {
-        statusBox.textContent = error.message || "Profile setup failed.";
+        statusBox.textContent = error.message || "We could not save your profile right now.";
       }
     });
 

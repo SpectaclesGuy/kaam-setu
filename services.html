@@ -35,22 +35,25 @@
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-pine">Services</a>
         <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
-        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Profile Setup</a>
+        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Join Us</a>
       </div>
       <a href="/find-workers" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Search Workers</a>
     </nav>
   </header>
 
   <main class="mx-auto max-w-6xl px-6 py-10">
-    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
-      <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Services page</p>
-      <div class="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div class="max-w-3xl">
-          <h1 class="font-display text-4xl font-bold">See all worker categories backed by the API.</h1>
-          <p class="mt-3 text-sm leading-7 text-stone-600">This page reads directly from <code>GET /categories</code>, so the frontend stays aligned with the backend seed data and future admin-managed categories.</p>
+    <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-stone-200 lg:grid lg:grid-cols-[1fr_420px]">
+      <div class="p-8">
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Popular local services</p>
+        <div class="mt-4 flex flex-col gap-4 lg:justify-between">
+          <div class="max-w-3xl">
+            <h1 class="font-display text-4xl font-bold">Browse the kinds of work people hire for every day.</h1>
+            <p class="mt-3 text-sm leading-7 text-stone-600">From home repairs and cleaning to transport, farm work, and event support, KaamSetu helps you explore the services available before you choose a worker.</p>
+          </div>
+          <a href="/profile-setup" class="inline-block rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Create my profile</a>
         </div>
-        <a href="/profile-setup" class="rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Set up a role</a>
       </div>
+      <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80" alt="A local service worker preparing tools for a home visit" class="h-full min-h-[260px] w-full object-cover">
     </section>
 
     <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading categories...</div>
@@ -58,6 +61,15 @@
   </main>
 
   <script>
+    const pageToken = new URLSearchParams(window.location.search).get("token");
+    if (pageToken) {
+      localStorage.setItem("kaamsetu_access_token", pageToken);
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("profile_completed");
+      window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+    }
+
     async function loadCategories() {
       const statusBox = document.getElementById("status");
       const container = document.getElementById("categories");
@@ -66,13 +78,13 @@
         const response = await fetch("/categories");
         const payload = await response.json();
         const categories = payload.data || [];
-        statusBox.textContent = `${categories.length} service categories available.`;
+        statusBox.textContent = `${categories.length} services available to explore.`;
         container.innerHTML = categories.map((category) => `
           <a href="/find-workers?category=${encodeURIComponent(category.name)}" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
             <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-mist font-display text-lg font-bold text-pine">${category.name.slice(0, 2).toUpperCase()}</div>
             <h2 class="mt-5 font-display text-2xl font-bold text-ink">${category.name}</h2>
-            <p class="mt-2 text-sm text-stone-500">Slug: ${category.slug}</p>
-            <p class="mt-4 text-sm font-semibold text-pine">Search workers in this category</p>
+            <p class="mt-2 text-sm text-stone-500">Find nearby professionals for this service.</p>
+            <p class="mt-4 text-sm font-semibold text-pine">See workers</p>
           </a>
         `).join("");
       } catch (error) {
