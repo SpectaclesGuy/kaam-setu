@@ -86,7 +86,7 @@ app.include_router(pricing_router)
 @app.get("/health")
 def health():
     return api_response(
-        message="KaamSetu API is healthy",
+        message="KaramSetu API is healthy",
         data={"database": "up" if ping_database() else "down"},
     )
 

@@ -1,6 +1,6 @@
-# KaamSetu Backend
+# KaramSetu Backend
 
-KaamSetu is a FastAPI backend for a hyperlocal worker and local jobs platform. This repository is API-first and structured to support the existing HTML pages plus future product surfaces.
+KaramSetu is a FastAPI backend for a hyperlocal worker and local jobs platform. This repository is API-first and structured to support the existing HTML pages plus future product surfaces.
 
 ## Stack
 
@@ -66,7 +66,7 @@ For a Render-only setup, deploy this repository as a single Render web service. 
 Recommended backend environment variables:
 
 ```env
-APP_NAME=KaamSetu API
+APP_NAME=KaramSetu API
 APP_ENV=production
 BACKEND_URL=https://your-service.onrender.com
 FRONTEND_URL=https://your-service.onrender.com
@@ -92,7 +92,7 @@ SMTP_PORT=587
 SMTP_USERNAME=
 SMTP_PASSWORD=
 SMTP_FROM_EMAIL=
-SMTP_FROM_NAME=KaamSetu
+SMTP_FROM_NAME=KaramSetu
 SMTP_USE_TLS=true
 MSG91_AUTH_KEY=
 MSG91_TEMPLATE_ID=

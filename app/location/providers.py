@@ -35,7 +35,7 @@ class RateLimiter:
 class NominatimProvider:
     def __init__(self):
         self.base_url = settings.nominatim_base_url.rstrip("/")
-        self.headers = {"User-Agent": "KaamSetu/1.0 contact@example.com"}
+        self.headers = {"User-Agent": "KaramSetu/1.0 contact@example.com"}
         self.limiter = RateLimiter(rate_per_minute=20)
 
     def geocode(self, address: str) -> dict:

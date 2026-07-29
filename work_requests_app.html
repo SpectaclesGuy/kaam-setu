@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work Requests | KaamSetu</title>
+  <title>Work Requests | KaramSetu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
 <body class="bg-stone-50 font-body text-ink">
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-      <a href="/" class="font-display text-2xl font-bold text-pine">KaamSetu</a>
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
       <div class="hidden gap-6 text-sm font-medium md:flex">
         <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
         <a href="/work-requests-app" class="text-pine">Work Requests</a>
@@ -66,6 +66,24 @@
   <script>
     const token = localStorage.getItem("kaamsetu_access_token");
     const statusBox = document.getElementById("status");
+    const requestForm = document.getElementById("request-form");
+    let currentUser = null;
+
+    async function parseResponsePayload(response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        return response.json();
+      }
+      const text = await response.text();
+      return { detail: text || `Request failed with status ${response.status}` };
+    }
+
+    function extractErrorMessage(payload, fallbackMessage) {
+      if (!payload) return fallbackMessage;
+      if (typeof payload.detail === "string" && payload.detail.trim()) return payload.detail.trim();
+      if (typeof payload.message === "string" && payload.message.trim()) return payload.message.trim();
+      return fallbackMessage;
+    }
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -76,8 +94,43 @@
           Authorization: `Bearer ${token}`
         }
       });
-      if (!response.ok) throw new Error(await response.text());
-      return response.json();
+      const payload = await parseResponsePayload(response);
+      if (!response.ok) throw new Error(extractErrorMessage(payload, "Request failed"));
+      return payload;
+    }
+
+    function setFormEnabled(enabled) {
+      requestForm.querySelectorAll("input, textarea, select, button").forEach((element) => {
+        element.disabled = !enabled;
+      });
+      requestForm.classList.toggle("opacity-60", !enabled);
+    }
+
+    function validateRequestForm() {
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const locationText = document.getElementById("location_text").value.trim();
+      const dateRequired = document.getElementById("date_required").value;
+      const latitude = Number(document.getElementById("latitude").value);
+      const longitude = Number(document.getElementById("longitude").value);
+      const workersNeeded = Number(document.getElementById("workers_needed").value);
+      const budgetMinValue = document.getElementById("budget_min").value;
+      const budgetMaxValue = document.getElementById("budget_max").value;
+      const budgetMin = budgetMinValue ? Number(budgetMinValue) : null;
+      const budgetMax = budgetMaxValue ? Number(budgetMaxValue) : null;
+
+      if (!title || !description || !locationText || !dateRequired) {
+        throw new Error("Title, description, location, and required date are mandatory.");
+      }
+      if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+        throw new Error("A valid location pin is required before posting a work request.");
+      }
+      if (!workersNeeded || workersNeeded < 1) {
+        throw new Error("Workers needed must be at least 1.");
+      }
+      if (budgetMin !== null && budgetMax !== null && budgetMin > budgetMax) {
+        throw new Error("Minimum budget cannot be greater than maximum budget.");
+      }
     }
 
     function render(items) {
@@ -120,20 +173,45 @@
     async function load() {
       if (!token) {
         statusBox.textContent = "Please sign in first.";
+        setFormEnabled(false);
         return;
       }
       try {
-        const response = await api("/work-requests?scope=mine");
-        render(response.data || []);
-        statusBox.textContent = "Manage your work requests here.";
-      } catch {
-        statusBox.textContent = "We could not load your work requests.";
+        const [profileResponse, requestsResponse] = await Promise.all([
+          api("/profile/me"),
+          api("/work-requests?scope=mine")
+        ]);
+        currentUser = profileResponse.data;
+        const allowedRoles = new Set(["employer", "contractor", "admin"]);
+        const canPost = allowedRoles.has(currentUser.role);
+        setFormEnabled(canPost);
+        if (!canPost) {
+          statusBox.textContent = "Only employer or contractor accounts can post work requests. Update your profile role first.";
+        } else if (!currentUser.profile_completed) {
+          statusBox.textContent = "Complete your profile first, then you can post work requests.";
+        } else {
+          statusBox.textContent = "Manage your work requests here.";
+        }
+        render(requestsResponse.data || []);
+      } catch (error) {
+        setFormEnabled(false);
+        statusBox.textContent = error.message || "We could not load your work requests.";
       }
     }
 
     document.getElementById("request-form").addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
+        if (!token) {
+          throw new Error("Please sign in first.");
+        }
+        if (!currentUser) {
+          throw new Error("Your account context is still loading. Please try again.");
+        }
+        if (!["employer", "contractor", "admin"].includes(currentUser.role)) {
+          throw new Error("Only employer or contractor accounts can post work requests.");
+        }
+        validateRequestForm();
         await api("/work-requests", {
           method: "POST",
           body: JSON.stringify({
@@ -157,8 +235,8 @@
         document.getElementById("workers_needed").value = "1";
         document.getElementById("budget-hint").textContent = "Add a service category and city to see a suggested local budget.";
         load();
-      } catch {
-        statusBox.textContent = "We could not post this work request.";
+      } catch (error) {
+        statusBox.textContent = error.message || "We could not post this work request.";
       }
     });
 

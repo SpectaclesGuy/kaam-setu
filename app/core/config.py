@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    app_name: str = "KaamSetu API"
+    app_name: str = "KaramSetu API"
     app_env: str = "development"
     backend_url: str = "http://localhost:8000"
     frontend_url: str | None = None
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     smtp_username: str | None = None
     smtp_password: str | None = None
     smtp_from_email: str | None = None
-    smtp_from_name: str = "KaamSetu"
+    smtp_from_name: str = "KaramSetu"
     smtp_use_tls: bool = True
     msg91_auth_key: str | None = None
     msg91_template_id: str | None = None

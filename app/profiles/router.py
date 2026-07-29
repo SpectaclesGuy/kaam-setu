@@ -79,24 +79,51 @@ def my_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
             },
         }
         return api_response("My profile fetched", data)
-    profile = None
+    data = {
+        "role": user.role,
+        "full_name": user.full_name,
+        "email": user.email,
+        "phone_number": user.phone_number,
+        "is_phone_verified": user.is_phone_verified,
+        "profile_completed": user.profile_completed,
+    }
     if user.role == UserRole.employer and user.employer_profile:
         profile = user.employer_profile
+        data["employer_profile"] = {
+            "id": profile.id,
+            "phone_number": profile.phone_number,
+            "employer_type": profile.employer_type,
+            "organization_name": profile.organization_name,
+            "location": profile.location_text,
+            "latitude": profile.latitude,
+            "longitude": profile.longitude,
+        }
     elif user.role == UserRole.contractor and user.contractor_profile:
         profile = user.contractor_profile
+        data["contractor_profile"] = {
+            "id": profile.id,
+            "phone_number": profile.phone_number,
+            "company_name": profile.company_name,
+            "work_categories": profile.work_categories.split(",") if profile.work_categories else [],
+            "frequent_locations": profile.frequent_locations.split(",") if profile.frequent_locations else [],
+            "bulk_hiring_enabled": profile.bulk_hiring_enabled,
+            "location": profile.location_text,
+            "latitude": profile.latitude,
+            "longitude": profile.longitude,
+        }
     elif user.role == UserRole.operator and user.operator_profile:
         profile = user.operator_profile
+        data["operator_profile"] = {
+            "id": profile.id,
+            "phone_number": profile.phone_number,
+            "assigned_area": profile.assigned_area,
+            "verification_permissions": profile.can_verify_workers,
+            "latitude": profile.latitude,
+            "longitude": profile.longitude,
+        }
     return api_response(
         "My profile fetched",
-        {
-            "role": user.role,
-            "full_name": user.full_name,
-            "email": user.email,
-            "phone_number": user.phone_number,
-            "is_phone_verified": user.is_phone_verified,
-            "profile_completed": user.profile_completed,
-            "profile": profile.id if profile else None,
-        },
+        data,
     )
 
 

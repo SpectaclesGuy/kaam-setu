@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Find Workers | KaamSetu</title>
+  <title>Find Workers | KaramSetu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,18 +31,17 @@
 <body class="bg-stone-50 font-body text-ink">
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-      <a href="/" class="font-display text-2xl font-bold text-pine">KaamSetu</a>
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
       <div class="hidden gap-6 text-sm font-medium md:flex">
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
         <a href="/find-workers" class="text-pine">Find Workers</a>
         <a href="/work-requests-app" class="text-stone-600 hover:text-pine">Post Work</a>
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
-        <a href="/profile-setup" class="text-stone-600 hover:text-pine">Join Us</a>
       </div>
       <div class="flex gap-3">
         <a href="/services" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700">Services</a>
-        <a href="/profile-setup" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Get Started</a>
+        <a href="/profile-setup" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Join Us</a>
       </div>
     </nav>
   </header>
@@ -131,7 +130,10 @@
             <input id="emergency-available" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine">
             <span class="text-sm text-stone-700">Emergency available</span>
           </label>
-          <button id="use-location" type="button" class="rounded-2xl border border-pine px-4 py-3 text-sm font-semibold text-pine">Use my current location</button>
+          <div class="grid gap-3">
+            <button id="use-location" type="button" class="rounded-2xl border border-pine px-4 py-3 text-sm font-semibold text-pine">Use my current location</button>
+            <button id="pinpoint-location" type="button" class="rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-700">Pinpoint on map</button>
+          </div>
         </div>
       </aside>
 
@@ -175,12 +177,47 @@
     const query = new URLSearchParams(window.location.search);
     let map;
     let markers = [];
+    let searchMarker = null;
+    let pinpointMode = false;
 
     function initMap() {
       map = L.map("map").setView([28.6139, 77.2090], 10);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(map);
+      map.on("click", (event) => {
+        if (!pinpointMode) return;
+        setSearchPoint(event.latlng.lat, event.latlng.lng, { shouldSearch: true, sourceLabel: "Pinned map location" });
+        togglePinpointMode(false);
+      });
+    }
+
+    function togglePinpointMode(enabled) {
+      pinpointMode = enabled;
+      const button = document.getElementById("pinpoint-location");
+      button.textContent = enabled ? "Cancel pinpoint" : "Pinpoint on map";
+      button.className = enabled
+        ? "rounded-2xl border border-clay bg-clay px-4 py-3 text-sm font-semibold text-white"
+        : "rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-700";
+      document.getElementById("map").style.cursor = enabled ? "crosshair" : "";
+      if (enabled) {
+        statusBox.textContent = "Click anywhere on the map to set the exact search point.";
+      }
+    }
+
+    function setSearchPoint(lat, lng, { shouldSearch = false, sourceLabel = "Selected location" } = {}) {
+      document.getElementById("lat").value = Number(lat).toFixed(6);
+      document.getElementById("lng").value = Number(lng).toFixed(6);
+      if (searchMarker) {
+        searchMarker.setLatLng([lat, lng]);
+      } else {
+        searchMarker = L.marker([lat, lng]).addTo(map).bindPopup("Search point");
+      }
+      searchMarker.bindPopup(sourceLabel).openPopup();
+      map.setView([lat, lng], Math.max(map.getZoom(), 12));
+      if (shouldSearch) {
+        runSearch();
+      }
     }
 
     async function loadCategories() {
@@ -265,8 +302,19 @@
     function renderMap(workers) {
       markers.forEach((marker) => marker.remove());
       markers = [];
-      if (!workers.length) return;
       const latlngs = [];
+      const selectedLat = Number(document.getElementById("lat").value);
+      const selectedLng = Number(document.getElementById("lng").value);
+      if (!Number.isNaN(selectedLat) && !Number.isNaN(selectedLng)) {
+        setSearchPoint(selectedLat, selectedLng, { sourceLabel: "Search point" });
+        latlngs.push([selectedLat, selectedLng]);
+      }
+      if (!workers.length) {
+        if (latlngs.length) {
+          map.setView(latlngs[0], Math.max(map.getZoom(), 12));
+        }
+        return;
+      }
       workers.forEach((worker) => {
         if (worker.latitude && worker.longitude) {
           const marker = L.marker([worker.latitude, worker.longitude]).addTo(map).bindPopup(`<strong>${worker.full_name}</strong><br>${worker.skills.join(", ")}<br>Rs ${Number(worker.daily_rate).toLocaleString()}`);
@@ -343,12 +391,14 @@
         return;
       }
       navigator.geolocation.getCurrentPosition((position) => {
-        document.getElementById("lat").value = position.coords.latitude.toFixed(6);
-        document.getElementById("lng").value = position.coords.longitude.toFixed(6);
+        setSearchPoint(position.coords.latitude, position.coords.longitude, { sourceLabel: "Current location" });
         runSearch();
       }, () => {
         statusBox.textContent = "We could not access your current location.";
       });
+    });
+    document.getElementById("pinpoint-location").addEventListener("click", () => {
+      togglePinpointMode(!pinpointMode);
     });
     document.getElementById("toggle-map").addEventListener("click", () => {
       const mapWrap = document.getElementById("map").parentElement;

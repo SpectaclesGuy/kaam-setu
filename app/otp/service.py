@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 from secrets import randbelow
 import smtplib
+import ssl
 
 import httpx
 from fastapi import HTTPException
@@ -62,17 +63,37 @@ def send_via_smtp_email(destination: str, code: str, purpose: str) -> str:
     message = EmailMessage()
     message["From"] = f"{settings.smtp_from_name} <{sender}>"
     message["To"] = destination
-    message["Subject"] = "Your KaamSetu verification code"
-    purpose_text = "verify your KaamSetu account" if purpose == SIGNUP_EMAIL_PURPOSE else "verify this action"
+    message["Subject"] = "Your KaramSetu verification code"
+    purpose_text = "verify your KaramSetu account" if purpose == SIGNUP_EMAIL_PURPOSE else "verify this action"
     message.set_content(
-        f"Your KaamSetu verification code is {code}. Use it within {max(settings.otp_ttl_seconds // 60, 1)} minutes to {purpose_text}."
+        f"Your KaramSetu verification code is {code}. Use it within {max(settings.otp_ttl_seconds // 60, 1)} minutes to {purpose_text}."
     )
 
-    with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=20) as server:
-        if settings.smtp_use_tls:
-            server.starttls()
-        server.login(settings.smtp_username, settings.smtp_password)
-        server.send_message(message)
+    try:
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=20) as server:
+            server.ehlo()
+            if settings.smtp_use_tls:
+                server.starttls(context=ssl.create_default_context())
+                server.ehlo()
+            server.login(settings.smtp_username, settings.smtp_password)
+            server.send_message(message)
+    except smtplib.SMTPAuthenticationError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="SMTP authentication failed. Check the Gmail address and app password configured for KaramSetu.",
+        ) from exc
+    except smtplib.SMTPConnectError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="KaramSetu could not connect to the SMTP server. Check the SMTP host, port, and TLS settings.",
+        ) from exc
+    except smtplib.SMTPException as exc:
+        raise HTTPException(status_code=502, detail=f"SMTP delivery failed: {exc}") from exc
+    except OSError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="KaramSetu could not reach the SMTP server. Check outbound network access and SMTP settings.",
+        ) from exc
     return destination
 
 
