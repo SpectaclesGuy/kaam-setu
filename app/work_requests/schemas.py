@@ -5,6 +5,7 @@ from app.common.enums import WorkRequestStatus, WorkUrgency
 
 class WorkRequestCreate(BaseModel):
     category_id: str | None = None
+    category_label: str | None = None
     title: str
     description: str
     location_text: str
@@ -24,6 +25,7 @@ class WorkRequestCreate(BaseModel):
 
 
 class WorkRequestUpdate(BaseModel):
+    category_label: str | None = None
     title: str | None = None
     description: str | None = None
     status: WorkRequestStatus | None = None

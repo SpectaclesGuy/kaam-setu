@@ -19,7 +19,19 @@ def upload(payload: VerificationUpload, user=Depends(get_current_user), db: Sess
 @router.get("/me")
 def my_documents(user=Depends(get_current_user), db: Session = Depends(get_db)):
     items = db.query(VerificationDocument).filter(VerificationDocument.user_id == user.id).all()
-    return api_response("Verification documents fetched", [item.id for item in items])
+    data = [
+        {
+            "id": item.id,
+            "document_type": item.document_type.value,
+            "document_url": item.document_url,
+            "status": item.status.value,
+            "remarks": item.remarks,
+            "reviewed_at": item.reviewed_at,
+            "created_at": item.created_at.isoformat() if item.created_at else None,
+        }
+        for item in items
+    ]
+    return api_response("Verification documents fetched", data)
 
 
 @router.get("/admin/verification/pending")

@@ -12,13 +12,18 @@ from app.common.utils import api_response
 from app.contact_router import router as contact_router
 from app.contractor.router import router as contractor_router
 from app.core.config import settings
-from app.core.database import Base, engine, ping_database
+from app.core.database import ping_database
 from app.disputes.router import router as disputes_router
 from app.location.router import router as location_router
 from app.notifications.router import router as notifications_router
+from app.otp.models import OTPChallenge  # noqa: F401
+from app.otp.router import router as otp_router
 from app.operator.router import router as operator_router
+from app.pricing.models import PricingInsight  # noqa: F401
+from app.pricing.router import router as pricing_router
 from app.profiles.router import router as profiles_router
 from app.reviews.router import router as reviews_router
+from app.users.router import router as users_router
 from app.users.models import User  # noqa: F401
 from app.verification.router import router as verification_router
 from app.verification.models import VerificationDocument  # noqa: F401
@@ -46,7 +51,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    Base.metadata.create_all(bind=engine)
     yield
 
 
@@ -61,6 +65,8 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(otp_router)
+app.include_router(users_router)
 app.include_router(profiles_router)
 app.include_router(workers_router)
 app.include_router(location_router)
@@ -74,6 +80,7 @@ app.include_router(contractor_router)
 app.include_router(admin_router)
 app.include_router(disputes_router)
 app.include_router(notifications_router)
+app.include_router(pricing_router)
 
 
 @app.get("/health")
@@ -102,6 +109,21 @@ def services_page():
 @app.get("/profile-setup", include_in_schema=False)
 def profile_setup_page():
     return FileResponse(BASE_DIR / "profile_setup.html")
+
+
+@app.get("/account", include_in_schema=False)
+def account_page():
+    return FileResponse(BASE_DIR / "account.html")
+
+
+@app.get("/worker-dashboard", include_in_schema=False)
+def worker_dashboard_page():
+    return FileResponse(BASE_DIR / "worker_dashboard.html")
+
+
+@app.get("/work-requests-app", include_in_schema=False)
+def work_requests_app_page():
+    return FileResponse(BASE_DIR / "work_requests_app.html")
 
 
 @app.get("/worker-profile", include_in_schema=False)

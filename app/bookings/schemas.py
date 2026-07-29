@@ -14,3 +14,7 @@ class BookingCreate(BaseModel):
 class BookingStatusUpdate(BaseModel):
     status: BookingStatus
     final_amount: float | None = Field(default=None, ge=0)
+
+
+class BookingStartOTPVerify(BaseModel):
+    code: str = Field(min_length=4, max_length=10)

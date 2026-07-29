@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Dashboard | KaamSetu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>tailwind.config={theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};</script>
+</head>
+<body class="bg-stone-50 font-body text-ink">
+  <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaamSetu</a>
+      <div class="hidden gap-6 text-sm font-medium md:flex">
+        <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
+        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
+        <a href="/worker-dashboard" class="text-pine">Worker Dashboard</a>
+      </div>
+      <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
+    </nav>
+  </header>
+  <main class="mx-auto max-w-7xl px-6 py-10">
+    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Worker dashboard</p>
+          <h1 class="mt-2 font-display text-4xl font-bold">Manage your profile, rates, gallery, and availability.</h1>
+        </div>
+        <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=900&q=80" alt="Worker using a phone to manage upcoming jobs" class="h-40 w-full max-w-sm rounded-[1.5rem] object-cover">
+      </div>
+      <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading worker dashboard...</div>
+    </section>
+    <section class="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <form id="profile-form" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 space-y-4">
+        <h2 class="font-display text-3xl font-bold">Profile details</h2>
+        <div class="grid gap-4 md:grid-cols-2">
+          <input id="full_name" placeholder="Full name" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="phone_number" placeholder="Phone number" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="primary_location" placeholder="Location" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="service_radius_km" type="number" min="1" max="100" placeholder="Service radius km" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="daily_rate" type="number" min="1" placeholder="Daily rate" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="hourly_rate" type="number" min="1" placeholder="Hourly rate" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="experience_years" type="number" min="0" placeholder="Experience years" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="profile_photo_url" placeholder="Profile photo URL" class="rounded-2xl border border-stone-300 px-4 py-3">
+        </div>
+        <input id="skills" placeholder="Skills (comma separated)" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+        <input id="languages" placeholder="Languages (comma separated)" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+        <input id="work_gallery_urls" placeholder="Gallery image URLs (comma separated)" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+        <textarea id="bio" placeholder="Short bio" class="min-h-32 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea>
+        <div class="flex flex-wrap gap-6">
+          <label class="flex items-center gap-3"><input id="available_today" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine"><span class="text-sm">Available today</span></label>
+          <label class="flex items-center gap-3"><input id="emergency_available" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine"><span class="text-sm">Emergency available</span></label>
+        </div>
+        <button class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white" type="submit">Save profile</button>
+      </form>
+      <div class="space-y-6">
+        <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <div class="flex items-center justify-between">
+            <h2 class="font-display text-3xl font-bold">Availability</h2>
+            <button id="toggle-emergency" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Toggle emergency mode</button>
+          </div>
+          <form id="availability-form" class="mt-5 grid gap-4 md:grid-cols-2">
+            <input id="availability-date" type="date" class="rounded-2xl border border-stone-300 px-4 py-3">
+            <select id="availability-status" class="rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="available">Available</option>
+              <option value="busy">Busy</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+            <input id="availability-notes" placeholder="Notes" class="rounded-2xl border border-stone-300 px-4 py-3 md:col-span-2">
+            <button class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white md:col-span-2" type="submit">Add availability</button>
+          </form>
+          <div id="availability-list" class="mt-5 space-y-3"></div>
+        </section>
+        <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <h2 class="font-display text-3xl font-bold">Verification progress</h2>
+          <div id="verification-list" class="mt-5 space-y-3"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script>
+    const token = localStorage.getItem("kaamsetu_access_token");
+    const statusBox = document.getElementById("status");
+    if (!token) statusBox.textContent = "Please sign in first.";
+    async function api(path, options={}) {
+      const response = await fetch(path, { ...options, headers: { "Content-Type": "application/json", ...(options.headers||{}), Authorization: `Bearer ${token}` }});
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    }
+    let currentProfile = null;
+    function fillProfile(data) {
+      const profile = data.worker_profile;
+      currentProfile = profile;
+      ["full_name","phone_number","profile_photo_url","bio"].forEach((id)=>document.getElementById(id).value = data[id] || profile[id] || "");
+      document.getElementById("primary_location").value = profile.location_text || "";
+      document.getElementById("service_radius_km").value = profile.service_radius_km || "";
+      document.getElementById("daily_rate").value = profile.daily_rate || "";
+      document.getElementById("hourly_rate").value = profile.hourly_rate || "";
+      document.getElementById("experience_years").value = profile.experience_years || "";
+      document.getElementById("skills").value = (profile.skills || []).join(", ");
+      document.getElementById("languages").value = (profile.languages || []).join(", ");
+      document.getElementById("work_gallery_urls").value = (profile.work_gallery_urls || []).join(", ");
+      document.getElementById("available_today").checked = !!profile.available_today;
+      document.getElementById("emergency_available").checked = !!profile.emergency_available;
+    }
+    function renderAvailability(items) {
+      document.getElementById("availability-list").innerHTML = items.length ? items.map((item)=>`<div class="rounded-2xl bg-mist px-4 py-3"><p class="font-semibold text-ink">${item.date}</p><p class="text-sm text-stone-600">${item.status} · Emergency ${item.emergency_available ? "on" : "off"}${item.notes ? ` · ${item.notes}` : ""}</p></div>`).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No availability added yet.</div>`;
+    }
+    function renderVerification(items) {
+      document.getElementById("verification-list").innerHTML = items.length ? items.map((item)=>`<div class="rounded-2xl bg-mist px-4 py-3"><p class="font-semibold text-ink">${item.document_type.replaceAll("_"," ")}</p><p class="text-sm text-stone-600">${item.status}${item.remarks ? ` · ${item.remarks}` : ""}</p></div>`).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">Upload verification from the account area when ready.</div>`;
+    }
+    async function load() {
+      if (!token) return;
+      try {
+        const [profile, workerPublic, verification] = await Promise.all([api("/profile/me"), api("/workers/me/profile"), api("/verification/me")]);
+        fillProfile(profile.data);
+        renderAvailability((await api(`/workers/${workerPublic.data.id}/availability`)).data || []);
+        renderVerification(verification.data || []);
+        statusBox.textContent = "Your worker dashboard is ready.";
+      } catch {
+        statusBox.textContent = "We could not load your worker dashboard.";
+      }
+    }
+    document.getElementById("profile-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/profile/me/worker", { method:"PATCH", body: JSON.stringify({
+          full_name: document.getElementById("full_name").value.trim(),
+          phone_number: document.getElementById("phone_number").value.trim(),
+          primary_location: document.getElementById("primary_location").value.trim(),
+          service_radius_km: Number(document.getElementById("service_radius_km").value),
+          daily_rate: Number(document.getElementById("daily_rate").value),
+          hourly_rate: document.getElementById("hourly_rate").value ? Number(document.getElementById("hourly_rate").value) : null,
+          experience_years: Number(document.getElementById("experience_years").value),
+          profile_photo_url: document.getElementById("profile_photo_url").value.trim() || null,
+          bio: document.getElementById("bio").value.trim() || null,
+          skills: document.getElementById("skills").value.split(",").map(x=>x.trim()).filter(Boolean),
+          languages: document.getElementById("languages").value.split(",").map(x=>x.trim()).filter(Boolean),
+          work_gallery_urls: document.getElementById("work_gallery_urls").value.split(",").map(x=>x.trim()).filter(Boolean),
+          available_today: document.getElementById("available_today").checked,
+          emergency_available: document.getElementById("emergency_available").checked
+        })});
+        statusBox.textContent = "Profile updated successfully.";
+        load();
+      } catch {
+        statusBox.textContent = "We could not save your profile.";
+      }
+    });
+    document.getElementById("availability-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/workers/me/availability", { method:"POST", body: JSON.stringify({
+          date: document.getElementById("availability-date").value,
+          status: document.getElementById("availability-status").value,
+          emergency_available: document.getElementById("emergency_available").checked,
+          notes: document.getElementById("availability-notes").value.trim() || null
+        })});
+        statusBox.textContent = "Availability added.";
+        load();
+      } catch {
+        statusBox.textContent = "We could not add availability.";
+      }
+    });
+    document.getElementById("toggle-emergency").addEventListener("click", async () => {
+      if (!currentProfile) return;
+      try {
+        await api(`/workers/me/emergency-availability?enabled=${String(!currentProfile.emergency_available)}`, { method:"POST", headers:{} });
+        statusBox.textContent = "Emergency availability updated.";
+        load();
+      } catch {
+        statusBox.textContent = "We could not update emergency availability.";
+      }
+    });
+    load();
+  </script>
+</body>
+</html>

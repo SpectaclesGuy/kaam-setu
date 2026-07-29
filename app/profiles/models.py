@@ -20,6 +20,7 @@ class WorkerProfile(UUIDMixin, TimestampMixin, Base):
     daily_rate: Mapped[float] = mapped_column(Numeric(10, 2))
     hourly_rate: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    work_gallery_urls: Mapped[str | None] = mapped_column(Text, nullable=True)
     available_today: Mapped[bool] = mapped_column(Boolean, default=False)
     emergency_available: Mapped[bool] = mapped_column(Boolean, default=False)
     verification_status: Mapped[VerificationStatus] = mapped_column(

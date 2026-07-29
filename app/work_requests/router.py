@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.common.enums import UserRole
@@ -17,6 +17,28 @@ from app.work_requests.models import WorkRequest
 router = APIRouter(prefix="/work-requests", tags=["work_requests"])
 
 
+def serialize_work_request(item: WorkRequest):
+    return {
+        "id": item.id,
+        "posted_by_user_id": item.posted_by_user_id,
+        "category_id": item.category_id,
+        "category_label": item.category_label,
+        "title": item.title,
+        "description": item.description,
+        "location_text": item.location_text,
+        "latitude": item.latitude,
+        "longitude": item.longitude,
+        "date_required": item.date_required,
+        "urgency": item.urgency.value,
+        "budget_min": float(item.budget_min) if item.budget_min is not None else None,
+        "budget_max": float(item.budget_max) if item.budget_max is not None else None,
+        "workers_needed": item.workers_needed,
+        "status": item.status.value,
+        "created_at": item.created_at.isoformat() if item.created_at else None,
+        "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+    }
+
+
 @router.post("")
 def create_request(payload: WorkRequestCreate, user=Depends(get_current_user), db: Session = Depends(get_db)):
     item = create_work_request(db, user, payload)
@@ -24,8 +46,11 @@ def create_request(payload: WorkRequestCreate, user=Depends(get_current_user), d
 
 
 @router.get("")
-def list_requests(user=Depends(get_current_user), db: Session = Depends(get_db)):
-    return api_response("Work requests fetched", [item.id for item in list_work_requests(db, user)])
+def list_requests(scope: str = Query(default="all"), user=Depends(get_current_user), db: Session = Depends(get_db)):
+    items = list_work_requests(db, user)
+    if scope == "mine":
+        items = [item for item in items if item.posted_by_user_id == user.id]
+    return api_response("Work requests fetched", [serialize_work_request(item) for item in items])
 
 
 @router.get("/{request_id}")
@@ -33,7 +58,7 @@ def get_request(request_id: str, db: Session = Depends(get_db)):
     item = db.get(WorkRequest, request_id)
     if not item:
         raise HTTPException(status_code=404, detail="Work request not found")
-    return api_response("Work request fetched", {"id": item.id, "title": item.title, "status": item.status.value})
+    return api_response("Work request fetched", serialize_work_request(item))
 
 
 @router.patch("/{request_id}")
@@ -46,7 +71,7 @@ def patch_request(
     if item.posted_by_user_id != user.id and user.role != UserRole.admin:
         raise HTTPException(status_code=403, detail="Cannot update this work request")
     item = update_work_request(db, item, payload)
-    return api_response("Work request updated", {"id": item.id, "status": item.status.value})
+    return api_response("Work request updated", serialize_work_request(item))
 
 
 @router.delete("/{request_id}")

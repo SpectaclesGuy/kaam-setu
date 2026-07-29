@@ -23,6 +23,14 @@ class Settings(BaseSettings):
     map_geocoder_provider: str = "nominatim"
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"
     cors_origins_raw: str = Field(default="http://localhost:3000", alias="CORS_ORIGINS")
+    otp_provider: str = "mock"
+    otp_code_length: int = 6
+    otp_ttl_seconds: int = 300
+    otp_resend_cooldown_seconds: int = 60
+    otp_test_bypass_code: str = "123456"
+    twilio_account_sid: str | None = None
+    twilio_auth_token: str | None = None
+    twilio_verify_service_sid: str | None = None
 
     @property
     def effective_google_redirect_uri(self) -> str:

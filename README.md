@@ -81,6 +81,14 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 MAP_GEOCODER_PROVIDER=nominatim
 NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org
 CORS_ORIGINS=https://your-service.onrender.com
+OTP_PROVIDER=mock
+OTP_CODE_LENGTH=6
+OTP_TTL_SECONDS=300
+OTP_RESEND_COOLDOWN_SECONDS=60
+OTP_TEST_BYPASS_CODE=123456
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_VERIFY_SERVICE_SID=
 ```
 
 Use this Google OAuth Authorized redirect URI:
@@ -100,6 +108,37 @@ The current app serves these frontend pages directly:
 - `/` -> `homepage.html`
 - `/find-workers` -> `find_workers.html`
 - `/worker-profile` -> `worker_profile.html`
+
+## OTP setup
+
+The app now supports two OTP modes:
+
+- `OTP_PROVIDER=mock` for local testing and Render smoke tests. The app returns `OTP_TEST_BYPASS_CODE` in API responses so you can complete flows without a live SMS provider.
+- `OTP_PROVIDER=twilio_verify` for production-style SMS OTP.
+
+Recommended Twilio Verify setup:
+
+1. Create a Twilio account and start with their free trial.
+2. In Twilio Verify, create one Verify Service.
+3. Put these values into Render:
+   - `TWILIO_ACCOUNT_SID`
+   - `TWILIO_AUTH_TOKEN`
+   - `TWILIO_VERIFY_SERVICE_SID`
+   - `OTP_PROVIDER=twilio_verify`
+4. For trial accounts, Twilio only allows Verify sends to pre-verified destination numbers and imposes low trial limits, which is suitable for testing but not for open production onboarding.
+
+OTP is used in two product moments:
+
+- account verification before profile setup
+- service start confirmation before a booking moves to `in_progress`
+
+## Pricing intelligence
+
+The app now exposes local pricing guidance based on active worker profiles:
+
+- `GET /pricing-insights?category=Electrician&city=Delhi&rate_type=daily`
+
+The worker onboarding page and work request page both consume this endpoint to suggest local daily-rate ranges by category and city.
 
 ## OAuth note
 

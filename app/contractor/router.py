@@ -20,7 +20,21 @@ def bulk_request(payload: BulkRequestCreate, user=Depends(get_current_user)):
 def get_saved_workers(user=Depends(get_current_user), db: Session = Depends(get_db)):
     ensure_contractor(user)
     items = db.query(SavedWorker).filter(SavedWorker.contractor_user_id == user.id).all()
-    return api_response("Saved workers fetched", [item.id for item in items])
+    data = []
+    for item in items:
+        worker = db.get(__import__("app.profiles.models", fromlist=["WorkerProfile"]).WorkerProfile, item.worker_id)
+        data.append(
+            {
+                "id": item.id,
+                "worker_id": item.worker_id,
+                "group_name": item.group_name,
+                "saved_at": item.created_at.isoformat() if item.created_at else None,
+                "worker_name": worker.user.full_name if worker and worker.user else None,
+                "location_text": worker.location_text if worker else None,
+                "daily_rate": float(worker.daily_rate) if worker else None,
+            }
+        )
+    return api_response("Saved workers fetched", data)
 
 
 @router.post("/saved-workers")

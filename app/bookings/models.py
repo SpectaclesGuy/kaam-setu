@@ -1,4 +1,6 @@
-from sqlalchemy import Enum, ForeignKey, Numeric, String, Text
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.common.enums import BookingStatus
@@ -16,3 +18,6 @@ class Booking(UUIDMixin, TimestampMixin, Base):
     scheduled_time: Mapped[str | None] = mapped_column(String(20), nullable=True)
     final_amount: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    service_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    service_start_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    service_start_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

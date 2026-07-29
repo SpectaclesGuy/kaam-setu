@@ -11,6 +11,9 @@ class UserRead(BaseModel):
     full_name: str
     profile_picture_url: str | None
     role: UserRole | None
+    phone_number: str | None
+    is_phone_verified: bool
+    phone_verified_at: datetime | None
     is_active: bool
     is_verified_user: bool
     profile_completed: bool

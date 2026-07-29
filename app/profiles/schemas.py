@@ -29,6 +29,27 @@ class WorkerProfileSetup(BaseProfileSchema):
     work_gallery_urls: list[str] = Field(default_factory=list)
 
 
+class WorkerProfileUpdate(BaseModel):
+    full_name: str | None = None
+    phone_number: str | None = None
+    gender: str | None = None
+    profile_photo_url: str | None = None
+    primary_location: str | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    service_radius_km: float | None = Field(default=None, ge=1, le=100)
+    skills: list[str] | None = None
+    categories: list[str] | None = None
+    experience_years: int | None = Field(default=None, ge=0)
+    daily_rate: float | None = Field(default=None, gt=0)
+    hourly_rate: float | None = Field(default=None, gt=0)
+    languages: list[str] | None = None
+    available_today: bool | None = None
+    emergency_available: bool | None = None
+    bio: str | None = None
+    work_gallery_urls: list[str] | None = None
+
+
 class EmployerProfileSetup(BaseProfileSchema):
     employer_type: EmployerType
     organization_name: str | None = None

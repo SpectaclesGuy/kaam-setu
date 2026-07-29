@@ -35,6 +35,8 @@
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
         <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
+        <a href="/work-requests-app" class="text-stone-600 hover:text-pine">Post Work</a>
+        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
         <a href="/profile-setup" class="text-pine">Join Us</a>
       </div>
       <button id="oauth-start" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Continue with Google</button>
@@ -62,6 +64,32 @@
         </div>
 
         <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Continue with Google to begin your KaamSetu profile.</div>
+
+        <section class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Phone check</p>
+              <h3 class="mt-1 font-display text-2xl font-bold">Verify your phone number before profile setup</h3>
+              <p class="mt-2 text-sm text-stone-600">We use this to protect new accounts and confirm service starts.</p>
+            </div>
+            <span id="verification-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Not verified</span>
+          </div>
+          <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Phone number with country code</span>
+              <input id="verify-phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="+919999999999">
+            </label>
+            <button id="send-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send code</button>
+          </div>
+          <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Verification code</span>
+              <input id="otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the 6 digit code">
+            </label>
+            <button id="verify-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify number</button>
+          </div>
+          <p id="verification-note" class="mt-3 text-sm text-stone-600">Use the same verified number in the form below.</p>
+        </section>
 
         <form id="profile-form" class="mt-8 space-y-6">
           <div class="grid gap-4 md:grid-cols-2">
@@ -104,7 +132,7 @@
 
           <div id="dynamic-fields" class="space-y-6"></div>
 
-          <button class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white shadow-sm" type="submit">Submit profile setup</button>
+          <button id="profile-submit" class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white shadow-sm" type="submit">Submit profile setup</button>
         </form>
       </section>
     </section>
@@ -115,7 +143,12 @@
     const dynamicFields = document.getElementById("dynamic-fields");
     const statusBox = document.getElementById("status");
     const authState = document.getElementById("auth-state");
+    const verificationBadge = document.getElementById("verification-badge");
+    const verificationNote = document.getElementById("verification-note");
+    const profileSubmit = document.getElementById("profile-submit");
     const tokenFromQuery = new URLSearchParams(window.location.search).get("token");
+    const verificationState = { verified: false, phoneNumber: "", testCode: null };
+
     if (tokenFromQuery) {
       localStorage.setItem("kaamsetu_access_token", tokenFromQuery);
       window.history.replaceState({}, "", "/profile-setup");
@@ -141,6 +174,7 @@
         </div>
         <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Skills (comma separated)</span><input id="skills" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Electrician, Wiring, Repair"></label>
         <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Categories (comma separated)</span><input id="categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Electrician, Mechanic"></label>
+        <div id="pricing-hint" class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Add a category and city to see the going rate nearby.</div>
         <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Languages (comma separated)</span><input id="languages" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Hindi, English"></label>
         <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Bio</span><textarea id="bio" class="min-h-28 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea></label>
         <div class="flex flex-wrap gap-6">
@@ -193,6 +227,51 @@
       if (roleSelect.value === "employer") dynamicFields.innerHTML = employerFields();
       if (roleSelect.value === "contractor") dynamicFields.innerHTML = contractorFields();
       if (roleSelect.value === "operator") dynamicFields.innerHTML = operatorFields();
+      attachPricingHintEvents();
+    }
+
+    function syncPhoneFields(value) {
+      document.getElementById("verify-phone-number").value = value;
+      document.getElementById("phone-number").value = value;
+    }
+
+    function updateVerificationUI() {
+      profileSubmit.disabled = !verificationState.verified;
+      profileSubmit.classList.toggle("opacity-60", !verificationState.verified);
+      profileSubmit.classList.toggle("cursor-not-allowed", !verificationState.verified);
+      verificationBadge.textContent = verificationState.verified ? "Verified" : "Not verified";
+      verificationBadge.className = verificationState.verified
+        ? "rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800"
+        : "rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500";
+    }
+
+    async function fetchPricingHint() {
+      const categoriesInput = document.getElementById("categories");
+      const locationInput = document.getElementById("location-text");
+      const hint = document.getElementById("pricing-hint");
+      if (!categoriesInput || !locationInput || !hint) return;
+      const category = splitList(categoriesInput.value)[0];
+      const city = locationInput.value.trim();
+      if (!category || !city) {
+        hint.textContent = "Add a category and city to see the going rate nearby.";
+        return;
+      }
+      try {
+        const response = await fetch(`/pricing-insights?category=${encodeURIComponent(category)}&city=${encodeURIComponent(city)}&rate_type=daily`);
+        const payload = await response.json();
+        if (!response.ok) throw new Error();
+        const insight = payload.data;
+        hint.textContent = `Workers in ${insight.city} usually charge Rs ${Math.round(insight.suggested_min)} to Rs ${Math.round(insight.suggested_max)} per day for ${category}. Typical midpoint: Rs ${Math.round(insight.suggested_median)}.`;
+      } catch {
+        hint.textContent = "We do not have enough local pricing data for this category yet.";
+      }
+    }
+
+    function attachPricingHintEvents() {
+      const categoriesInput = document.getElementById("categories");
+      const locationInput = document.getElementById("location-text");
+      if (categoriesInput) categoriesInput.addEventListener("input", fetchPricingHint);
+      if (locationInput) locationInput.addEventListener("input", fetchPricingHint);
     }
 
     async function hydrateSessionState() {
@@ -213,6 +292,16 @@
         const payload = await response.json();
         authState.textContent = payload.data.profile_completed ? "Ready to go" : "Profile needed";
         statusBox.textContent = `Signed in as ${payload.data.full_name || payload.data.email}. Choose your role and fill in your details below.`;
+        document.getElementById("full-name").value = payload.data.full_name || "";
+        if (payload.data.phone_number) {
+          verificationState.phoneNumber = payload.data.phone_number;
+          syncPhoneFields(payload.data.phone_number);
+        }
+        verificationState.verified = Boolean(payload.data.is_phone_verified);
+        if (verificationState.verified) {
+          verificationNote.textContent = `Verified number: ${payload.data.phone_number}`;
+        }
+        updateVerificationUI();
       } catch (error) {
         authState.textContent = "Sign-in needed";
         statusBox.textContent = "Your session has expired or is invalid. Please continue with Google again.";
@@ -229,11 +318,85 @@
       }
     });
 
+    document.getElementById("verify-phone-number").addEventListener("input", (event) => {
+      const value = event.target.value.trim();
+      syncPhoneFields(value);
+      if (verificationState.phoneNumber !== value) {
+        verificationState.verified = false;
+        updateVerificationUI();
+      }
+    });
+
+    document.getElementById("send-otp").addEventListener("click", async () => {
+      const token = localStorage.getItem("kaamsetu_access_token");
+      const phoneNumber = document.getElementById("verify-phone-number").value.trim();
+      if (!token || !phoneNumber) {
+        verificationNote.textContent = "Sign in and enter your phone number first.";
+        return;
+      }
+      verificationNote.textContent = "Sending your verification code...";
+      try {
+        const response = await fetch("/auth/otp/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ phone_number: phoneNumber })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "We could not send a verification code right now.");
+        verificationState.phoneNumber = phoneNumber;
+        verificationState.testCode = payload.data.test_code || null;
+        verificationState.verified = false;
+        verificationNote.textContent = verificationState.testCode
+          ? `Code sent. For testing, use ${verificationState.testCode}.`
+          : "Code sent. Please check your SMS inbox.";
+        updateVerificationUI();
+      } catch (error) {
+        verificationNote.textContent = error.message || "We could not send a verification code right now.";
+      }
+    });
+
+    document.getElementById("verify-otp").addEventListener("click", async () => {
+      const token = localStorage.getItem("kaamsetu_access_token");
+      const phoneNumber = document.getElementById("verify-phone-number").value.trim();
+      const code = document.getElementById("otp-code").value.trim();
+      if (!token || !phoneNumber || !code) {
+        verificationNote.textContent = "Enter the phone number and verification code first.";
+        return;
+      }
+      verificationNote.textContent = "Verifying your number...";
+      try {
+        const response = await fetch("/auth/otp/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ phone_number: phoneNumber, code })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "Verification failed.");
+        verificationState.verified = true;
+        verificationState.phoneNumber = phoneNumber;
+        syncPhoneFields(phoneNumber);
+        verificationNote.textContent = `Phone number verified for ${phoneNumber}.`;
+        updateVerificationUI();
+      } catch (error) {
+        verificationNote.textContent = error.message || "Verification failed.";
+      }
+    });
+
     document.getElementById("profile-form").addEventListener("submit", async (event) => {
       event.preventDefault();
       const token = localStorage.getItem("kaamsetu_access_token");
       if (!token) {
         statusBox.textContent = "Login is required before profile setup.";
+        return;
+      }
+      if (!verificationState.verified) {
+        statusBox.textContent = "Verify your phone number before submitting your profile.";
         return;
       }
 
@@ -313,6 +476,7 @@
 
     roleSelect.addEventListener("change", renderRoleFields);
     renderRoleFields();
+    updateVerificationUI();
     hydrateSessionState();
   </script>
 </body>

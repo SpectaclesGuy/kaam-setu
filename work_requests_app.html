@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work Requests | KaamSetu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>tailwind.config={theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};</script>
+</head>
+<body class="bg-stone-50 font-body text-ink">
+  <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaamSetu</a>
+      <div class="hidden gap-6 text-sm font-medium md:flex">
+        <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
+        <a href="/work-requests-app" class="text-pine">Work Requests</a>
+        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
+      </div>
+      <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
+    </nav>
+  </header>
+  <main class="mx-auto max-w-7xl px-6 py-10">
+    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Work requests</p>
+          <h1 class="mt-2 font-display text-4xl font-bold">Post a job and manage your open requests.</h1>
+        </div>
+        <img src="https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=900&q=80" alt="Team discussing a work plan" class="h-40 w-full max-w-sm rounded-[1.5rem] object-cover">
+      </div>
+      <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading work requests...</div>
+    </section>
+    <section class="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
+      <form id="request-form" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 space-y-4">
+        <h2 class="font-display text-3xl font-bold">Create work request</h2>
+        <input id="category_label" placeholder="Service category, for example Electrician" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+        <input id="title" placeholder="Job title" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+        <textarea id="description" placeholder="Describe the work needed" class="min-h-32 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea>
+        <div class="grid gap-4 md:grid-cols-2">
+          <input id="location_text" placeholder="Location" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="date_required" type="date" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="latitude" type="number" step="any" value="28.6139" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="longitude" type="number" step="any" value="77.2090" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <select id="urgency" class="rounded-2xl border border-stone-300 px-4 py-3">
+            <option value="normal">Normal</option>
+            <option value="low">Low</option>
+            <option value="urgent">Urgent</option>
+            <option value="emergency">Emergency</option>
+          </select>
+          <input id="workers_needed" type="number" min="1" value="1" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="budget_min" type="number" min="0" placeholder="Minimum budget" class="rounded-2xl border border-stone-300 px-4 py-3">
+          <input id="budget_max" type="number" min="0" placeholder="Maximum budget" class="rounded-2xl border border-stone-300 px-4 py-3">
+        </div>
+        <div id="budget-hint" class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Add a service category and city to see a suggested local budget.</div>
+        <button class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white" type="submit">Post request</button>
+      </form>
+      <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+        <h2 class="font-display text-3xl font-bold">My requests</h2>
+        <div id="requests-list" class="mt-5 space-y-3"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const token = localStorage.getItem("kaamsetu_access_token");
+    const statusBox = document.getElementById("status");
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error(await response.text());
+      return response.json();
+    }
+
+    function render(items) {
+      document.getElementById("requests-list").innerHTML = items.length
+        ? items.map((item) => `
+            <div class="rounded-2xl bg-mist px-4 py-3">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-semibold text-ink">${item.title}</p>
+                  <p class="text-sm text-stone-600">${item.location_text} · ${item.date_required}</p>
+                  <p class="mt-1 text-xs uppercase tracking-[0.18em] text-pine">${item.category_label || "general work"}</p>
+                </div>
+                <span class="text-sm font-semibold text-pine">${item.status}</span>
+              </div>
+              <p class="mt-2 text-sm text-stone-600">${item.description}</p>
+            </div>
+          `).join("")
+        : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No work requests yet.</div>`;
+    }
+
+    async function updateBudgetHint() {
+      const category = document.getElementById("category_label").value.trim();
+      const city = document.getElementById("location_text").value.trim();
+      const hint = document.getElementById("budget-hint");
+      if (!category || !city) {
+        hint.textContent = "Add a service category and city to see a suggested local budget.";
+        return;
+      }
+      try {
+        const response = await fetch(`/pricing-insights?category=${encodeURIComponent(category)}&city=${encodeURIComponent(city)}&rate_type=daily`);
+        const payload = await response.json();
+        if (!response.ok) throw new Error();
+        const insight = payload.data;
+        hint.textContent = `Suggested local budget for ${category} in ${insight.city}: Rs ${Math.round(insight.suggested_min)} to Rs ${Math.round(insight.suggested_max)} per day.`;
+      } catch {
+        hint.textContent = "No strong local pricing signal yet. Use your own budget range for now.";
+      }
+    }
+
+    async function load() {
+      if (!token) {
+        statusBox.textContent = "Please sign in first.";
+        return;
+      }
+      try {
+        const response = await api("/work-requests?scope=mine");
+        render(response.data || []);
+        statusBox.textContent = "Manage your work requests here.";
+      } catch {
+        statusBox.textContent = "We could not load your work requests.";
+      }
+    }
+
+    document.getElementById("request-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/work-requests", {
+          method: "POST",
+          body: JSON.stringify({
+            category_label: document.getElementById("category_label").value.trim() || null,
+            title: document.getElementById("title").value.trim(),
+            description: document.getElementById("description").value.trim(),
+            location_text: document.getElementById("location_text").value.trim(),
+            latitude: Number(document.getElementById("latitude").value),
+            longitude: Number(document.getElementById("longitude").value),
+            date_required: document.getElementById("date_required").value,
+            urgency: document.getElementById("urgency").value,
+            budget_min: document.getElementById("budget_min").value ? Number(document.getElementById("budget_min").value) : null,
+            budget_max: document.getElementById("budget_max").value ? Number(document.getElementById("budget_max").value) : null,
+            workers_needed: Number(document.getElementById("workers_needed").value)
+          })
+        });
+        statusBox.textContent = "Work request posted.";
+        event.target.reset();
+        document.getElementById("latitude").value = "28.6139";
+        document.getElementById("longitude").value = "77.2090";
+        document.getElementById("workers_needed").value = "1";
+        document.getElementById("budget-hint").textContent = "Add a service category and city to see a suggested local budget.";
+        load();
+      } catch {
+        statusBox.textContent = "We could not post this work request.";
+      }
+    });
+
+    document.getElementById("category_label").addEventListener("input", updateBudgetHint);
+    document.getElementById("location_text").addEventListener("input", updateBudgetHint);
+    load();
+  </script>
+</body>
+</html>

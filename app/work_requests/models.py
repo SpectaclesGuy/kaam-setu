@@ -10,6 +10,7 @@ class WorkRequest(UUIDMixin, TimestampMixin, Base):
 
     posted_by_user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
     category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), nullable=True)
+    category_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
     title: Mapped[str] = mapped_column(String(255))
     description: Mapped[str] = mapped_column(Text)
     location_text: Mapped[str] = mapped_column(String(255))

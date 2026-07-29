@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Enum, String
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Enum, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.common.enums import UserRole
@@ -13,6 +15,9 @@ class User(UUIDMixin, TimestampMixin, Base):
     full_name: Mapped[str] = mapped_column(String(255))
     profile_picture_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     role: Mapped[UserRole | None] = mapped_column(Enum(UserRole), nullable=True)
+    phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    is_phone_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    phone_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_verified_user: Mapped[bool] = mapped_column(Boolean, default=False)
     profile_completed: Mapped[bool] = mapped_column(Boolean, default=False)

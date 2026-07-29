@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.pricing.service import refresh_pricing_insights
 from app.common.enums import UserRole
 from app.profiles.models import (
     ContractorProfile,
@@ -10,7 +11,7 @@ from app.profiles.models import (
     WorkerProfile,
     WorkerSkill,
 )
-from app.profiles.schemas import RoleSetupRequest, WorkerAvailabilityCreate
+from app.profiles.schemas import RoleSetupRequest, WorkerAvailabilityCreate, WorkerProfileUpdate
 from app.users.models import User
 
 
@@ -30,9 +31,11 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         worker.daily_rate = profile_data.daily_rate
         worker.hourly_rate = profile_data.hourly_rate
         worker.bio = profile_data.bio
+        worker.work_gallery_urls = ",".join(profile_data.work_gallery_urls) if profile_data.work_gallery_urls else None
         worker.available_today = profile_data.available_today
         worker.emergency_available = profile_data.emergency_available
-        worker.skills = [WorkerSkill(skill_name=skill) for skill in profile_data.skills]
+        merged_skills = list(dict.fromkeys([*profile_data.skills, *profile_data.categories]))
+        worker.skills = [WorkerSkill(skill_name=skill) for skill in merged_skills]
         worker.languages = [WorkerLanguage(language=language) for language in profile_data.languages]
         db.add(worker)
         user.full_name = profile_data.full_name
@@ -75,6 +78,8 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
     db.add(user)
     db.commit()
     db.refresh(user)
+    if user.worker_profile:
+        refresh_pricing_insights(db)
     return user
 
 
@@ -101,3 +106,35 @@ def update_worker_availability(
     db.commit()
     db.refresh(availability)
     return availability
+
+
+def update_worker_profile(db: Session, user: User, payload: WorkerProfileUpdate) -> User:
+    worker = user.worker_profile
+    if not worker:
+        raise ValueError("Worker profile not found")
+    data = payload.model_dump(exclude_unset=True)
+    if "full_name" in data and data["full_name"] is not None:
+        user.full_name = data.pop("full_name")
+    if "primary_location" in data:
+        worker.location_text = data.pop("primary_location")
+    if "work_gallery_urls" in data:
+        gallery = data.pop("work_gallery_urls")
+        worker.work_gallery_urls = ",".join(gallery) if gallery else None
+    if "skills" in data:
+        skills = data.pop("skills")
+        categories = data.pop("categories", None)
+        if skills is not None or categories is not None:
+            merged_skills = list(dict.fromkeys([*(skills or []), *(categories or [])]))
+            worker.skills = [WorkerSkill(skill_name=skill) for skill in merged_skills]
+    if "languages" in data:
+        languages = data.pop("languages")
+        if languages is not None:
+            worker.languages = [WorkerLanguage(language=language) for language in languages]
+    for key, value in data.items():
+        setattr(worker, key, value)
+    db.add(user)
+    db.add(worker)
+    db.commit()
+    db.refresh(user)
+    refresh_pricing_insights(db)
+    return user

@@ -117,8 +117,17 @@ def get_worker(worker_id: str, db: Session = Depends(get_db)):
             "daily_rate": float(worker.daily_rate),
             "bio": worker.bio,
             "profile_photo_url": worker.profile_photo_url,
+            "work_gallery_urls": worker.work_gallery_urls.split(",") if worker.work_gallery_urls else [],
         },
     )
+
+
+@router.get("/workers/me/profile")
+def my_worker_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    if user.role != UserRole.worker or not user.worker_profile:
+        raise HTTPException(status_code=403, detail="Worker access required")
+    worker = get_worker_or_404(db, user.worker_profile.id)
+    return get_worker(worker.id, db)
 
 
 @router.get("/workers/{worker_id}/reviews")
@@ -191,5 +200,6 @@ def toggle_emergency_availability(
     if user.role != UserRole.worker or not user.worker_profile:
         raise HTTPException(status_code=403, detail="Worker access required")
     user.worker_profile.emergency_available = enabled
+    user.worker_profile.available_today = enabled or user.worker_profile.available_today
     db.commit()
     return api_response("Emergency availability updated", {"enabled": enabled})

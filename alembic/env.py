@@ -16,6 +16,8 @@ from app.core.config import settings
 from app.core.database import Base
 from app.disputes.models import Dispute
 from app.notifications.models import Notification
+from app.otp.models import OTPChallenge
+from app.pricing.models import PricingInsight
 from app.profiles.models import (
     Category,
     ContractorProfile,

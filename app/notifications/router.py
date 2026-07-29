@@ -11,7 +11,18 @@ router = APIRouter(prefix="/notifications", tags=["notifications"])
 @router.get("")
 def list_notifications(user=Depends(get_current_user), db: Session = Depends(get_db)):
     items = db.query(Notification).filter(Notification.user_id == user.id).all()
-    return api_response("Notifications fetched", [item.id for item in items])
+    data = [
+        {
+            "id": item.id,
+            "title": item.title,
+            "message": item.message,
+            "type": item.type,
+            "is_read": item.is_read,
+            "created_at": item.created_at.isoformat() if item.created_at else None,
+        }
+        for item in items
+    ]
+    return api_response("Notifications fetched", data)
 
 
 @router.patch("/{notification_id}/read")
