@@ -44,13 +44,13 @@
   </header>
 
   <main class="mx-auto max-w-6xl px-6 py-10">
-    <section class="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+    <section class="grid gap-8 lg:grid-cols-[0.88fr_1.12fr]">
       <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl ring-1 ring-stone-200">
-        <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80" alt="A worker and customer meeting and smiling during a home service visit" class="h-64 w-full object-cover">
+        <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80" alt="A worker and customer meeting during a home service visit" class="h-64 w-full object-cover">
         <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Join KaamSetu</p>
-          <h1 class="mt-4 font-display text-4xl font-bold">Tell us who you are so we can shape the right experience for you.</h1>
-          <p class="mt-4 text-sm leading-7 text-emerald-50">Whether you want to hire, get hired, manage multiple workers, or support local onboarding, this setup helps personalize your experience from day one.</p>
+          <h1 class="mt-4 font-display text-4xl font-bold">Finish verification, capture your live location, and personalize your work profile.</h1>
+          <p class="mt-4 text-sm leading-7 text-emerald-50">We verify your email through SMTP, verify your phone through MSG91, and use your real location to make discovery and service matching more accurate.</p>
         </div>
       </div>
 
@@ -58,7 +58,7 @@
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Profile setup</p>
-            <h2 class="mt-2 font-display text-3xl font-bold">Choose your role and complete your profile</h2>
+            <h2 class="mt-2 font-display text-3xl font-bold">Verify your account and complete your profile</h2>
           </div>
           <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking sign-in</span>
         </div>
@@ -66,29 +66,55 @@
         <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Continue with Google to begin your KaamSetu profile.</div>
 
         <section class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
-          <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Account email</p>
+              <h3 class="mt-1 font-display text-2xl font-bold">Verify your sign-in email</h3>
+              <p class="mt-2 text-sm text-stone-600">This OTP is sent through SMTP to the Google account you used to sign in.</p>
+            </div>
+            <span id="email-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
+          </div>
+          <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Signed-in email</span>
+              <input id="verify-email" class="w-full rounded-2xl border border-stone-300 px-4 py-3" readonly>
+            </label>
+            <button id="send-email-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send email code</button>
+          </div>
+          <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Email OTP</span>
+              <input id="email-otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the code from your email">
+            </label>
+            <button id="verify-email-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify email</button>
+          </div>
+          <p id="email-note" class="mt-3 text-sm text-stone-600">We will send the code to your signed-in email address.</p>
+        </section>
+
+        <section class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Phone check</p>
-              <h3 class="mt-1 font-display text-2xl font-bold">Verify your phone number before profile setup</h3>
-              <p class="mt-2 text-sm text-stone-600">We use this to protect new accounts and confirm service starts.</p>
+              <h3 class="mt-1 font-display text-2xl font-bold">Verify your phone number</h3>
+              <p class="mt-2 text-sm text-stone-600">This OTP is sent through MSG91 and is also used later before starting a service.</p>
             </div>
-            <span id="verification-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Not verified</span>
+            <span id="phone-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
           </div>
           <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-stone-700">Phone number with country code</span>
               <input id="verify-phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="+919999999999">
             </label>
-            <button id="send-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send code</button>
+            <button id="send-phone-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send phone code</button>
           </div>
           <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
             <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Verification code</span>
-              <input id="otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the 6 digit code">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Phone OTP</span>
+              <input id="phone-otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the code from SMS">
             </label>
-            <button id="verify-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify number</button>
+            <button id="verify-phone-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify phone</button>
           </div>
-          <p id="verification-note" class="mt-3 text-sm text-stone-600">Use the same verified number in the form below.</p>
+          <p id="phone-note" class="mt-3 text-sm text-stone-600">Use the same verified number in the form below.</p>
         </section>
 
         <form id="profile-form" class="mt-8 space-y-6">
@@ -115,18 +141,24 @@
             </label>
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-stone-700">Location text</span>
-              <input id="location-text" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Delhi, Bengaluru, Lucknow" required>
+              <input id="location-text" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Auto-detect or type your area" required>
             </label>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <button id="use-live-location" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine" type="button">Use live location</button>
+            <button id="resolve-location" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Resolve typed location</button>
+            <span id="location-note" class="self-center text-sm text-stone-600">Use your current location for better worker discovery and radius matching.</span>
           </div>
 
           <div class="grid gap-4 md:grid-cols-2">
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-stone-700">Latitude</span>
-              <input id="latitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" value="28.6139" required>
+              <input id="latitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
             </label>
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-stone-700">Longitude</span>
-              <input id="longitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" value="77.2090" required>
+              <input id="longitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
             </label>
           </div>
 
@@ -143,11 +175,21 @@
     const dynamicFields = document.getElementById("dynamic-fields");
     const statusBox = document.getElementById("status");
     const authState = document.getElementById("auth-state");
-    const verificationBadge = document.getElementById("verification-badge");
-    const verificationNote = document.getElementById("verification-note");
+    const emailBadge = document.getElementById("email-badge");
+    const phoneBadge = document.getElementById("phone-badge");
+    const emailNote = document.getElementById("email-note");
+    const phoneNote = document.getElementById("phone-note");
+    const locationNote = document.getElementById("location-note");
     const profileSubmit = document.getElementById("profile-submit");
     const tokenFromQuery = new URLSearchParams(window.location.search).get("token");
-    const verificationState = { verified: false, phoneNumber: "", testCode: null };
+    const verificationState = {
+      emailVerified: false,
+      phoneVerified: false,
+      email: "",
+      phoneNumber: "",
+      emailTestCode: null,
+      phoneTestCode: null
+    };
 
     if (tokenFromQuery) {
       localStorage.setItem("kaamsetu_access_token", tokenFromQuery);
@@ -156,6 +198,26 @@
 
     function splitList(value) {
       return value.split(",").map((item) => item.trim()).filter(Boolean);
+    }
+
+    function syncPhoneFields(value) {
+      document.getElementById("verify-phone-number").value = value;
+      document.getElementById("phone-number").value = value;
+    }
+
+    function updateBadge(element, verified) {
+      element.textContent = verified ? "Verified" : "Pending";
+      element.className = verified
+        ? "rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800"
+        : "rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500";
+    }
+
+    function updateVerificationUI() {
+      updateBadge(emailBadge, verificationState.emailVerified);
+      updateBadge(phoneBadge, verificationState.phoneVerified);
+      profileSubmit.disabled = !(verificationState.emailVerified && verificationState.phoneVerified);
+      profileSubmit.classList.toggle("opacity-60", !(verificationState.emailVerified && verificationState.phoneVerified));
+      profileSubmit.classList.toggle("cursor-not-allowed", !(verificationState.emailVerified && verificationState.phoneVerified));
     }
 
     function workerFields() {
@@ -230,21 +292,6 @@
       attachPricingHintEvents();
     }
 
-    function syncPhoneFields(value) {
-      document.getElementById("verify-phone-number").value = value;
-      document.getElementById("phone-number").value = value;
-    }
-
-    function updateVerificationUI() {
-      profileSubmit.disabled = !verificationState.verified;
-      profileSubmit.classList.toggle("opacity-60", !verificationState.verified);
-      profileSubmit.classList.toggle("cursor-not-allowed", !verificationState.verified);
-      verificationBadge.textContent = verificationState.verified ? "Verified" : "Not verified";
-      verificationBadge.className = verificationState.verified
-        ? "rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800"
-        : "rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500";
-    }
-
     async function fetchPricingHint() {
       const categoriesInput = document.getElementById("categories");
       const locationInput = document.getElementById("location-text");
@@ -274,6 +321,60 @@
       if (locationInput) locationInput.addEventListener("input", fetchPricingHint);
     }
 
+    async function reverseGeocode(lat, lng) {
+      const response = await fetch(`/location/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+      const payload = await response.json();
+      if (!response.ok) throw new Error("Could not reverse geocode this location.");
+      document.getElementById("location-text").value = payload.data.address || "";
+      document.getElementById("latitude").value = payload.data.latitude ?? "";
+      document.getElementById("longitude").value = payload.data.longitude ?? "";
+    }
+
+    async function geocodeTypedLocation() {
+      const locationText = document.getElementById("location-text").value.trim();
+      if (!locationText) {
+        locationNote.textContent = "Type a location first, or use your live location.";
+        return;
+      }
+      locationNote.textContent = "Resolving the typed location...";
+      try {
+        const response = await fetch(`/location/geocode?address=${encodeURIComponent(locationText)}`);
+        const payload = await response.json();
+        if (!response.ok) throw new Error();
+        document.getElementById("location-text").value = payload.data.address || locationText;
+        document.getElementById("latitude").value = payload.data.latitude ?? "";
+        document.getElementById("longitude").value = payload.data.longitude ?? "";
+        locationNote.textContent = "Location resolved successfully.";
+      } catch {
+        locationNote.textContent = "We could not resolve that typed location.";
+      }
+    }
+
+    async function useLiveLocation() {
+      if (!navigator.geolocation) {
+        locationNote.textContent = "This browser does not support live location.";
+        return;
+      }
+      locationNote.textContent = "Fetching your live location...";
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            await reverseGeocode(latitude, longitude);
+            locationNote.textContent = "Live location fetched successfully.";
+          } catch {
+            document.getElementById("latitude").value = latitude;
+            document.getElementById("longitude").value = longitude;
+            locationNote.textContent = "Coordinates captured, but we could not resolve the address.";
+          }
+        },
+        () => {
+          locationNote.textContent = "Location access was denied or unavailable.";
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
     async function hydrateSessionState() {
       const token = localStorage.getItem("kaamsetu_access_token");
       if (!token) {
@@ -286,23 +387,28 @@
         const response = await fetch("/auth/me", {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (!response.ok) {
-          throw new Error("Session invalid");
-        }
+        if (!response.ok) throw new Error("Session invalid");
         const payload = await response.json();
-        authState.textContent = payload.data.profile_completed ? "Ready to go" : "Profile needed";
-        statusBox.textContent = `Signed in as ${payload.data.full_name || payload.data.email}. Choose your role and fill in your details below.`;
-        document.getElementById("full-name").value = payload.data.full_name || "";
-        if (payload.data.phone_number) {
-          verificationState.phoneNumber = payload.data.phone_number;
-          syncPhoneFields(payload.data.phone_number);
+        const user = payload.data;
+        authState.textContent = user.profile_completed ? "Ready to go" : "Profile needed";
+        statusBox.textContent = `Signed in as ${user.full_name || user.email}. Verify both your email and phone, then complete your profile below.`;
+        document.getElementById("full-name").value = user.full_name || "";
+        document.getElementById("verify-email").value = user.email || "";
+        verificationState.email = user.email || "";
+        verificationState.emailVerified = Boolean(user.is_verified_user);
+        verificationState.phoneVerified = Boolean(user.is_phone_verified);
+        if (user.phone_number) {
+          verificationState.phoneNumber = user.phone_number;
+          syncPhoneFields(user.phone_number);
         }
-        verificationState.verified = Boolean(payload.data.is_phone_verified);
-        if (verificationState.verified) {
-          verificationNote.textContent = `Verified number: ${payload.data.phone_number}`;
+        if (verificationState.emailVerified) {
+          emailNote.textContent = `Verified email: ${user.email}`;
+        }
+        if (verificationState.phoneVerified && user.phone_number) {
+          phoneNote.textContent = `Verified number: ${user.phone_number}`;
         }
         updateVerificationUI();
-      } catch (error) {
+      } catch {
         authState.textContent = "Sign-in needed";
         statusBox.textContent = "Your session has expired or is invalid. Please continue with Google again.";
       }
@@ -313,28 +419,22 @@
         const response = await fetch("/auth/google/login");
         const payload = await response.json();
         window.location.href = payload.data.authorization_url;
-      } catch (error) {
+      } catch {
         alert("Unable to start Google login right now.");
       }
     });
 
-    document.getElementById("verify-phone-number").addEventListener("input", (event) => {
-      const value = event.target.value.trim();
-      syncPhoneFields(value);
-      if (verificationState.phoneNumber !== value) {
-        verificationState.verified = false;
-        updateVerificationUI();
-      }
-    });
+    document.getElementById("use-live-location").addEventListener("click", useLiveLocation);
+    document.getElementById("resolve-location").addEventListener("click", geocodeTypedLocation);
 
-    document.getElementById("send-otp").addEventListener("click", async () => {
+    document.getElementById("send-email-otp").addEventListener("click", async () => {
       const token = localStorage.getItem("kaamsetu_access_token");
-      const phoneNumber = document.getElementById("verify-phone-number").value.trim();
-      if (!token || !phoneNumber) {
-        verificationNote.textContent = "Sign in and enter your phone number first.";
+      const email = document.getElementById("verify-email").value.trim();
+      if (!token || !email) {
+        emailNote.textContent = "Sign in first so we know where to send the code.";
         return;
       }
-      verificationNote.textContent = "Sending your verification code...";
+      emailNote.textContent = "Sending your email verification code...";
       try {
         const response = await fetch("/auth/otp/send", {
           method: "POST",
@@ -342,31 +442,28 @@
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ phone_number: phoneNumber })
+          body: JSON.stringify({ channel: "email", email })
         });
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.detail || "We could not send a verification code right now.");
-        verificationState.phoneNumber = phoneNumber;
-        verificationState.testCode = payload.data.test_code || null;
-        verificationState.verified = false;
-        verificationNote.textContent = verificationState.testCode
-          ? `Code sent. For testing, use ${verificationState.testCode}.`
-          : "Code sent. Please check your SMS inbox.";
-        updateVerificationUI();
+        if (!response.ok) throw new Error(payload.detail || "We could not send an email code right now.");
+        verificationState.emailTestCode = payload.data.test_code || null;
+        emailNote.textContent = verificationState.emailTestCode
+          ? `Email code sent. For testing, use ${verificationState.emailTestCode}.`
+          : `Email code sent to ${email}. Please check your inbox.`;
       } catch (error) {
-        verificationNote.textContent = error.message || "We could not send a verification code right now.";
+        emailNote.textContent = error.message || "We could not send an email code right now.";
       }
     });
 
-    document.getElementById("verify-otp").addEventListener("click", async () => {
+    document.getElementById("verify-email-otp").addEventListener("click", async () => {
       const token = localStorage.getItem("kaamsetu_access_token");
-      const phoneNumber = document.getElementById("verify-phone-number").value.trim();
-      const code = document.getElementById("otp-code").value.trim();
-      if (!token || !phoneNumber || !code) {
-        verificationNote.textContent = "Enter the phone number and verification code first.";
+      const email = document.getElementById("verify-email").value.trim();
+      const code = document.getElementById("email-otp-code").value.trim();
+      if (!token || !email || !code) {
+        emailNote.textContent = "Enter the email verification code first.";
         return;
       }
-      verificationNote.textContent = "Verifying your number...";
+      emailNote.textContent = "Verifying your email...";
       try {
         const response = await fetch("/auth/otp/verify", {
           method: "POST",
@@ -374,17 +471,85 @@
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ phone_number: phoneNumber, code })
+          body: JSON.stringify({ channel: "email", email, code })
         });
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.detail || "Verification failed.");
-        verificationState.verified = true;
-        verificationState.phoneNumber = phoneNumber;
-        syncPhoneFields(phoneNumber);
-        verificationNote.textContent = `Phone number verified for ${phoneNumber}.`;
+        if (!response.ok) throw new Error(payload.detail || "Email verification failed.");
+        verificationState.emailVerified = true;
+        emailNote.textContent = `Email verified for ${email}.`;
         updateVerificationUI();
       } catch (error) {
-        verificationNote.textContent = error.message || "Verification failed.";
+        emailNote.textContent = error.message || "Email verification failed.";
+      }
+    });
+
+    document.getElementById("verify-phone-number").addEventListener("input", (event) => {
+      const value = event.target.value.trim();
+      syncPhoneFields(value);
+      if (verificationState.phoneNumber !== value) {
+        verificationState.phoneVerified = false;
+        updateVerificationUI();
+      }
+    });
+
+    document.getElementById("send-phone-otp").addEventListener("click", async () => {
+      const token = localStorage.getItem("kaamsetu_access_token");
+      const phoneNumber = document.getElementById("verify-phone-number").value.trim();
+      if (!token || !phoneNumber) {
+        phoneNote.textContent = "Sign in and enter your phone number first.";
+        return;
+      }
+      phoneNote.textContent = "Sending your phone verification code...";
+      try {
+        const response = await fetch("/auth/otp/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ channel: "phone", phone_number: phoneNumber })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "We could not send a phone code right now.");
+        verificationState.phoneNumber = phoneNumber;
+        verificationState.phoneTestCode = payload.data.test_code || null;
+        verificationState.phoneVerified = false;
+        phoneNote.textContent = verificationState.phoneTestCode
+          ? `Phone code sent. For testing, use ${verificationState.phoneTestCode}.`
+          : "Phone code sent. Please check your SMS inbox.";
+        updateVerificationUI();
+      } catch (error) {
+        phoneNote.textContent = error.message || "We could not send a phone code right now.";
+      }
+    });
+
+    document.getElementById("verify-phone-otp").addEventListener("click", async () => {
+      const token = localStorage.getItem("kaamsetu_access_token");
+      const phoneNumber = document.getElementById("verify-phone-number").value.trim();
+      const code = document.getElementById("phone-otp-code").value.trim();
+      if (!token || !phoneNumber || !code) {
+        phoneNote.textContent = "Enter the phone number and verification code first.";
+        return;
+      }
+      phoneNote.textContent = "Verifying your phone number...";
+      try {
+        const response = await fetch("/auth/otp/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ channel: "phone", phone_number: phoneNumber, code })
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "Phone verification failed.");
+        verificationState.phoneVerified = true;
+        verificationState.phoneNumber = phoneNumber;
+        syncPhoneFields(phoneNumber);
+        phoneNote.textContent = `Phone number verified for ${phoneNumber}.`;
+        updateVerificationUI();
+      } catch (error) {
+        phoneNote.textContent = error.message || "Phone verification failed.";
       }
     });
 
@@ -395,8 +560,8 @@
         statusBox.textContent = "Login is required before profile setup.";
         return;
       }
-      if (!verificationState.verified) {
-        statusBox.textContent = "Verify your phone number before submitting your profile.";
+      if (!(verificationState.emailVerified && verificationState.phoneVerified)) {
+        statusBox.textContent = "Verify both your email and phone before submitting your profile.";
         return;
       }
 
@@ -465,9 +630,7 @@
           body: JSON.stringify(payload)
         });
         const responsePayload = await response.json();
-        if (!response.ok) {
-          throw new Error(responsePayload.detail || responsePayload.message || "Profile setup failed");
-        }
+        if (!response.ok) throw new Error(responsePayload.detail || responsePayload.message || "Profile setup failed");
         statusBox.textContent = "Your profile is ready. You can now explore services and connect with the right people.";
       } catch (error) {
         statusBox.textContent = error.message || "We could not save your profile right now.";

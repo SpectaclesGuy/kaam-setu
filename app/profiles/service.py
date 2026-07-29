@@ -20,6 +20,7 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
     if payload.role == UserRole.worker and payload.worker_profile:
         profile_data = payload.worker_profile
         worker = user.worker_profile or WorkerProfile(user_id=user.id)
+        user.phone_number = profile_data.phone_number
         worker.phone_number = profile_data.phone_number
         worker.gender = profile_data.gender
         worker.profile_photo_url = profile_data.profile_photo_url
@@ -43,6 +44,7 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
     elif payload.role == UserRole.employer and payload.employer_profile:
         profile_data = payload.employer_profile
         employer = user.employer_profile or EmployerProfile(user_id=user.id)
+        user.phone_number = profile_data.phone_number
         employer.phone_number = profile_data.phone_number
         employer.employer_type = profile_data.employer_type.value
         employer.organization_name = profile_data.organization_name
@@ -54,6 +56,7 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
     elif payload.role == UserRole.contractor and payload.contractor_profile:
         profile_data = payload.contractor_profile
         contractor = user.contractor_profile or ContractorProfile(user_id=user.id)
+        user.phone_number = profile_data.phone_number
         contractor.phone_number = profile_data.phone_number
         contractor.company_name = profile_data.company_name
         contractor.latitude = profile_data.latitude
@@ -67,6 +70,7 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
     elif payload.role == UserRole.operator and payload.operator_profile:
         profile_data = payload.operator_profile
         operator = user.operator_profile or OperatorProfile(user_id=user.id)
+        user.phone_number = profile_data.phone_number
         operator.phone_number = profile_data.phone_number
         operator.assigned_area = profile_data.assigned_area
         operator.latitude = profile_data.latitude

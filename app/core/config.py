@@ -28,9 +28,17 @@ class Settings(BaseSettings):
     otp_ttl_seconds: int = 300
     otp_resend_cooldown_seconds: int = 60
     otp_test_bypass_code: str = "123456"
-    twilio_account_sid: str | None = None
-    twilio_auth_token: str | None = None
-    twilio_verify_service_sid: str | None = None
+    email_otp_provider: str = "mock"
+    phone_otp_provider: str = "mock"
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+    smtp_from_name: str = "KaamSetu"
+    smtp_use_tls: bool = True
+    msg91_auth_key: str | None = None
+    msg91_template_id: str | None = None
 
     @property
     def effective_google_redirect_uri(self) -> str:

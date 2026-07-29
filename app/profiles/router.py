@@ -14,6 +14,8 @@ router = APIRouter(prefix="/profile", tags=["profiles"])
 def setup_role(payload: RoleSetupRequest, user=Depends(get_current_user), db: Session = Depends(get_db)):
     if user.role == UserRole.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin setup is protected")
+    if not user.is_verified_user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email verification is required before profile setup")
     if not user.is_phone_verified or not user.phone_number:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

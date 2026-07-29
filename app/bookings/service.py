@@ -51,8 +51,9 @@ def send_booking_start_otp(db: Session, booking: Booking, user: User):
         db,
         user=user,
         booking=booking,
-        phone_number=user.phone_number,
+        destination=user.phone_number,
         purpose=BOOKING_START_PURPOSE,
+        channel="phone",
     )
 
 
@@ -65,9 +66,10 @@ def verify_booking_start_otp(db: Session, booking: Booking, user: User, code: st
         db,
         user=user,
         booking=booking,
-        phone_number=user.phone_number,
+        destination=user.phone_number,
         code=code,
         purpose=BOOKING_START_PURPOSE,
+        channel="phone",
     )
     booking.status = BookingStatus.in_progress
     booking.service_start_verified = True

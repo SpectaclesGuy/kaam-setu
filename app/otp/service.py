@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
+from email.message import EmailMessage
 from secrets import randbelow
+import smtplib
 
 import httpx
 from fastapi import HTTPException
@@ -11,14 +13,22 @@ from app.otp.models import OTPChallenge
 from app.users.models import User
 
 
-SIGNUP_PURPOSE = "signup"
-BOOKING_START_PURPOSE = "booking_start"
+SIGNUP_EMAIL_PURPOSE = "signup_email"
+SIGNUP_PHONE_PURPOSE = "signup_phone"
+BOOKING_START_PURPOSE = "booking_start_phone"
 
 
-def normalize_phone_number(phone_number: str) -> str:
-    normalized = "".join(char for char in phone_number.strip() if char.isdigit() or char == "+")
+def normalize_phone_number(destination: str) -> str:
+    normalized = "".join(char for char in destination.strip() if char.isdigit() or char == "+")
     if not normalized.startswith("+"):
         raise HTTPException(status_code=400, detail="Phone number must include country code, for example +919999999999")
+    return normalized
+
+
+def normalize_email_address(destination: str) -> str:
+    normalized = destination.strip().lower()
+    if "@" not in normalized:
+        raise HTTPException(status_code=400, detail="A valid email address is required")
     return normalized
 
 
@@ -27,7 +37,7 @@ def generate_mock_code() -> str:
 
 
 def get_active_challenge(
-    db: Session, *, user_id: str | None, booking_id: str | None, phone_number: str, purpose: str
+    db: Session, *, user_id: str | None, booking_id: str | None, destination: str, purpose: str
 ) -> OTPChallenge | None:
     now = datetime.now(timezone.utc)
     return (
@@ -35,7 +45,7 @@ def get_active_challenge(
         .filter(
             OTPChallenge.user_id == user_id,
             OTPChallenge.booking_id == booking_id,
-            OTPChallenge.phone_number == phone_number,
+            OTPChallenge.phone_number == destination,
             OTPChallenge.purpose == purpose,
             OTPChallenge.is_used.is_(False),
             OTPChallenge.expires_at > now,
@@ -45,30 +55,59 @@ def get_active_challenge(
     )
 
 
-def send_via_twilio_verify(phone_number: str) -> str:
-    if not settings.twilio_account_sid or not settings.twilio_auth_token or not settings.twilio_verify_service_sid:
-        raise HTTPException(status_code=500, detail="Twilio Verify is not configured")
+def send_via_smtp_email(destination: str, code: str, purpose: str) -> str:
+    if not settings.smtp_username or not settings.smtp_password:
+        raise HTTPException(status_code=500, detail="SMTP credentials are not configured")
+    sender = settings.smtp_from_email or settings.smtp_username
+    message = EmailMessage()
+    message["From"] = f"{settings.smtp_from_name} <{sender}>"
+    message["To"] = destination
+    message["Subject"] = "Your KaamSetu verification code"
+    purpose_text = "verify your KaamSetu account" if purpose == SIGNUP_EMAIL_PURPOSE else "verify this action"
+    message.set_content(
+        f"Your KaamSetu verification code is {code}. Use it within {max(settings.otp_ttl_seconds // 60, 1)} minutes to {purpose_text}."
+    )
+
+    with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=20) as server:
+        if settings.smtp_use_tls:
+            server.starttls()
+        server.login(settings.smtp_username, settings.smtp_password)
+        server.send_message(message)
+    return destination
+
+
+def send_via_msg91(destination: str) -> str:
+    if not settings.msg91_auth_key or not settings.msg91_template_id:
+        raise HTTPException(status_code=500, detail="MSG91 credentials are not configured")
     response = httpx.post(
-        f"https://verify.twilio.com/v2/Services/{settings.twilio_verify_service_sid}/Verifications",
-        auth=(settings.twilio_account_sid, settings.twilio_auth_token),
-        data={"To": phone_number, "Channel": "sms"},
+        "https://control.msg91.com/api/v5/otp",
+        params={
+            "template_id": settings.msg91_template_id,
+            "mobile": destination.lstrip("+"),
+            "authkey": settings.msg91_auth_key,
+        },
+        headers={"Content-Type": "application/json"},
+        json={},
+        timeout=20.0,
+    )
+    response.raise_for_status()
+    return destination
+
+
+def verify_via_msg91(destination: str, code: str) -> bool:
+    if not settings.msg91_auth_key:
+        raise HTTPException(status_code=500, detail="MSG91 credentials are not configured")
+    response = httpx.get(
+        "https://control.msg91.com/api/v5/otp/verify",
+        params={"otp": code, "mobile": destination.lstrip("+")},
+        headers={"authkey": settings.msg91_auth_key},
         timeout=20.0,
     )
     response.raise_for_status()
     payload = response.json()
-    return payload.get("sid") or phone_number
-
-
-def verify_via_twilio(phone_number: str, code: str) -> bool:
-    response = httpx.post(
-        f"https://verify.twilio.com/v2/Services/{settings.twilio_verify_service_sid}/VerificationCheck",
-        auth=(settings.twilio_account_sid, settings.twilio_auth_token),
-        data={"To": phone_number, "Code": code},
-        timeout=20.0,
-    )
-    response.raise_for_status()
-    payload = response.json()
-    return payload.get("status") == "approved"
+    message = str(payload.get("message", "")).lower()
+    result_type = str(payload.get("type", "")).lower()
+    return "verified" in message or result_type == "success"
 
 
 def create_or_refresh_challenge(
@@ -76,41 +115,45 @@ def create_or_refresh_challenge(
     *,
     user: User | None,
     booking: Booking | None,
-    phone_number: str,
+    destination: str,
     purpose: str,
+    channel: str,
 ) -> OTPChallenge:
-    phone_number = normalize_phone_number(phone_number)
+    destination = normalize_email_address(destination) if channel == "email" else normalize_phone_number(destination)
     now = datetime.now(timezone.utc)
     existing = get_active_challenge(
         db,
         user_id=user.id if user else None,
         booking_id=booking.id if booking else None,
-        phone_number=phone_number,
+        destination=destination,
         purpose=purpose,
     )
     if existing and (now - existing.last_sent_at) < timedelta(seconds=settings.otp_resend_cooldown_seconds):
         raise HTTPException(status_code=429, detail="Please wait before requesting another code")
 
     expires_at = now + timedelta(seconds=settings.otp_ttl_seconds)
-    provider = settings.otp_provider.lower().strip()
-    mock_code = None
+    provider = settings.email_otp_provider.lower().strip() if channel == "email" else settings.phone_otp_provider.lower().strip()
+    generated_code = settings.otp_test_bypass_code if provider == "mock" else None
     provider_reference = None
-    if provider == "twilio_verify":
-        provider_reference = send_via_twilio_verify(phone_number)
+    if channel == "email" and provider == "smtp":
+        generated_code = generate_mock_code()
+        provider_reference = send_via_smtp_email(destination, generated_code, purpose)
+    elif channel == "phone" and provider == "msg91":
+        provider_reference = send_via_msg91(destination)
     else:
         provider = "mock"
-        mock_code = settings.otp_test_bypass_code or generate_mock_code()
+        generated_code = settings.otp_test_bypass_code or generate_mock_code()
         provider_reference = "mock"
 
     challenge = existing or OTPChallenge(
         user_id=user.id if user else None,
         booking_id=booking.id if booking else None,
-        phone_number=phone_number,
+        phone_number=destination,
         purpose=purpose,
     )
     challenge.provider = provider
     challenge.provider_reference = provider_reference
-    challenge.verification_code = mock_code
+    challenge.verification_code = generated_code
     challenge.expires_at = expires_at
     challenge.last_sent_at = now
     challenge.attempts = 0
@@ -127,16 +170,17 @@ def verify_challenge(
     *,
     user: User | None,
     booking: Booking | None,
-    phone_number: str,
+    destination: str,
     code: str,
     purpose: str,
+    channel: str,
 ) -> OTPChallenge:
-    phone_number = normalize_phone_number(phone_number)
+    destination = normalize_email_address(destination) if channel == "email" else normalize_phone_number(destination)
     challenge = get_active_challenge(
         db,
         user_id=user.id if user else None,
         booking_id=booking.id if booking else None,
-        phone_number=phone_number,
+        destination=destination,
         purpose=purpose,
     )
     if not challenge:
@@ -148,8 +192,8 @@ def verify_challenge(
         db.commit()
         raise HTTPException(status_code=429, detail="Too many verification attempts")
 
-    if challenge.provider == "twilio_verify":
-        approved = verify_via_twilio(phone_number, code)
+    if channel == "phone" and challenge.provider == "msg91":
+        approved = verify_via_msg91(destination, code)
     else:
         approved = code == challenge.verification_code
 

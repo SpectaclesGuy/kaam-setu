@@ -81,14 +81,21 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 MAP_GEOCODER_PROVIDER=nominatim
 NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org
 CORS_ORIGINS=https://your-service.onrender.com
-OTP_PROVIDER=mock
 OTP_CODE_LENGTH=6
 OTP_TTL_SECONDS=300
 OTP_RESEND_COOLDOWN_SECONDS=60
 OTP_TEST_BYPASS_CODE=123456
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_VERIFY_SERVICE_SID=
+EMAIL_OTP_PROVIDER=mock
+PHONE_OTP_PROVIDER=mock
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=
+SMTP_PASSWORD=
+SMTP_FROM_EMAIL=
+SMTP_FROM_NAME=KaamSetu
+SMTP_USE_TLS=true
+MSG91_AUTH_KEY=
+MSG91_TEMPLATE_ID=
 ```
 
 Use this Google OAuth Authorized redirect URI:
@@ -111,26 +118,32 @@ The current app serves these frontend pages directly:
 
 ## OTP setup
 
-The app now supports two OTP modes:
+The app now supports two OTP channels at the same time:
 
-- `OTP_PROVIDER=mock` for local testing and Render smoke tests. The app returns `OTP_TEST_BYPASS_CODE` in API responses so you can complete flows without a live SMS provider.
-- `OTP_PROVIDER=twilio_verify` for production-style SMS OTP.
+- email OTP through SMTP, controlled by `EMAIL_OTP_PROVIDER`
+- phone OTP through MSG91, controlled by `PHONE_OTP_PROVIDER`
 
-Recommended Twilio Verify setup:
+Recommended setup:
 
-1. Create a Twilio account and start with their free trial.
-2. In Twilio Verify, create one Verify Service.
-3. Put these values into Render:
-   - `TWILIO_ACCOUNT_SID`
-   - `TWILIO_AUTH_TOKEN`
-   - `TWILIO_VERIFY_SERVICE_SID`
-   - `OTP_PROVIDER=twilio_verify`
-4. For trial accounts, Twilio only allows Verify sends to pre-verified destination numbers and imposes low trial limits, which is suitable for testing but not for open production onboarding.
+1. For email OTP:
+   - set `EMAIL_OTP_PROVIDER=smtp`
+   - configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`
+2. For phone OTP in India:
+   - set `PHONE_OTP_PROVIDER=msg91`
+   - create an MSG91 OTP template and copy its `template_id`
+   - copy your MSG91 auth key from the dashboard
+   - set `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID`
+3. For local testing:
+   - use `EMAIL_OTP_PROVIDER=mock`
+   - use `PHONE_OTP_PROVIDER=mock`
+   - the app returns `OTP_TEST_BYPASS_CODE` in API responses
+4. For Indian delivery, make sure your MSG91 OTP template and DLT setup are configured correctly in the MSG91 dashboard.
 
 OTP is used in two product moments:
 
-- account verification before profile setup
-- service start confirmation before a booking moves to `in_progress`
+- account email verification before profile setup
+- account phone verification before profile setup
+- service start phone confirmation before a booking moves to `in_progress`
 
 ## Pricing intelligence
 

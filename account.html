@@ -189,6 +189,7 @@
           <p class="font-semibold text-ink">${user.full_name}</p>
           <p>${user.email}</p>
           <p class="mt-2 uppercase tracking-[0.18em] text-xs text-pine">${user.role || "role not set yet"}</p>
+          <p class="mt-1 text-xs ${user.is_verified_user ? "text-emerald-700" : "text-clay"}">${user.is_verified_user ? `Email verified: ${user.email}` : "Email verification pending"}</p>
           <p class="mt-1 text-xs ${user.is_phone_verified ? "text-emerald-700" : "text-clay"}">${user.is_phone_verified ? `Phone verified: ${user.phone_number}` : "Phone verification pending"}</p>
           <p class="mt-1 text-xs ${user.profile_completed ? "text-emerald-700" : "text-clay"}">${user.profile_completed ? "Profile complete" : "Profile setup required"}</p>
         `;
