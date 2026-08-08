@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="/app-shell.js"></script>
   <script>
     tailwind.config = {theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};
   </script>
@@ -17,13 +18,8 @@
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
       <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
-      <div class="hidden gap-6 text-sm font-medium md:flex">
-        <a href="/" class="text-stone-600 hover:text-pine">Home</a>
-        <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
-        <a href="/work-requests-app" class="text-pine">Post Work</a>
-        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
-      </div>
-      <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
+      <div id="nav-links" class="hidden gap-6 text-sm font-medium md:flex"></div>
+      <div id="nav-actions" class="flex items-center gap-3"></div>
     </nav>
   </header>
 
@@ -484,6 +480,7 @@
     }
 
     async function hydrate() {
+      currentUser = await KaramSetuShell.initNavbar({ activePath: "/work-requests-app" });
       if (!token) {
         authState.textContent = "No session";
         statusBox.textContent = "Please sign in first.";
@@ -496,6 +493,14 @@
           api("/work-requests?scope=mine")
         ]);
         currentUser = profileResponse.data;
+        if (currentUser.role === "worker") {
+          setFormEnabled(false);
+          authState.textContent = "Worker account";
+          statusBox.textContent = "Workers cannot post or manage customer job requests. Use Nearby Jobs instead.";
+          setActiveTab("status");
+          renderRequests([]);
+          return;
+        }
         renderRequests(requestsResponse.data || []);
         const canPost = Boolean(currentUser.profile_completed && (!appConfig.work_request_require_phone_verification || currentUser.is_phone_verified));
         setFormEnabled(canPost);

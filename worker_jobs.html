@@ -9,18 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="/app-shell.js"></script>
   <script>tailwind.config={theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};</script>
 </head>
 <body class="bg-stone-50 font-body text-ink">
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
       <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
-      <div class="hidden gap-6 text-sm font-medium md:flex">
-        <a href="/worker-jobs" class="text-pine">Nearby Jobs</a>
-        <a href="/worker-dashboard" class="text-stone-600 hover:text-pine">Worker Dashboard</a>
-        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
-      </div>
-      <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
+      <div id="nav-links" class="hidden gap-6 text-sm font-medium md:flex"></div>
+      <div id="nav-actions" class="flex items-center gap-3"></div>
     </nav>
   </header>
   <main class="mx-auto max-w-6xl px-6 py-10">
@@ -31,7 +28,14 @@
           <h1 class="mt-2 font-display text-4xl font-bold">See customer requests close to your service area.</h1>
           <p class="mt-3 max-w-3xl text-sm leading-7 text-stone-600">Open nearby jobs, review the request details, and preview the route from your worker location to the customer pin before you apply.</p>
         </div>
-        <button id="refresh-jobs" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh jobs</button>
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="text-sm font-medium text-stone-700">
+            Radius
+            <input id="radius-filter" type="number" min="1" max="100" value="15" class="ml-2 w-24 rounded-full border border-stone-300 px-4 py-2 text-sm">
+            km
+          </label>
+          <button id="refresh-jobs" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh jobs</button>
+        </div>
       </div>
       <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading nearby jobs...</div>
     </section>
@@ -64,9 +68,11 @@
     const statusBox = document.getElementById("status");
     const jobsList = document.getElementById("jobs-list");
     const routeNote = document.getElementById("route-note");
+    const radiusFilter = document.getElementById("radius-filter");
     let map;
     let markers = [];
     let routeLine = null;
+    let sessionUser = null;
 
     function initMap() {
       map = L.map("route-map").setView([28.6139, 77.2090], 11);
@@ -174,10 +180,20 @@
         statusBox.textContent = "Please sign in first.";
         return;
       }
+      if (!sessionUser) {
+        sessionUser = await KaramSetuShell.initNavbar({ activePath: "/worker-jobs" });
+      }
+      if (!sessionUser || sessionUser.role !== "worker") {
+        statusBox.textContent = "Only worker accounts can view and accept nearby jobs.";
+        jobsList.innerHTML = `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">Switch to a worker account to access nearby jobs.</div>`;
+        return;
+      }
       try {
-        const payload = await api("/work-requests/nearby-worker?radius_km=30");
+        const radius = Math.min(100, Math.max(1, Number(radiusFilter.value || 15)));
+        radiusFilter.value = String(radius);
+        const payload = await api(`/work-requests/nearby-worker?radius_km=${radius}`);
         const items = payload.data || [];
-        statusBox.textContent = items.length ? `${items.length} nearby jobs found for your worker profile.` : "No nearby jobs found right now.";
+        statusBox.textContent = items.length ? `${items.length} nearby jobs found within ${radius} km.` : `No nearby jobs found within ${radius} km right now.`;
         renderJobs(items);
         if (items[0]) showRoute(items[0]);
       } catch (error) {
@@ -185,9 +201,13 @@
       }
     }
 
+    KaramSetuShell.initNavbar({ activePath: "/worker-jobs" }).then((user) => {
+      sessionUser = user;
+      loadJobs();
+    });
     document.getElementById("refresh-jobs").addEventListener("click", loadJobs);
+    radiusFilter.addEventListener("change", loadJobs);
     initMap();
-    loadJobs();
   </script>
 </body>
 </html>

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="/app-shell.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -31,15 +32,8 @@
   <header class="sticky top-0 z-50 border-b border-stone-200/80 bg-stone-50/90 backdrop-blur">
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
       <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
-      <div class="hidden gap-6 text-sm font-medium md:flex">
-        <a href="/" class="text-pine">Home</a>
-        <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
-        <a href="/work-requests-app" class="text-stone-600 hover:text-pine">Post Work</a>
-        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
-      </div>
-      <div class="flex items-center gap-3">
-        <button id="google-login" class="rounded-full bg-pine px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800">Join Us</button>
-      </div>
+      <div id="nav-links" class="hidden gap-6 text-sm font-medium md:flex"></div>
+      <div id="nav-actions" class="flex items-center gap-3"></div>
     </nav>
   </header>
 
@@ -156,19 +150,7 @@
       }
     }
 
-    document.getElementById("google-login").addEventListener("click", async () => {
-      try {
-        const response = await fetch("/auth/google/login");
-        const payload = await response.json();
-        const url = payload?.data?.authorization_url;
-        if (!url) {
-          throw new Error("Missing authorization URL");
-        }
-        window.location.href = url;
-      } catch (error) {
-        alert("Unable to start Google login right now.");
-      }
-    });
+    KaramSetuShell.initNavbar({ activePath: "/" });
   </script>
 </body>
 </html>

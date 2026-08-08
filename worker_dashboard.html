@@ -8,17 +8,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="/app-shell.js"></script>
   <script>tailwind.config={theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};</script>
 </head>
 <body class="bg-stone-50 font-body text-ink">
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
       <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
-      <div class="hidden gap-6 text-sm font-medium md:flex">
-        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
-        <a href="/worker-dashboard" class="text-pine">Worker Dashboard</a>
-      </div>
-      <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
+      <div id="nav-links" class="hidden gap-6 text-sm font-medium md:flex"></div>
+      <div id="nav-actions" class="flex items-center gap-3"></div>
     </nav>
   </header>
   <main class="mx-auto max-w-7xl px-6 py-10">
@@ -114,6 +112,11 @@
     async function load() {
       if (!token) return;
       try {
+        const sessionUser = await KaramSetuShell.initNavbar({ activePath: "/worker-dashboard" });
+        if (!sessionUser || sessionUser.role !== "worker") {
+          statusBox.textContent = "Only worker accounts can use the worker dashboard.";
+          return;
+        }
         const [profile, workerPublic, verification] = await Promise.all([api("/profile/me"), api("/workers/me/profile"), api("/verification/me")]);
         fillProfile(profile.data);
         renderAvailability((await api(`/workers/${workerPublic.data.id}/availability`)).data || []);

@@ -100,6 +100,11 @@ def homepage():
     return FileResponse(BASE_DIR / "homepage.html")
 
 
+@app.get("/app-shell.js", include_in_schema=False)
+def app_shell_script():
+    return FileResponse(BASE_DIR / "app_shell.js", media_type="application/javascript")
+
+
 @app.get("/find-workers", include_in_schema=False)
 def find_workers_page():
     return FileResponse(BASE_DIR / "find_workers.html")
