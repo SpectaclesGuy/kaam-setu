@@ -20,7 +20,10 @@
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
         <a href="/admin-panel" class="text-pine">Admin Panel</a>
       </div>
-      <button id="refresh-admin" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh dashboard</button>
+      <div class="flex items-center gap-3">
+        <button id="admin-login" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Admin sign in</button>
+        <button id="refresh-admin" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh dashboard</button>
+      </div>
     </nav>
   </header>
 
@@ -96,6 +99,12 @@
   </main>
 
   <script>
+    const tokenFromQuery = new URLSearchParams(window.location.search).get("token");
+    if (tokenFromQuery) {
+      localStorage.setItem("kaamsetu_access_token", tokenFromQuery);
+      window.history.replaceState({}, "", "/admin-panel");
+    }
+
     const token = localStorage.getItem("kaamsetu_access_token");
     const statusBox = document.getElementById("admin-status");
     let allUsers = [];
@@ -277,16 +286,36 @@
 
     async function load() {
       if (!token) {
-        statusBox.textContent = "Please sign in as an admin first.";
+        statusBox.textContent = "Sign in with your admin Google account to open the operations cockpit.";
         return;
       }
       try {
         await Promise.all([loadDashboard(), loadUsers(), loadVerificationQueue()]);
         statusBox.textContent = "Admin dashboard is up to date.";
       } catch (error) {
+        if ((error.message || "").includes("Insufficient permissions")) {
+          statusBox.textContent = "You are signed in, but this account does not have admin access. Add the email to DEFAULT_ADMIN_EMAILS or promote it from an existing admin account.";
+          return;
+        }
+        if ((error.message || "").includes("Authentication required") || (error.message || "").includes("Invalid token")) {
+          statusBox.textContent = "Your admin session is missing or expired. Sign in again.";
+          return;
+        }
         statusBox.textContent = error.message || "We could not load the admin dashboard.";
       }
     }
+
+    document.getElementById("admin-login").addEventListener("click", async () => {
+      try {
+        const response = await fetch("/auth/google/login");
+        const contentType = response.headers.get("content-type") || "";
+        const payload = contentType.includes("application/json") ? await response.json() : { detail: await response.text() };
+        if (!response.ok) throw new Error(payload.detail || payload.message || "Unable to start admin login.");
+        window.location.href = payload.data.authorization_url;
+      } catch (error) {
+        statusBox.textContent = error.message || "Unable to start admin login.";
+      }
+    });
 
     document.getElementById("settings-form").addEventListener("submit", async (event) => {
       event.preventDefault();
