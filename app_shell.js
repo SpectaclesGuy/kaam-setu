@@ -93,6 +93,9 @@
     const actionsNode = document.getElementById("nav-actions");
     if (!linksNode || !actionsNode) return;
 
+    linksNode.className = "flex flex-wrap items-center gap-4 text-sm font-medium md:gap-6";
+    actionsNode.className = "flex flex-wrap items-center gap-3";
+
     const links = [];
     const actions = [];
     actions.push(languageSelector());
