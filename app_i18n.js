@@ -3,9 +3,10 @@
   const DEFAULT_LANGUAGE = "en";
   const SUPPORTED_LANGUAGES = {
     en: "English",
-    hi: "हिंदी",
-    pa: "ਪੰਜਾਬੀ",
+    hi: "Hindi",
+    pa: "Punjabi",
   };
+
   const cache = {};
   let currentLanguage = DEFAULT_LANGUAGE;
   let currentMessages = {};
@@ -27,7 +28,9 @@
   }
 
   function t(key, fallback = "") {
-    return currentMessages[key] ?? cache[DEFAULT_LANGUAGE]?.[key] ?? fallback || key;
+    if (currentMessages[key] != null) return currentMessages[key];
+    if (cache[DEFAULT_LANGUAGE] && cache[DEFAULT_LANGUAGE][key] != null) return cache[DEFAULT_LANGUAGE][key];
+    return fallback || key;
   }
 
   function applyTranslations(root = document) {
@@ -62,6 +65,7 @@
     const normalized = SUPPORTED_LANGUAGES[language] ? language : DEFAULT_LANGUAGE;
     currentMessages = await loadLanguage(normalized);
     currentLanguage = normalized;
+
     if (options.persist !== false) {
       window.localStorage.setItem(LANGUAGE_KEY, normalized);
     }
@@ -71,6 +75,7 @@
     if (options.apply !== false) {
       applyTranslations();
     }
+
     window.dispatchEvent(new CustomEvent("karamsetu:language-changed", { detail: { language: normalized } }));
     return normalized;
   }
