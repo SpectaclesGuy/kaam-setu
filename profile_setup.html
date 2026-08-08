@@ -403,6 +403,10 @@
       return value.split(",").map((item) => item.trim()).filter(Boolean);
     }
 
+    function redirectAfterProfileSetup(role) {
+      window.location.href = role === "worker" ? "/worker-jobs" : "/services";
+    }
+
     function sanitizeAadhaarValue(value) {
       return (value || "").replace(/\D/g, "").slice(0, 12);
     }
@@ -1413,6 +1417,7 @@
           ? "Your profile is saved and your KYC has been sent to the admin review queue."
           : "Your profile is ready. You can now explore services and connect with the right people.";
         renderRoleFields();
+        window.setTimeout(() => redirectAfterProfileSetup(role), 800);
       } catch (error) {
         statusBox.textContent = error.message || "We could not save your profile right now.";
       }
