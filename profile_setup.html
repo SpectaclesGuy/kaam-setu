@@ -46,7 +46,7 @@
   <main class="mx-auto max-w-6xl px-6 py-10">
     <section class="grid gap-8 lg:grid-cols-[0.84fr_1.16fr]">
       <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl ring-1 ring-stone-200">
-        <img src="profile-setup.jpeg" alt="Worker and customer discussing a local service" class="h-64 w-full object-cover">
+        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80" alt="Local service professional preparing for work" class="h-64 w-full object-cover">
         <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Join KaramSetu</p>
           <h1 class="mt-4 font-display text-4xl font-bold">Verify your account, drop your pin, and complete your local work profile.</h1>
@@ -254,7 +254,7 @@
                 <h3 class="mt-1 font-display text-2xl font-bold">Aadhaar number and upload</h3>
               </div>
               <div id="step-five-worker" class="space-y-4">
-                <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Aadhaar number</span><input id="aadhaar-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="1234 5678 9012"></label>
+                <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Aadhaar number</span><input id="aadhaar-number" inputmode="numeric" autocomplete="off" maxlength="12" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="123456789012"></label>
                 <section class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
                   <div>
                     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Worker KYC</p>
@@ -328,6 +328,10 @@
 
     function splitList(value) {
       return value.split(",").map((item) => item.trim()).filter(Boolean);
+    }
+
+    function sanitizeAadhaarValue(value) {
+      return (value || "").replace(/\D/g, "").slice(0, 12);
     }
 
     function setRoleValue(value) {
@@ -737,18 +741,38 @@
       if (!appConfig.cloudinary_cloud_name || !appConfig.cloudinary_upload_preset) {
         throw new Error("Cloudinary is not configured yet. Ask the admin to set the Cloudinary environment variables.");
       }
+      if (!file.type.startsWith("image/")) {
+        throw new Error("Only image files can be uploaded for worker verification.");
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        throw new Error("Each verification image must be under 8 MB.");
+      }
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", appConfig.cloudinary_upload_preset);
       formData.append("folder", appConfig.cloudinary_folder || "karamsetu");
       formData.append("tags", tag);
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(appConfig.cloudinary_cloud_name)}/image/upload`, {
-        method: "POST",
-        body: formData
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error?.message || "Cloudinary upload failed.");
-      return payload.secure_url;
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 25000);
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(appConfig.cloudinary_cloud_name)}/image/upload`, {
+          method: "POST",
+          body: formData,
+          signal: controller.signal
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error?.message || "Cloudinary upload failed. Check your cloud name and unsigned upload preset.");
+        }
+        return payload.secure_url;
+      } catch (error) {
+        if (error.name === "AbortError") {
+          throw new Error("Cloudinary upload timed out after 25 seconds. Check your internet connection, Cloudinary cloud name, and unsigned upload preset.");
+        }
+        throw error;
+      } finally {
+        window.clearTimeout(timeout);
+      }
     }
 
     async function saveVerificationDocument(token, documentType, documentUrl) {
@@ -786,7 +810,7 @@
     }
 
     async function handleWorkerKycUploads(token) {
-      const aadhaarNumber = document.getElementById("aadhaar-number").value.trim();
+      const aadhaarNumber = sanitizeAadhaarValue(document.getElementById("aadhaar-number").value);
       const aadhaarFile = document.getElementById("aadhaar-file").files[0];
       const workerPhotoFile = document.getElementById("worker-photo-file").files[0];
       const aadhaarExisting = existingDocuments.government_id;
@@ -805,9 +829,10 @@
         kycNote.textContent = "Uploading Aadhaar card image...";
         const aadhaarUrl = await uploadFileToCloudinary(aadhaarFile, "aadhaar-card");
         await saveVerificationDocument(token, "government_id", aadhaarUrl);
+        kycNote.textContent = "Aadhaar card uploaded. Uploading worker photo...";
       }
       if (workerPhotoFile) {
-        kycNote.textContent = "Uploading worker photo...";
+        if (!aadhaarFile) kycNote.textContent = "Uploading worker photo...";
         const workerPhotoUrl = await uploadFileToCloudinary(workerPhotoFile, "worker-kyc-photo");
         await saveVerificationDocument(token, "skill_proof", workerPhotoUrl);
       }
@@ -829,7 +854,7 @@
 
       if (worker) {
         document.getElementById("gender").value = worker.gender || "";
-        document.getElementById("aadhaar-number").value = worker.aadhaar_number || "";
+        document.getElementById("aadhaar-number").value = sanitizeAadhaarValue(worker.aadhaar_number || "");
         document.getElementById("location-input").value = worker.location_text || "";
         document.getElementById("service-radius").value = worker.service_radius_km ?? 10;
         document.getElementById("experience-years").value = worker.experience_years ?? 0;
@@ -997,6 +1022,10 @@
       }
     });
 
+    document.getElementById("aadhaar-number").addEventListener("input", (event) => {
+      event.target.value = sanitizeAadhaarValue(event.target.value);
+    });
+
     document.getElementById("send-phone-otp").addEventListener("click", async () => {
       const token = localStorage.getItem("kaamsetu_access_token");
       const phoneNumber = document.getElementById("verify-phone-number").value.trim();
@@ -1082,7 +1111,7 @@
       if (role === "worker") {
         payload.worker_profile = {
           ...common,
-          aadhaar_number: document.getElementById("aadhaar-number").value.trim() || null,
+          aadhaar_number: sanitizeAadhaarValue(document.getElementById("aadhaar-number").value) || null,
           gender: document.getElementById("gender").value.trim() || null,
           primary_location: document.getElementById("location-input").value.trim(),
           service_radius_km: Number(document.getElementById("service-radius").value),
