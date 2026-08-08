@@ -143,6 +143,7 @@ def create_or_refresh_challenge(
     destination: str,
     purpose: str,
     channel: str,
+    provider_override: str | None = None,
 ) -> OTPChallenge:
     destination = normalize_email_address(destination) if channel == "email" else normalize_phone_number(destination)
     now = datetime.now(timezone.utc)
@@ -157,10 +158,13 @@ def create_or_refresh_challenge(
         raise HTTPException(status_code=429, detail="Please wait before requesting another code")
 
     expires_at = now + timedelta(seconds=settings.otp_ttl_seconds)
-    provider = settings.email_otp_provider.lower().strip() if channel == "email" else settings.phone_otp_provider.lower().strip()
-    generated_code = settings.otp_test_bypass_code if provider == "mock" else None
+    provider = (provider_override or (settings.email_otp_provider if channel == "email" else settings.phone_otp_provider)).lower().strip()
+    generated_code = settings.otp_test_bypass_code if provider in {"mock", "internal"} else None
     provider_reference = None
-    if channel == "email" and provider == "smtp":
+    if provider == "internal":
+        generated_code = settings.otp_test_bypass_code or generate_mock_code()
+        provider_reference = "internal"
+    elif channel == "email" and provider == "smtp":
         generated_code = generate_mock_code()
         provider_reference = send_via_smtp_email(destination, generated_code, purpose)
     elif channel == "phone" and provider == "msg91":

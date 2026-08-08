@@ -3,7 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.bookings.models import Booking
 from app.bookings.schemas import BookingCreate, BookingStartOTPVerify, BookingStatusUpdate
-from app.bookings.service import create_booking, send_booking_start_otp, update_booking_status, verify_booking_start_otp
+from app.bookings.service import (
+    create_booking,
+    get_booking_start_otp,
+    send_booking_start_otp,
+    update_booking_status,
+    verify_booking_start_otp,
+)
 from app.common.enums import BookingStatus, UserRole
 from app.common.utils import api_response
 from app.core.dependencies import get_current_user, get_db
@@ -102,13 +108,21 @@ def start_booking_send_otp(booking_id: str, user=Depends(get_current_user), db: 
         raise HTTPException(status_code=404, detail="Booking not found")
     challenge = send_booking_start_otp(db, booking, user)
     return api_response(
-        "Service start code sent",
+        "On-site start code generated",
         {
             "booking_id": booking.id,
-            "phone_number": challenge.phone_number,
-            "test_code": challenge.verification_code if challenge.provider == "mock" else None,
+            "customer_phone_number": challenge.phone_number,
+            "expires_at": challenge.expires_at.isoformat() if challenge.expires_at else None,
         },
     )
+
+
+@router.get("/{booking_id}/start/code")
+def get_start_booking_code(booking_id: str, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    booking = db.get(Booking, booking_id)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return api_response("On-site start code fetched", get_booking_start_otp(db, booking, user))
 
 
 @router.post("/{booking_id}/start/verify-otp")

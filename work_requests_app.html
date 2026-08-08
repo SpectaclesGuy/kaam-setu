@@ -20,7 +20,6 @@
       <div class="hidden gap-6 text-sm font-medium md:flex">
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-stone-600 hover:text-pine">Services</a>
-        <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
         <a href="/work-requests-app" class="text-pine">Post Work</a>
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
       </div>
@@ -50,7 +49,12 @@
 
         <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading work request tools...</div>
 
-        <div class="mt-6 space-y-6">
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button id="tab-create-request" class="rounded-full bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Create new request</button>
+          <button id="tab-posted-requests" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700" type="button">Posted work status</button>
+        </div>
+
+        <div id="create-request-panel" class="mt-6 space-y-6">
           <form id="request-form" class="space-y-6">
             <div class="grid gap-3 sm:grid-cols-4">
               <div data-step-indicator="1" class="rounded-2xl border border-pine bg-pine px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.18em] text-white">Step 1</div>
@@ -171,18 +175,18 @@
             </div>
           </form>
         </div>
-      </section>
-    </section>
 
-    <section class="mt-8 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
-      <div class="flex items-center justify-between gap-4">
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">My requests</p>
-          <h2 class="mt-1 font-display text-3xl font-bold">Published jobs</h2>
-        </div>
-        <button id="refresh-requests" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Refresh</button>
-      </div>
-      <div id="requests-list" class="mt-6 space-y-4"></div>
+        <section id="posted-requests-panel" class="mt-6 hidden rounded-[1.75rem] border border-stone-200 bg-stone-50 p-6">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">My requests</p>
+              <h3 class="mt-1 font-display text-2xl font-bold">Posted work status</h3>
+            </div>
+            <button id="refresh-requests" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Refresh</button>
+          </div>
+          <div id="requests-list" class="mt-6 space-y-4"></div>
+        </section>
+      </section>
     </section>
   </main>
 
@@ -192,6 +196,8 @@
     const statusBox = document.getElementById("status");
     const authState = document.getElementById("auth-state");
     const requestForm = document.getElementById("request-form");
+    const createRequestPanel = document.getElementById("create-request-panel");
+    const postedRequestsPanel = document.getElementById("posted-requests-panel");
     const locationNote = document.getElementById("location-note");
     const requestSubmit = document.getElementById("request-submit");
     const stepBackButton = document.getElementById("step-back");
@@ -215,6 +221,19 @@
     const mapState = { map: null, marker: null, initialized: false };
     let currentUser = null;
     let currentStep = 1;
+
+    function setActiveTab(tab) {
+      const createActive = tab === "create";
+      document.getElementById("tab-create-request").className = createActive
+        ? "rounded-full bg-pine px-5 py-3 text-sm font-semibold text-white"
+        : "rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700";
+      document.getElementById("tab-posted-requests").className = !createActive
+        ? "rounded-full bg-pine px-5 py-3 text-sm font-semibold text-white"
+        : "rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700";
+      createRequestPanel.classList.toggle("hidden", !createActive);
+      postedRequestsPanel.classList.toggle("hidden", createActive);
+      if (createActive) ensureMapVisible();
+    }
 
     async function parseResponsePayload(response) {
       const contentType = response.headers.get("content-type") || "";
@@ -559,12 +578,15 @@
     document.getElementById("use-live-location").addEventListener("click", useLiveLocation);
     document.getElementById("resolve-location").addEventListener("click", geocodeTypedLocation);
     document.getElementById("refresh-requests").addEventListener("click", hydrate);
+    document.getElementById("tab-create-request").addEventListener("click", () => setActiveTab("create"));
+    document.getElementById("tab-posted-requests").addEventListener("click", () => setActiveTab("status"));
     stepBackButton.addEventListener("click", previousStep);
     stepNextButton.addEventListener("click", nextStep);
 
     populateCategoryOptions();
     syncCategoryOtherVisibility();
     renderStep();
+    setActiveTab("create");
     loadPublicConfig().then(hydrate);
   </script>
 </body>

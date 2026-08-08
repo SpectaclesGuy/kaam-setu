@@ -26,7 +26,6 @@
       <div class="hidden gap-6 text-sm font-medium md:flex">
         <a href="/" class="text-stone-600 hover:text-pine">Home</a>
         <a href="/services" class="text-pine">Services</a>
-        <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
         <a href="/work-requests-app" class="text-stone-600 hover:text-pine">Post Work</a>
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
       </div>
@@ -47,7 +46,11 @@
 
     <section class="mt-8 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div class="grid gap-4 md:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label class="block md:col-span-2 xl:col-span-1">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Worker name</span>
+            <input id="name-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Search by name">
+          </label>
           <label class="block">
             <span class="mb-2 block text-sm font-medium text-stone-700">Category</span>
             <select id="category-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
@@ -137,12 +140,15 @@
     }
 
     function applyFilters() {
+      const nameQuery = document.getElementById("name-filter").value.trim().toLowerCase();
       const category = document.getElementById("category-filter").value.trim().toLowerCase();
       const minRating = document.getElementById("rating-filter").value ? Number(document.getElementById("rating-filter").value) : null;
       const availability = document.getElementById("availability-filter").value;
 
       filteredWorkers = allWorkers.filter((worker) => {
+        const fullName = String(worker.full_name || "").toLowerCase();
         const skillText = (worker.skills || []).join(", ").toLowerCase();
+        if (nameQuery && !fullName.includes(nameQuery)) return false;
         if (category && !skillText.includes(category)) return false;
         if (minRating !== null && Number(worker.average_rating || 0) < minRating) return false;
         if (availability === "today" && !worker.available_today) return false;
@@ -218,6 +224,7 @@
     document.getElementById("category-filter").addEventListener("change", applyFilters);
     document.getElementById("rating-filter").addEventListener("change", applyFilters);
     document.getElementById("availability-filter").addEventListener("change", applyFilters);
+    document.getElementById("name-filter").addEventListener("input", applyFilters);
     document.getElementById("refresh-workers").addEventListener("click", loadWorkers);
     document.getElementById("prev-page").addEventListener("click", () => {
       currentPage = Math.max(1, currentPage - 1);

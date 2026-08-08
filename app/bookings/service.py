@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.bookings.models import Booking
 from app.bookings.schemas import BookingCreate, BookingStatusUpdate
 from app.common.enums import BookingStatus, UserRole
-from app.otp.service import BOOKING_START_PURPOSE, create_or_refresh_challenge, verify_challenge
+from app.otp.service import BOOKING_START_PURPOSE, create_or_refresh_challenge, get_active_challenge, verify_challenge
 from app.profiles.models import WorkerProfile
 from app.users.models import User
 
@@ -41,32 +41,37 @@ def update_booking_status(db: Session, booking: Booking, payload: BookingStatusU
 
 
 def send_booking_start_otp(db: Session, booking: Booking, user: User):
-    if booking.employer_user_id != user.id and user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Only the booking owner can start the service")
+    is_assigned_worker = bool(user.worker_profile and booking.worker_id == user.worker_profile.id)
+    if not is_assigned_worker and user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Only the assigned worker can mark arrival")
     if booking.status != BookingStatus.accepted:
-        raise HTTPException(status_code=400, detail="Only accepted bookings can be started")
-    if not user.phone_number or not user.is_phone_verified:
-        raise HTTPException(status_code=400, detail="Verify your phone number before starting the service")
+        raise HTTPException(status_code=400, detail="Only accepted bookings can generate an on-site start code")
+    employer = db.get(User, booking.employer_user_id)
+    if not employer or not employer.phone_number:
+        raise HTTPException(status_code=400, detail="The customer does not have a phone number on file")
     return create_or_refresh_challenge(
         db,
-        user=user,
+        user=employer,
         booking=booking,
-        destination=user.phone_number,
+        destination=employer.phone_number,
         purpose=BOOKING_START_PURPOSE,
         channel="phone",
+        provider_override="internal",
     )
 
 
 def verify_booking_start_otp(db: Session, booking: Booking, user: User, code: str) -> Booking:
-    if booking.employer_user_id != user.id and user.role != UserRole.admin:
-        raise HTTPException(status_code=403, detail="Only the booking owner can start the service")
-    if not user.phone_number:
-        raise HTTPException(status_code=400, detail="Phone number missing")
+    is_assigned_worker = bool(user.worker_profile and booking.worker_id == user.worker_profile.id)
+    if not is_assigned_worker and user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Only the assigned worker can start the service")
+    employer = db.get(User, booking.employer_user_id)
+    if not employer or not employer.phone_number:
+        raise HTTPException(status_code=400, detail="The customer does not have a phone number on file")
     challenge = verify_challenge(
         db,
-        user=user,
+        user=employer,
         booking=booking,
-        destination=user.phone_number,
+        destination=employer.phone_number,
         code=code,
         purpose=BOOKING_START_PURPOSE,
         channel="phone",
@@ -79,3 +84,25 @@ def verify_booking_start_otp(db: Session, booking: Booking, user: User, code: st
     db.commit()
     db.refresh(booking)
     return booking
+
+
+def get_booking_start_otp(db: Session, booking: Booking, user: User) -> dict:
+    if booking.employer_user_id != user.id and user.role != UserRole.admin:
+        raise HTTPException(status_code=403, detail="Only the booking owner can view the on-site start code")
+    if booking.status != BookingStatus.accepted:
+        raise HTTPException(status_code=400, detail="This booking is not ready for an on-site start code")
+    if not user.phone_number:
+        raise HTTPException(status_code=400, detail="Phone number missing")
+    challenge = get_active_challenge(
+        db,
+        user_id=user.id,
+        booking_id=booking.id,
+        destination=user.phone_number,
+        purpose=BOOKING_START_PURPOSE,
+    )
+    if not challenge:
+        raise HTTPException(status_code=404, detail="No active on-site start code is available yet")
+    return {
+        "code": challenge.verification_code,
+        "expires_at": challenge.expires_at.isoformat() if challenge.expires_at else None,
+    }
