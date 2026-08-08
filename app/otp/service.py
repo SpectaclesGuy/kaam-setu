@@ -70,11 +70,13 @@ def send_via_smtp_email(destination: str, code: str, purpose: str) -> str:
     )
 
     try:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=20) as server:
-            server.ehlo()
-            if settings.smtp_use_tls:
-                server.starttls(context=ssl.create_default_context())
+        smtp_client = smtplib.SMTP_SSL if settings.smtp_use_ssl else smtplib.SMTP
+        with smtp_client(settings.smtp_host, settings.smtp_port, timeout=20) as server:
+            if not settings.smtp_use_ssl:
                 server.ehlo()
+                if settings.smtp_use_tls:
+                    server.starttls(context=ssl.create_default_context())
+                    server.ehlo()
             server.login(settings.smtp_username, settings.smtp_password)
             server.send_message(message)
     except smtplib.SMTPAuthenticationError as exc:
@@ -94,6 +96,8 @@ def send_via_smtp_email(destination: str, code: str, purpose: str) -> str:
             status_code=502,
             detail="KaramSetu could not reach the SMTP server. Check outbound network access and SMTP settings.",
         ) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Email delivery failed unexpectedly: {exc}") from exc
     return destination
 
 

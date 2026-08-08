@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | KaramSetu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};
+  </script>
+</head>
+<body class="bg-stone-50 font-body text-ink">
+  <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
+      <div class="hidden gap-6 text-sm font-medium md:flex">
+        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
+        <a href="/admin-panel" class="text-pine">Admin Panel</a>
+      </div>
+      <button id="refresh-admin" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh</button>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 py-10">
+    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Admin control</p>
+          <h1 class="mt-2 font-display text-4xl font-bold">Manage users, roles, and profile verification rules.</h1>
+        </div>
+        <div id="admin-status" class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading admin panel...</div>
+      </div>
+    </section>
+
+    <section class="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">
+      <aside class="space-y-6">
+        <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <h2 class="font-display text-2xl font-bold">Runtime settings</h2>
+          <form id="settings-form" class="mt-5 space-y-4">
+            <label class="flex items-start gap-3 rounded-2xl bg-mist px-4 py-3">
+              <input id="require-email-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
+              <span class="text-sm text-stone-700">Require email verification before `/profile-setup` can be submitted.</span>
+            </label>
+            <label class="flex items-start gap-3 rounded-2xl bg-mist px-4 py-3">
+              <input id="require-phone-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
+              <span class="text-sm text-stone-700">Require phone OTP verification before `/profile-setup` can be submitted.</span>
+            </label>
+            <button class="w-full rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Save settings</button>
+          </form>
+          <p class="mt-3 text-xs text-stone-500">These switches affect the profile setup page immediately for all users.</p>
+        </section>
+
+        <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <h2 class="font-display text-2xl font-bold">Platform overview</h2>
+          <div id="metrics-grid" class="mt-5 grid grid-cols-2 gap-3"></div>
+        </section>
+      </aside>
+
+      <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 class="font-display text-3xl font-bold">Registered users</h2>
+            <p class="mt-1 text-sm text-stone-500">Change roles, including admin, and enable or disable accounts.</p>
+          </div>
+          <input id="user-filter" class="rounded-2xl border border-stone-300 px-4 py-3 text-sm" placeholder="Filter by name or email">
+        </div>
+        <div id="users-list" class="mt-6 space-y-4"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const token = localStorage.getItem("kaamsetu_access_token");
+    const statusBox = document.getElementById("admin-status");
+    let allUsers = [];
+
+    function metricCard(label, value) {
+      return `<div class="rounded-2xl bg-mist p-4"><p class="text-xs uppercase tracking-[0.15em] text-stone-500">${label}</p><p class="mt-2 font-display text-3xl font-bold text-pine">${value}</p></div>`;
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const contentType = response.headers.get("content-type") || "";
+      const payload = contentType.includes("application/json") ? await response.json() : { detail: await response.text() };
+      if (!response.ok) throw new Error(payload.detail || payload.message || "Admin request failed");
+      return payload;
+    }
+
+    function renderUsers() {
+      const query = document.getElementById("user-filter").value.trim().toLowerCase();
+      const items = allUsers.filter((item) => !query || item.email.toLowerCase().includes(query) || item.full_name.toLowerCase().includes(query));
+      document.getElementById("users-list").innerHTML = items.length ? items.map((item) => `
+        <article class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-display text-2xl font-bold">${item.full_name}</h3>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">${item.role || "no role"}</span>
+                <span class="rounded-full ${item.is_active ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"} px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">${item.is_active ? "active" : "disabled"}</span>
+              </div>
+              <p class="mt-2 text-sm text-stone-600">${item.email}</p>
+              <div class="mt-3 flex flex-wrap gap-3 text-xs text-stone-500">
+                <span>Email verification: ${item.is_verified_user ? "on" : "off"}</span>
+                <span>Phone verification: ${item.is_phone_verified ? "on" : "off"}</span>
+                <span>Profile complete: ${item.profile_completed ? "yes" : "no"}</span>
+              </div>
+            </div>
+            <form data-user-form="${item.id}" class="grid gap-3 sm:grid-cols-[200px_160px_auto]">
+              <select data-role class="rounded-2xl border border-stone-300 px-4 py-3 text-sm">
+                <option value="" ${!item.role ? "selected" : ""}>No role</option>
+                <option value="worker" ${item.role === "worker" ? "selected" : ""}>Worker</option>
+                <option value="employer" ${item.role === "employer" ? "selected" : ""}>Employer</option>
+                <option value="contractor" ${item.role === "contractor" ? "selected" : ""}>Contractor</option>
+                <option value="operator" ${item.role === "operator" ? "selected" : ""}>Operator</option>
+                <option value="admin" ${item.role === "admin" ? "selected" : ""}>Admin</option>
+              </select>
+              <select data-active class="rounded-2xl border border-stone-300 px-4 py-3 text-sm">
+                <option value="true" ${item.is_active ? "selected" : ""}>Active</option>
+                <option value="false" ${!item.is_active ? "selected" : ""}>Disabled</option>
+              </select>
+              <button class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Update user</button>
+            </form>
+          </div>
+        </article>
+      `).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No users matched the current filter.</div>`;
+
+      document.querySelectorAll("[data-user-form]").forEach((form) => {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const userId = form.getAttribute("data-user-form");
+          const role = form.querySelector("[data-role]").value || null;
+          const is_active = form.querySelector("[data-active]").value === "true";
+          statusBox.textContent = "Updating user...";
+          try {
+            await api(`/admin/users/${userId}`, {
+              method: "PATCH",
+              body: JSON.stringify({ role, is_active })
+            });
+            statusBox.textContent = "User updated successfully.";
+            await load();
+          } catch (error) {
+            statusBox.textContent = error.message || "We could not update that user.";
+          }
+        });
+      });
+    }
+
+    async function load() {
+      if (!token) {
+        statusBox.textContent = "Please sign in as an admin first.";
+        return;
+      }
+      try {
+        const [dashboard, users, settings] = await Promise.all([
+          api("/admin/dashboard"),
+          api("/admin/users"),
+          api("/admin/settings")
+        ]);
+        const metrics = dashboard.data;
+        allUsers = users.data || [];
+        document.getElementById("require-email-verification").checked = settings.data.profile_setup_require_email_verification;
+        document.getElementById("require-phone-verification").checked = settings.data.profile_setup_require_phone_verification;
+        document.getElementById("metrics-grid").innerHTML = [
+          metricCard("Users", metrics.total_users),
+          metricCard("Workers", metrics.total_workers),
+          metricCard("Employers", metrics.total_employers),
+          metricCard("Open jobs", metrics.active_jobs),
+          metricCard("Completed bookings", metrics.completed_bookings),
+          metricCard("Pending verification", metrics.pending_verification_count)
+        ].join("");
+        renderUsers();
+        statusBox.textContent = "Admin panel is up to date.";
+      } catch (error) {
+        statusBox.textContent = error.message || "We could not load the admin panel.";
+      }
+    }
+
+    document.getElementById("settings-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      statusBox.textContent = "Saving admin settings...";
+      try {
+        await api("/admin/settings", {
+          method: "PATCH",
+          body: JSON.stringify({
+            profile_setup_require_email_verification: document.getElementById("require-email-verification").checked,
+            profile_setup_require_phone_verification: document.getElementById("require-phone-verification").checked
+          })
+        });
+        statusBox.textContent = "Admin settings updated.";
+        await load();
+      } catch (error) {
+        statusBox.textContent = error.message || "We could not update admin settings.";
+      }
+    });
+
+    document.getElementById("refresh-admin").addEventListener("click", load);
+    document.getElementById("user-filter").addEventListener("input", renderUsers);
+    load();
+  </script>
+</body>
+</html>

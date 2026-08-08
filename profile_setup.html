@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile Setup | KaramSetu</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -48,8 +49,8 @@
         <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80" alt="A worker and customer meeting during a home service visit" class="h-64 w-full object-cover">
         <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Join KaramSetu</p>
-          <h1 class="mt-4 font-display text-4xl font-bold">Finish verification, capture your live location, and personalize your work profile.</h1>
-          <p class="mt-4 text-sm leading-7 text-emerald-50">We verify your email through SMTP, verify your phone through MSG91, and use your real location to make discovery and service matching more accurate.</p>
+          <h1 class="mt-4 font-display text-4xl font-bold">Verify your account, pin your real location, and personalize your work profile.</h1>
+          <p class="mt-4 text-sm leading-7 text-emerald-50">The location experience now uses a live map pin so users can fix their area visually, just like a ride-booking app.</p>
         </div>
       </div>
 
@@ -57,19 +58,19 @@
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Profile setup</p>
-            <h2 class="mt-2 font-display text-3xl font-bold">Verify your account and complete your profile</h2>
+            <h2 class="mt-2 font-display text-3xl font-bold">Finish your account and location profile</h2>
           </div>
           <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking sign-in</span>
         </div>
 
         <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Join with Google to begin your KaramSetu profile.</div>
 
-        <section class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+        <section id="email-verification-section" class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Account email</p>
               <h3 class="mt-1 font-display text-2xl font-bold">Verify your sign-in email</h3>
-              <p class="mt-2 text-sm text-stone-600">This OTP is sent through SMTP to the Google account you used to sign in.</p>
+              <p class="mt-2 text-sm text-stone-600">This OTP is sent to the Google account you used to sign in.</p>
             </div>
             <span id="email-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
           </div>
@@ -90,7 +91,7 @@
           <p id="email-note" class="mt-3 text-sm text-stone-600">We will send the code to your signed-in email address.</p>
         </section>
 
-        <section class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+        <section id="phone-verification-section" class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
           <div class="flex items-start justify-between gap-4">
             <div>
               <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Phone check</p>
@@ -140,26 +141,28 @@
             </label>
             <label class="block">
               <span class="mb-2 block text-sm font-medium text-stone-700">Location text</span>
-              <input id="location-text" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Auto-detect or type your area" required>
+              <input id="location-text" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Type your area or move the pin" required>
             </label>
           </div>
 
-          <div class="flex flex-wrap gap-3">
-            <button id="use-live-location" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine" type="button">Use live location</button>
-            <button id="resolve-location" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Resolve typed location</button>
-            <span id="location-note" class="self-center text-sm text-stone-600">Use your current location for better worker discovery and radius matching.</span>
-          </div>
+          <section class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Location pin</p>
+                <h3 class="mt-1 font-display text-2xl font-bold">Fix your exact service location on the map</h3>
+                <p class="mt-2 text-sm text-stone-600">Drag the pin or tap on the map to adjust your real location. This is what search and booking coverage use.</p>
+              </div>
+              <span id="map-provider-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Loading map</span>
+            </div>
 
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Latitude</span>
-              <input id="latitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
-            </label>
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Longitude</span>
-              <input id="longitude" type="number" step="any" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
-            </label>
-          </div>
+            <div class="mt-5 flex flex-wrap gap-3">
+              <button id="use-live-location" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine" type="button">Use live location</button>
+              <button id="resolve-location" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Resolve typed location</button>
+            </div>
+
+            <div id="location-map" class="mt-5 h-[360px] overflow-hidden rounded-[1.5rem] ring-1 ring-stone-200"></div>
+            <p id="location-note" class="mt-3 text-sm text-stone-600">Map is loading. Once ready, drag the pin to fine-tune your location.</p>
+          </section>
 
           <div id="dynamic-fields" class="space-y-6"></div>
 
@@ -169,6 +172,7 @@
     </section>
   </main>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const roleSelect = document.getElementById("role");
     const dynamicFields = document.getElementById("dynamic-fields");
@@ -186,9 +190,22 @@
       emailVerified: false,
       phoneVerified: false,
       email: "",
-      phoneNumber: "",
-      emailTestCode: null,
-      phoneTestCode: null
+      phoneNumber: ""
+    };
+    const appConfig = {
+      maps_provider: "openstreetmap",
+      google_maps_api_key: null,
+      profile_setup_require_email_verification: true,
+      profile_setup_require_phone_verification: true
+    };
+    const selectedLocation = {
+      latitude: null,
+      longitude: null
+    };
+    const mapState = {
+      provider: "openstreetmap",
+      map: null,
+      marker: null
     };
 
     if (tokenFromQuery) {
@@ -211,81 +228,50 @@
       document.getElementById("phone-number").value = value;
     }
 
-    function updateBadge(element, verified) {
+    function updateBadge(element, state) {
+      if (state === "not-required") {
+        element.textContent = "Not required";
+        element.className = "rounded-full bg-amber-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-800";
+        return;
+      }
+      const verified = Boolean(state);
       element.textContent = verified ? "Verified" : "Pending";
       element.className = verified
         ? "rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800"
         : "rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500";
     }
 
-    function updateVerificationUI() {
-      updateBadge(emailBadge, verificationState.emailVerified);
-      updateBadge(phoneBadge, verificationState.phoneVerified);
-      profileSubmit.disabled = !(verificationState.emailVerified && verificationState.phoneVerified);
-      profileSubmit.classList.toggle("opacity-60", !(verificationState.emailVerified && verificationState.phoneVerified));
-      profileSubmit.classList.toggle("cursor-not-allowed", !(verificationState.emailVerified && verificationState.phoneVerified));
+    function emailRequirementMet() {
+      return !appConfig.profile_setup_require_email_verification || verificationState.emailVerified;
     }
 
-    function populateRoleProfile(user) {
-      if (!user?.role) return;
-      setRoleValue(user.role);
-      if (user.profile_completed) {
-        roleField.disabled = true;
-        roleField.classList.add("bg-stone-100", "text-stone-500", "cursor-not-allowed");
-        profileSubmit.textContent = "Save profile changes";
-      }
+    function phoneRequirementMet() {
+      return !appConfig.profile_setup_require_phone_verification || verificationState.phoneVerified;
+    }
 
-      const worker = user.worker_profile;
-      const employer = user.employer_profile;
-      const contractor = user.contractor_profile;
-      const operator = user.operator_profile;
+    function applyVerificationRequirements() {
+      document.getElementById("email-verification-section").classList.toggle("hidden", !appConfig.profile_setup_require_email_verification);
+      document.getElementById("phone-verification-section").classList.toggle("hidden", !appConfig.profile_setup_require_phone_verification);
+      if (!appConfig.profile_setup_require_email_verification) {
+        emailNote.textContent = "Email verification is currently disabled by the admin panel.";
+      }
+      if (!appConfig.profile_setup_require_phone_verification) {
+        phoneNote.textContent = "Phone verification is currently disabled by the admin panel.";
+      }
+    }
 
-      if (worker) {
-        document.getElementById("gender").value = worker.gender || "";
-        document.getElementById("profile-photo-url").value = worker.profile_photo_url || "";
-        document.getElementById("location-text").value = worker.location_text || "";
-        document.getElementById("latitude").value = worker.latitude ?? "";
-        document.getElementById("longitude").value = worker.longitude ?? "";
-        document.getElementById("service-radius").value = worker.service_radius_km ?? 10;
-        document.getElementById("experience-years").value = worker.experience_years ?? 0;
-        document.getElementById("daily-rate").value = worker.daily_rate ?? "";
-        document.getElementById("hourly-rate").value = worker.hourly_rate ?? "";
-        document.getElementById("skills").value = (worker.skills || []).join(", ");
-        document.getElementById("categories").value = (worker.skills || []).join(", ");
-        document.getElementById("languages").value = (worker.languages || []).join(", ");
-        document.getElementById("bio").value = worker.bio || "";
-        document.getElementById("available-today").checked = Boolean(worker.available_today);
-        document.getElementById("emergency-available").checked = Boolean(worker.emergency_available);
-      }
-      if (employer) {
-        document.getElementById("employer-type").value = employer.employer_type || "household";
-        document.getElementById("organization-name").value = employer.organization_name || "";
-        document.getElementById("location-text").value = employer.location || "";
-        document.getElementById("latitude").value = employer.latitude ?? "";
-        document.getElementById("longitude").value = employer.longitude ?? "";
-      }
-      if (contractor) {
-        document.getElementById("company-name").value = contractor.company_name || "";
-        document.getElementById("bulk-hiring-enabled").value = contractor.bulk_hiring_enabled ? "true" : "false";
-        document.getElementById("work-categories").value = (contractor.work_categories || []).join(", ");
-        document.getElementById("frequent-locations").value = (contractor.frequent_locations || []).join(", ");
-        document.getElementById("location-text").value = contractor.location || "";
-        document.getElementById("latitude").value = contractor.latitude ?? "";
-        document.getElementById("longitude").value = contractor.longitude ?? "";
-      }
-      if (operator) {
-        document.getElementById("assigned-area").value = operator.assigned_area || "";
-        document.getElementById("verification-permissions").value = operator.verification_permissions ? "true" : "false";
-        document.getElementById("latitude").value = operator.latitude ?? "";
-        document.getElementById("longitude").value = operator.longitude ?? "";
-      }
+    function updateVerificationUI() {
+      updateBadge(emailBadge, appConfig.profile_setup_require_email_verification ? verificationState.emailVerified : "not-required");
+      updateBadge(phoneBadge, appConfig.profile_setup_require_phone_verification ? verificationState.phoneVerified : "not-required");
+      const canSubmit = emailRequirementMet() && phoneRequirementMet();
+      profileSubmit.disabled = !canSubmit;
+      profileSubmit.classList.toggle("opacity-60", !canSubmit);
+      profileSubmit.classList.toggle("cursor-not-allowed", !canSubmit);
     }
 
     async function parseResponsePayload(response) {
       const contentType = response.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        return response.json();
-      }
+      if (contentType.includes("application/json")) return response.json();
       const text = await response.text();
       return { detail: text || `Request failed with status ${response.status}` };
     }
@@ -398,13 +384,39 @@
       if (locationInput) locationInput.addEventListener("input", fetchPricingHint);
     }
 
-    async function reverseGeocode(lat, lng) {
-      const response = await fetch(`/location/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+    function setSelectedCoordinates(latitude, longitude, { pan = true } = {}) {
+      selectedLocation.latitude = Number(latitude);
+      selectedLocation.longitude = Number(longitude);
+      if (mapState.provider === "google" && mapState.marker) {
+        const position = { lat: selectedLocation.latitude, lng: selectedLocation.longitude };
+        mapState.marker.setPosition(position);
+        if (pan && mapState.map) mapState.map.panTo(position);
+      }
+      if (mapState.provider === "openstreetmap" && mapState.marker) {
+        mapState.marker.setLatLng([selectedLocation.latitude, selectedLocation.longitude]);
+        if (pan && mapState.map) mapState.map.panTo([selectedLocation.latitude, selectedLocation.longitude]);
+      }
+    }
+
+    async function reverseGeocode(latitude, longitude) {
+      const response = await fetch(`/location/reverse-geocode?lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}`);
       const payload = await parseResponsePayload(response);
       if (!response.ok) throw new Error("Could not reverse geocode this location.");
       document.getElementById("location-text").value = payload.data.address || "";
-      document.getElementById("latitude").value = payload.data.latitude ?? "";
-      document.getElementById("longitude").value = payload.data.longitude ?? "";
+      return payload.data;
+    }
+
+    async function updateLocation(latitude, longitude, { updateAddress = true, pan = true, note = null } = {}) {
+      setSelectedCoordinates(latitude, longitude, { pan });
+      if (note) locationNote.textContent = note;
+      if (updateAddress) {
+        try {
+          await reverseGeocode(latitude, longitude);
+          locationNote.textContent = "Location pin updated successfully.";
+        } catch {
+          locationNote.textContent = "Pin updated, but we could not resolve the address automatically.";
+        }
+      }
     }
 
     async function geocodeTypedLocation() {
@@ -419,9 +431,7 @@
         const payload = await parseResponsePayload(response);
         if (!response.ok) throw new Error();
         document.getElementById("location-text").value = payload.data.address || locationText;
-        document.getElementById("latitude").value = payload.data.latitude ?? "";
-        document.getElementById("longitude").value = payload.data.longitude ?? "";
-        locationNote.textContent = "Location resolved successfully.";
+        await updateLocation(payload.data.latitude, payload.data.longitude, { updateAddress: false, note: "Location resolved successfully." });
       } catch {
         locationNote.textContent = "We could not resolve that typed location.";
       }
@@ -436,20 +446,146 @@
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          try {
-            await reverseGeocode(latitude, longitude);
-            locationNote.textContent = "Live location fetched successfully.";
-          } catch {
-            document.getElementById("latitude").value = latitude;
-            document.getElementById("longitude").value = longitude;
-            locationNote.textContent = "Coordinates captured, but we could not resolve the address.";
-          }
+          await updateLocation(latitude, longitude, { updateAddress: true, note: "Live location fetched successfully." });
         },
         () => {
           locationNote.textContent = "Location access was denied or unavailable.";
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
+    }
+
+    function loadGoogleMapsScript(apiKey) {
+      return new Promise((resolve, reject) => {
+        if (window.google?.maps) {
+          resolve();
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Google Maps could not be loaded."));
+        document.head.appendChild(script);
+      });
+    }
+
+    function initLeafletMap() {
+      mapState.provider = "openstreetmap";
+      document.getElementById("map-provider-badge").textContent = "OpenStreetMap";
+      const center = [selectedLocation.latitude ?? 28.6139, selectedLocation.longitude ?? 77.2090];
+      mapState.map = L.map("location-map").setView(center, 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(mapState.map);
+      mapState.marker = L.marker(center, { draggable: true }).addTo(mapState.map);
+      mapState.map.on("click", (event) => updateLocation(event.latlng.lat, event.latlng.lng));
+      mapState.marker.on("dragend", () => {
+        const { lat, lng } = mapState.marker.getLatLng();
+        updateLocation(lat, lng, { pan: false });
+      });
+      setSelectedCoordinates(center[0], center[1], { pan: false });
+    }
+
+    async function initGoogleMap(apiKey) {
+      await loadGoogleMapsScript(apiKey);
+      mapState.provider = "google";
+      document.getElementById("map-provider-badge").textContent = "Google Maps";
+      const center = { lat: selectedLocation.latitude ?? 28.6139, lng: selectedLocation.longitude ?? 77.2090 };
+      mapState.map = new google.maps.Map(document.getElementById("location-map"), {
+        center,
+        zoom: 14,
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false
+      });
+      mapState.marker = new google.maps.Marker({
+        position: center,
+        map: mapState.map,
+        draggable: true
+      });
+      mapState.map.addListener("click", (event) => updateLocation(event.latLng.lat(), event.latLng.lng()));
+      mapState.marker.addListener("dragend", (event) => updateLocation(event.latLng.lat(), event.latLng.lng(), { pan: false }));
+      setSelectedCoordinates(center.lat, center.lng, { pan: false });
+    }
+
+    async function initMapExperience() {
+      locationNote.textContent = "Loading the map experience...";
+      try {
+        if (appConfig.google_maps_api_key) {
+          await initGoogleMap(appConfig.google_maps_api_key);
+        } else {
+          initLeafletMap();
+        }
+        locationNote.textContent = "Map is ready. Drag the pin or click the map to set your exact location.";
+      } catch {
+        initLeafletMap();
+        locationNote.textContent = "Google Maps was unavailable, so OpenStreetMap has been loaded instead.";
+      }
+    }
+
+    function populateRoleProfile(user) {
+      if (!user?.role) return;
+      setRoleValue(user.role);
+      if (user.profile_completed) {
+        roleField.disabled = true;
+        roleField.classList.add("bg-stone-100", "text-stone-500", "cursor-not-allowed");
+        profileSubmit.textContent = "Save profile changes";
+      }
+
+      const worker = user.worker_profile;
+      const employer = user.employer_profile;
+      const contractor = user.contractor_profile;
+      const operator = user.operator_profile;
+
+      if (worker) {
+        document.getElementById("gender").value = worker.gender || "";
+        document.getElementById("profile-photo-url").value = worker.profile_photo_url || "";
+        document.getElementById("location-text").value = worker.location_text || "";
+        document.getElementById("service-radius").value = worker.service_radius_km ?? 10;
+        document.getElementById("experience-years").value = worker.experience_years ?? 0;
+        document.getElementById("daily-rate").value = worker.daily_rate ?? "";
+        document.getElementById("hourly-rate").value = worker.hourly_rate ?? "";
+        document.getElementById("skills").value = (worker.skills || []).join(", ");
+        document.getElementById("categories").value = (worker.skills || []).join(", ");
+        document.getElementById("languages").value = (worker.languages || []).join(", ");
+        document.getElementById("bio").value = worker.bio || "";
+        document.getElementById("available-today").checked = Boolean(worker.available_today);
+        document.getElementById("emergency-available").checked = Boolean(worker.emergency_available);
+        if (worker.latitude != null && worker.longitude != null) {
+          selectedLocation.latitude = worker.latitude;
+          selectedLocation.longitude = worker.longitude;
+        }
+      }
+      if (employer) {
+        document.getElementById("employer-type").value = employer.employer_type || "household";
+        document.getElementById("organization-name").value = employer.organization_name || "";
+        document.getElementById("location-text").value = employer.location || "";
+        if (employer.latitude != null && employer.longitude != null) {
+          selectedLocation.latitude = employer.latitude;
+          selectedLocation.longitude = employer.longitude;
+        }
+      }
+      if (contractor) {
+        document.getElementById("company-name").value = contractor.company_name || "";
+        document.getElementById("bulk-hiring-enabled").value = contractor.bulk_hiring_enabled ? "true" : "false";
+        document.getElementById("work-categories").value = (contractor.work_categories || []).join(", ");
+        document.getElementById("frequent-locations").value = (contractor.frequent_locations || []).join(", ");
+        document.getElementById("location-text").value = contractor.location || "";
+        if (contractor.latitude != null && contractor.longitude != null) {
+          selectedLocation.latitude = contractor.latitude;
+          selectedLocation.longitude = contractor.longitude;
+        }
+      }
+      if (operator) {
+        document.getElementById("assigned-area").value = operator.assigned_area || "";
+        document.getElementById("verification-permissions").value = operator.verification_permissions ? "true" : "false";
+        if (operator.latitude != null && operator.longitude != null) {
+          selectedLocation.latitude = operator.latitude;
+          selectedLocation.longitude = operator.longitude;
+        }
+      }
     }
 
     async function hydrateSessionState() {
@@ -469,8 +605,8 @@
         const user = payload.data;
         authState.textContent = user.profile_completed ? "Ready to go" : "Profile needed";
         statusBox.textContent = user.profile_completed
-          ? `Signed in as ${user.full_name || user.email}. You can edit your profile here and re-run OTP verification if needed.`
-          : `Signed in as ${user.full_name || user.email}. Verify both your email and phone, then complete your profile below.`;
+          ? `Signed in as ${user.full_name || user.email}. You can edit your profile here and re-run verification if needed.`
+          : `Signed in as ${user.full_name || user.email}. Finish the verification requirements and complete your profile below.`;
         document.getElementById("full-name").value = user.full_name || "";
         document.getElementById("verify-email").value = user.email || "";
         verificationState.email = user.email || "";
@@ -480,18 +616,28 @@
           verificationState.phoneNumber = user.phone_number;
           syncPhoneFields(user.phone_number);
         }
-        if (verificationState.emailVerified) {
-          emailNote.textContent = `Verified email: ${user.email}`;
-        }
-        if (verificationState.phoneVerified && user.phone_number) {
-          phoneNote.textContent = `Verified number: ${user.phone_number}`;
-        }
+        if (verificationState.emailVerified) emailNote.textContent = `Verified email: ${user.email}`;
+        if (verificationState.phoneVerified && user.phone_number) phoneNote.textContent = `Verified number: ${user.phone_number}`;
         populateRoleProfile(user);
+        await initMapExperience();
+        if (selectedLocation.latitude != null && selectedLocation.longitude != null) {
+          setSelectedCoordinates(selectedLocation.latitude, selectedLocation.longitude, { pan: true });
+        }
         updateVerificationUI();
       } catch {
         authState.textContent = "Sign-in needed";
         statusBox.textContent = "Your session has expired or is invalid. Please continue with Google again.";
       }
+    }
+
+    async function loadPublicConfig() {
+      try {
+        const response = await fetch("/public-config");
+        const payload = await parseResponsePayload(response);
+        if (response.ok && payload.data) Object.assign(appConfig, payload.data);
+      } catch {}
+      applyVerificationRequirements();
+      updateVerificationUI();
     }
 
     document.getElementById("oauth-start").addEventListener("click", async () => {
@@ -518,17 +664,13 @@
       try {
         const response = await fetch("/auth/otp/send", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ channel: "email", email })
         });
         const payload = await parseResponsePayload(response);
         if (!response.ok) throw new Error(extractErrorMessage(payload, "We could not send an email code right now."));
-        verificationState.emailTestCode = payload.data.test_code || null;
-        emailNote.textContent = verificationState.emailTestCode
-          ? `Email code sent. For testing, use ${verificationState.emailTestCode}.`
+        emailNote.textContent = payload.data.test_code
+          ? `Email code sent. For testing, use ${payload.data.test_code}.`
           : `Email code sent to ${email}. Please check your inbox.`;
       } catch (error) {
         emailNote.textContent = error.message || "We could not send an email code right now.";
@@ -547,10 +689,7 @@
       try {
         const response = await fetch("/auth/otp/verify", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ channel: "email", email, code })
         });
         const payload = await parseResponsePayload(response);
@@ -583,19 +722,15 @@
       try {
         const response = await fetch("/auth/otp/send", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ channel: "phone", phone_number: phoneNumber })
         });
         const payload = await parseResponsePayload(response);
         if (!response.ok) throw new Error(extractErrorMessage(payload, "We could not send a phone code right now."));
         verificationState.phoneNumber = phoneNumber;
-        verificationState.phoneTestCode = payload.data.test_code || null;
         verificationState.phoneVerified = false;
-        phoneNote.textContent = verificationState.phoneTestCode
-          ? `Phone code sent. For testing, use ${verificationState.phoneTestCode}.`
+        phoneNote.textContent = payload.data.test_code
+          ? `Phone code sent. For testing, use ${payload.data.test_code}.`
           : "Phone code sent. Please check your SMS inbox.";
         updateVerificationUI();
       } catch (error) {
@@ -615,10 +750,7 @@
       try {
         const response = await fetch("/auth/otp/verify", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ channel: "phone", phone_number: phoneNumber, code })
         });
         const payload = await parseResponsePayload(response);
@@ -640,8 +772,12 @@
         statusBox.textContent = "Login is required before profile setup.";
         return;
       }
-      if (!(verificationState.emailVerified && verificationState.phoneVerified)) {
-        statusBox.textContent = "Verify both your email and phone before submitting your profile.";
+      if (!emailRequirementMet() || !phoneRequirementMet()) {
+        statusBox.textContent = "Complete the active verification requirements before submitting your profile.";
+        return;
+      }
+      if (selectedLocation.latitude == null || selectedLocation.longitude == null) {
+        statusBox.textContent = "Set your location pin on the map before saving your profile.";
         return;
       }
 
@@ -649,8 +785,8 @@
       const common = {
         full_name: document.getElementById("full-name").value.trim(),
         phone_number: document.getElementById("phone-number").value.trim(),
-        latitude: Number(document.getElementById("latitude").value),
-        longitude: Number(document.getElementById("longitude").value)
+        latitude: Number(selectedLocation.latitude),
+        longitude: Number(selectedLocation.longitude)
       };
 
       const payload = { role };
@@ -703,10 +839,7 @@
       try {
         const response = await fetch("/profile/setup-role", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify(payload)
         });
         const responsePayload = await parseResponsePayload(response);
@@ -719,8 +852,7 @@
 
     roleSelect.addEventListener("change", renderRoleFields);
     renderRoleFields();
-    updateVerificationUI();
-    hydrateSessionState();
+    loadPublicConfig().then(hydrateSessionState);
   </script>
 </body>
 </html>

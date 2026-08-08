@@ -182,13 +182,12 @@
           api("/work-requests?scope=mine")
         ]);
         currentUser = profileResponse.data;
-        const allowedRoles = new Set(["employer", "contractor", "admin"]);
-        const canPost = allowedRoles.has(currentUser.role);
+        const canPost = Boolean(currentUser.profile_completed && currentUser.is_phone_verified);
         setFormEnabled(canPost);
-        if (!canPost) {
-          statusBox.textContent = "Only employer or contractor accounts can post work requests. Update your profile role first.";
-        } else if (!currentUser.profile_completed) {
+        if (!currentUser.profile_completed) {
           statusBox.textContent = "Complete your profile first, then you can post work requests.";
+        } else if (!currentUser.is_phone_verified) {
+          statusBox.textContent = "Verify your phone number first, then you can post work requests.";
         } else {
           statusBox.textContent = "Manage your work requests here.";
         }
@@ -208,9 +207,8 @@
         if (!currentUser) {
           throw new Error("Your account context is still loading. Please try again.");
         }
-        if (!["employer", "contractor", "admin"].includes(currentUser.role)) {
-          throw new Error("Only employer or contractor accounts can post work requests.");
-        }
+        if (!currentUser.profile_completed) throw new Error("Complete your profile before posting a work request.");
+        if (!currentUser.is_phone_verified) throw new Error("Verify your phone number before posting a work request.");
         validateRequestForm();
         await api("/work-requests", {
           method: "POST",

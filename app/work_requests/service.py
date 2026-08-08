@@ -9,8 +9,10 @@ from app.work_requests.schemas import WorkRequestCreate, WorkRequestUpdate
 
 
 def create_work_request(db: Session, user: User, payload: WorkRequestCreate) -> WorkRequest:
-    if user.role not in {UserRole.employer, UserRole.contractor, UserRole.admin}:
-        raise HTTPException(status_code=403, detail="Only employers or contractors can post work requests")
+    if not user.profile_completed:
+        raise HTTPException(status_code=403, detail="Complete your profile before posting a work request")
+    if not user.phone_number or not user.is_phone_verified:
+        raise HTTPException(status_code=403, detail="Verify your phone number before posting a work request")
     work_request = WorkRequest(posted_by_user_id=user.id, **payload.model_dump())
     db.add(work_request)
     db.commit()

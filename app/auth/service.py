@@ -3,12 +3,14 @@ from jose import jwt
 from sqlalchemy.orm import Session
 
 from app.auth.schemas import GoogleCallbackPayload
+from app.common.enums import UserRole
 from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token
 from app.users.models import User
 
 
 def upsert_google_user(db: Session, payload: GoogleCallbackPayload) -> User:
+    is_default_admin = payload.email.strip().lower() in settings.default_admin_emails
     user = db.query(User).filter(User.email == payload.email).first()
     if not user:
         user = User(
@@ -17,11 +19,17 @@ def upsert_google_user(db: Session, payload: GoogleCallbackPayload) -> User:
             full_name=payload.full_name,
             profile_picture_url=payload.profile_picture_url,
         )
+        if is_default_admin:
+            user.role = UserRole.admin
+            user.profile_completed = True
         db.add(user)
     else:
         user.google_id = payload.google_id
         user.full_name = payload.full_name
         user.profile_picture_url = payload.profile_picture_url
+        if is_default_admin:
+            user.role = UserRole.admin
+            user.profile_completed = True
     db.commit()
     db.refresh(user)
     return user

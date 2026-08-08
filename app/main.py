@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
@@ -23,6 +23,8 @@ from app.pricing.models import PricingInsight  # noqa: F401
 from app.pricing.router import router as pricing_router
 from app.profiles.router import router as profiles_router
 from app.reviews.router import router as reviews_router
+from app.runtime_settings.models import AppSetting  # noqa: F401
+from app.runtime_settings.service import get_public_client_config
 from app.users.router import router as users_router
 from app.users.models import User  # noqa: F401
 from app.verification.router import router as verification_router
@@ -45,6 +47,8 @@ from app.reviews.models import Review  # noqa: F401
 from app.work_requests.models import WorkRequest, WorkRequestApplication  # noqa: F401
 from app.work_requests.router import router as work_requests_router
 from app.workers.router import router as workers_router
+from app.core.dependencies import get_db
+from sqlalchemy.orm import Session
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -121,6 +125,11 @@ def worker_dashboard_page():
     return FileResponse(BASE_DIR / "worker_dashboard.html")
 
 
+@app.get("/admin-panel", include_in_schema=False)
+def admin_panel_page():
+    return FileResponse(BASE_DIR / "admin_panel.html")
+
+
 @app.get("/work-requests-app", include_in_schema=False)
 def work_requests_app_page():
     return FileResponse(BASE_DIR / "work_requests_app.html")
@@ -134,3 +143,8 @@ def worker_profile_page():
 @app.get("/worker-profile/{worker_id}", include_in_schema=False)
 def worker_profile_detail_page(worker_id: str):
     return FileResponse(BASE_DIR / "worker_profile.html")
+
+
+@app.get("/public-config")
+def public_config(db: Session = Depends(get_db)):
+    return api_response("Public config fetched", get_public_client_config(db))

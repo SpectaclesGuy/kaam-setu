@@ -6,6 +6,7 @@ from app.common.utils import api_response
 from app.core.dependencies import get_current_user, get_db
 from app.profiles.schemas import RoleSetupRequest, WorkerAvailabilityCreate, WorkerProfileUpdate
 from app.profiles.service import add_worker_availability, setup_role_profile, update_worker_profile
+from app.runtime_settings.service import get_runtime_settings
 
 router = APIRouter(prefix="/profile", tags=["profiles"])
 
@@ -14,9 +15,10 @@ router = APIRouter(prefix="/profile", tags=["profiles"])
 def setup_role(payload: RoleSetupRequest, user=Depends(get_current_user), db: Session = Depends(get_db)):
     if user.role == UserRole.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin setup is protected")
-    if not user.is_verified_user:
+    runtime_settings = get_runtime_settings(db)
+    if runtime_settings["profile_setup_require_email_verification"] and not user.is_verified_user:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email verification is required before profile setup")
-    if not user.is_phone_verified or not user.phone_number:
+    if runtime_settings["profile_setup_require_phone_verification"] and (not user.is_phone_verified or not user.phone_number):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Phone verification is required before profile setup",
@@ -30,7 +32,7 @@ def setup_role(payload: RoleSetupRequest, user=Depends(get_current_user), db: Se
         profile_phone_number = payload.contractor_profile.phone_number
     elif payload.operator_profile:
         profile_phone_number = payload.operator_profile.phone_number
-    if profile_phone_number != user.phone_number:
+    if runtime_settings["profile_setup_require_phone_verification"] and profile_phone_number != user.phone_number:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Use your verified phone number")
     user = setup_role_profile(db, user, payload)
     return api_response("Profile setup completed", {"role": user.role, "profile_completed": user.profile_completed})

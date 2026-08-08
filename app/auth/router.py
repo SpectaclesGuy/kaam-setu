@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.schemas import AuthResponse, GoogleCallbackPayload, TokenRefreshRequest
 from app.auth.service import build_auth_payload, decode_token, exchange_google_code, upsert_google_user
+from app.common.enums import UserRole
 from app.common.utils import api_response
 from app.core.config import settings
 from app.core.dependencies import get_current_user, get_db
@@ -51,7 +52,10 @@ async def google_callback(
     payload = {**build_auth_payload(user), "user": UserRead.model_validate(user).model_dump()}
     should_redirect = redirect if redirect is not None else state == "web" or bool(code)
     if should_redirect:
-        destination = "/profile-setup" if not user.profile_completed else "/find-workers"
+        if user.role == UserRole.admin:
+            destination = "/admin-panel"
+        else:
+            destination = "/profile-setup" if not user.profile_completed else "/find-workers"
         return RedirectResponse(
             url=f"{settings.effective_frontend_url.rstrip('/')}{destination}?token={payload['access_token']}&profile_completed={str(user.profile_completed).lower()}"
         )

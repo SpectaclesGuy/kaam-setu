@@ -1,7 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.admin.service import dashboard_metrics, seed_categories
+from app.admin.schemas import AdminSettingsUpdate, AdminUserUpdate
+from app.admin.service import (
+    dashboard_metrics,
+    list_admin_runtime_settings,
+    list_admin_users,
+    seed_categories,
+    update_admin_runtime_settings,
+    update_admin_user,
+)
 from app.bookings.models import Booking
 from app.common.enums import UserRole
 from app.common.utils import api_response
@@ -22,7 +30,7 @@ def dashboard(user=Depends(require_roles(UserRole.admin)), db: Session = Depends
 
 @router.get("/users")
 def users(user=Depends(require_roles(UserRole.admin)), db: Session = Depends(get_db)):
-    return api_response("Users fetched", [item.id for item in db.query(User).all()])
+    return api_response("Users fetched", list_admin_users(db))
 
 
 @router.get("/workers")
@@ -63,6 +71,45 @@ def update_user_status(user_id: str, is_active: bool, user=Depends(require_roles
     target.is_active = is_active
     db.commit()
     return api_response("User status updated", {"id": target.id, "is_active": target.is_active})
+
+
+@router.patch("/users/{user_id}")
+def patch_user(
+    user_id: str,
+    payload: AdminUserUpdate,
+    user=Depends(require_roles(UserRole.admin)),
+    db: Session = Depends(get_db),
+):
+    target = db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    data = update_admin_user(
+        db,
+        target,
+        role=payload.role,
+        role_provided="role" in payload.model_fields_set,
+        is_active=payload.is_active,
+    )
+    return api_response("User updated", data)
+
+
+@router.get("/settings")
+def admin_settings(user=Depends(require_roles(UserRole.admin)), db: Session = Depends(get_db)):
+    return api_response("Admin settings fetched", list_admin_runtime_settings(db))
+
+
+@router.patch("/settings")
+def patch_admin_settings(
+    payload: AdminSettingsUpdate,
+    user=Depends(require_roles(UserRole.admin)),
+    db: Session = Depends(get_db),
+):
+    data = update_admin_runtime_settings(
+        db,
+        profile_setup_require_email_verification=payload.profile_setup_require_email_verification,
+        profile_setup_require_phone_verification=payload.profile_setup_require_phone_verification,
+    )
+    return api_response("Admin settings updated", data)
 
 
 @router.get("/verification/pending")

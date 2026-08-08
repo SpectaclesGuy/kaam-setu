@@ -29,6 +29,7 @@ from app.profiles.models import (
     WorkerSkill,
 )
 from app.reviews.models import Review
+from app.runtime_settings.models import AppSetting
 from app.users.models import User
 from app.verification.models import VerificationDocument
 from app.work_requests.models import WorkRequest, WorkRequestApplication

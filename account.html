@@ -42,7 +42,10 @@
         <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Profile</p>
           <div id="user-card" class="mt-4 text-sm text-stone-600"></div>
-          <a href="/profile-setup" class="mt-5 inline-flex rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Edit profile</a>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a href="/profile-setup" class="inline-flex rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Edit profile</a>
+            <a id="admin-panel-link" href="/admin-panel" class="hidden rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Admin panel</a>
+          </div>
         </div>
         <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Quick counts</p>
@@ -194,6 +197,9 @@
           <p class="mt-1 text-xs ${user.is_phone_verified ? "text-emerald-700" : "text-clay"}">${user.is_phone_verified ? `Phone verified: ${user.phone_number}` : "Phone verification pending"}</p>
           <p class="mt-1 text-xs ${user.profile_completed ? "text-emerald-700" : "text-clay"}">${user.profile_completed ? "Profile complete" : "Profile setup required"}</p>
         `;
+        if (user.role === "admin") {
+          document.getElementById("admin-panel-link").classList.remove("hidden");
+        }
         document.getElementById("count-grid").innerHTML = Object.entries(summary.data.counts).map(([key, val]) => `<div class="rounded-2xl bg-mist p-4"><p class="text-xs uppercase tracking-[0.15em] text-stone-500">${key.replaceAll("_", " ")}</p><p class="mt-2 font-display text-3xl font-bold text-pine">${val}</p></div>`).join("");
         document.getElementById("bookings").innerHTML = renderBookings(bookings.data, profile.data.role);
         document.getElementById("work-requests").innerHTML = requests.data.length ? requests.data.map((item) => card(`

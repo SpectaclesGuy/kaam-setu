@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     google_client_id: str = "demo-client-id"
     google_client_secret: str = "demo-client-secret"
     google_redirect_uri: str | None = None
+    google_maps_api_key: str | None = None
     jwt_secret_key: str = "change-me"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
@@ -28,6 +29,9 @@ class Settings(BaseSettings):
     otp_ttl_seconds: int = 300
     otp_resend_cooldown_seconds: int = 60
     otp_test_bypass_code: str = "123456"
+    default_admin_emails_raw: str = Field(default="", alias="DEFAULT_ADMIN_EMAILS")
+    profile_setup_require_email_verification: bool = True
+    profile_setup_require_phone_verification: bool = True
     email_otp_provider: str = "mock"
     phone_otp_provider: str = "mock"
     smtp_host: str = "smtp.gmail.com"
@@ -37,6 +41,7 @@ class Settings(BaseSettings):
     smtp_from_email: str | None = None
     smtp_from_name: str = "KaramSetu"
     smtp_use_tls: bool = True
+    smtp_use_ssl: bool = False
     msg91_auth_key: str | None = None
     msg91_template_id: str | None = None
 
@@ -49,6 +54,10 @@ class Settings(BaseSettings):
     @property
     def effective_frontend_url(self) -> str:
         return self.frontend_url or self.backend_url
+
+    @property
+    def default_admin_emails(self) -> list[str]:
+        return [item.strip().lower() for item in self.default_admin_emails_raw.split(",") if item.strip()]
 
     @property
     def cors_origins(self) -> list[str]:
