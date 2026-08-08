@@ -114,11 +114,13 @@ def update_admin_runtime_settings(
     *,
     profile_setup_require_email_verification: bool,
     profile_setup_require_phone_verification: bool,
+    work_request_require_phone_verification: bool,
 ) -> dict[str, bool]:
     return set_runtime_settings(
         db,
         profile_setup_require_email_verification=profile_setup_require_email_verification,
         profile_setup_require_phone_verification=profile_setup_require_phone_verification,
+        work_request_require_phone_verification=work_request_require_phone_verification,
     )
 
 

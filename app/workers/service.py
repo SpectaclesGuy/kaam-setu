@@ -64,6 +64,7 @@ def search_workers(
                 "total_reviews": worker.total_reviews,
                 "verification_status": worker.verification_status.value,
                 "available_today": worker.available_today,
+                "emergency_available": worker.emergency_available,
                 "daily_rate": float(worker.daily_rate),
                 "profile_photo_url": worker.profile_photo_url,
             }

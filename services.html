@@ -12,16 +12,8 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            pine: "#0f5132",
-            clay: "#d46a3a",
-            mist: "#eef4ef",
-            ink: "#122018"
-          },
-          fontFamily: {
-            display: ["Space Grotesk", "sans-serif"],
-            body: ["DM Sans", "sans-serif"]
-          }
+          colors: { pine: "#0f5132", clay: "#d46a3a", mist: "#eef4ef", ink: "#122018" },
+          fontFamily: { display: ["Space Grotesk", "sans-serif"], body: ["DM Sans", "sans-serif"] }
         }
       }
     };
@@ -38,27 +30,59 @@
         <a href="/work-requests-app" class="text-stone-600 hover:text-pine">Post Work</a>
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
       </div>
-      <a href="/find-workers" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Search Workers</a>
+      <a href="/profile-setup" id="profile-cta" class="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white">Complete Profile</a>
     </nav>
   </header>
 
   <main class="mx-auto max-w-6xl px-6 py-10">
-    <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-stone-200 lg:grid lg:grid-cols-[1fr_420px]">
+    <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-stone-200 lg:grid lg:grid-cols-[1fr_380px]">
       <div class="p-8">
-        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Popular local services</p>
-        <div class="mt-4 flex flex-col gap-4 lg:justify-between">
-          <div class="max-w-3xl">
-            <h1 class="font-display text-4xl font-bold">Browse the kinds of work people hire for every day.</h1>
-            <p class="mt-3 text-sm leading-7 text-stone-600">From home repairs and cleaning to transport, farm work, and event support, KaramSetu helps you explore the services available before you choose a worker.</p>
-          </div>
-          <a href="/profile-setup" class="inline-block rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Create my profile</a>
-        </div>
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Service directory</p>
+        <h1 class="mt-3 font-display text-4xl font-bold">Browse verified local workers and hire with more confidence.</h1>
+        <p class="mt-4 max-w-3xl text-sm leading-7 text-stone-600">Explore workers by category, review their rates and availability, and open full profiles when you are ready to book or contact them.</p>
+        <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading worker directory...</div>
       </div>
-      <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80" alt="A local service worker preparing tools for a home visit" class="h-full min-h-[260px] w-full object-cover">
+      <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80" alt="Skilled workers coordinating local jobs" class="h-full min-h-[260px] w-full object-cover">
     </section>
 
-    <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading categories...</div>
-    <section id="categories" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></section>
+    <section class="mt-8 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div class="grid gap-4 md:grid-cols-3">
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Category</span>
+            <select id="category-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="">All categories</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Minimum rating</span>
+            <select id="rating-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="">Any rating</option>
+              <option value="3">3.0+</option>
+              <option value="4">4.0+</option>
+              <option value="4.5">4.5+</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Availability</span>
+            <select id="availability-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="">Any</option>
+              <option value="today">Available today</option>
+              <option value="emergency">Emergency available</option>
+            </select>
+          </label>
+        </div>
+        <button id="refresh-workers" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Refresh workers</button>
+      </div>
+    </section>
+
+    <section id="workers-grid" class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3"></section>
+
+    <div class="mt-8 flex items-center justify-between rounded-[1.5rem] bg-white px-5 py-4 shadow-sm ring-1 ring-stone-200">
+      <button id="prev-page" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Previous</button>
+      <p id="pagination-status" class="text-sm text-stone-600">Page 1</p>
+      <button id="next-page" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Next</button>
+    </div>
   </main>
 
   <script>
@@ -71,29 +95,140 @@
       window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
     }
 
-    async function loadCategories() {
-      const statusBox = document.getElementById("status");
-      const container = document.getElementById("categories");
+    const token = localStorage.getItem("kaamsetu_access_token");
+    const pageSize = 9;
+    let allWorkers = [];
+    let filteredWorkers = [];
+    let currentPage = 1;
 
-      try {
-        const response = await fetch("/categories");
-        const payload = await response.json();
-        const categories = payload.data || [];
-        statusBox.textContent = `${categories.length} services available to explore.`;
-        container.innerHTML = categories.map((category) => `
-          <a href="/find-workers?category=${encodeURIComponent(category.name)}" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-mist font-display text-lg font-bold text-pine">${category.name.slice(0, 2).toUpperCase()}</div>
-            <h2 class="mt-5 font-display text-2xl font-bold text-ink">${category.name}</h2>
-            <p class="mt-2 text-sm text-stone-500">Find nearby professionals for this service.</p>
-            <p class="mt-4 text-sm font-semibold text-pine">See workers</p>
-          </a>
-        `).join("");
-      } catch (error) {
-        statusBox.textContent = "Unable to load categories right now.";
+    async function parseResponsePayload(response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) return response.json();
+      const text = await response.text();
+      return { detail: text || `Request failed with status ${response.status}` };
+    }
+
+    function updateProfileCta(user) {
+      const cta = document.getElementById("profile-cta");
+      if (user?.profile_completed) {
+        cta.textContent = "My Account";
+        cta.href = "/account";
       }
     }
 
-    loadCategories();
+    async function loadViewer() {
+      if (!token) return;
+      try {
+        const response = await fetch("/auth/me", { headers: { Authorization: `Bearer ${token}` } });
+        const payload = await parseResponsePayload(response);
+        if (response.ok) updateProfileCta(payload.data);
+      } catch {}
+    }
+
+    async function loadCategories() {
+      try {
+        const response = await fetch("/categories");
+        const payload = await parseResponsePayload(response);
+        const categories = payload.data || [];
+        document.getElementById("category-filter").innerHTML =
+          `<option value="">All categories</option>` +
+          categories.map((category) => `<option value="${category.name}">${category.name}</option>`).join("");
+      } catch {}
+    }
+
+    function applyFilters() {
+      const category = document.getElementById("category-filter").value.trim().toLowerCase();
+      const minRating = document.getElementById("rating-filter").value ? Number(document.getElementById("rating-filter").value) : null;
+      const availability = document.getElementById("availability-filter").value;
+
+      filteredWorkers = allWorkers.filter((worker) => {
+        const skillText = (worker.skills || []).join(", ").toLowerCase();
+        if (category && !skillText.includes(category)) return false;
+        if (minRating !== null && Number(worker.average_rating || 0) < minRating) return false;
+        if (availability === "today" && !worker.available_today) return false;
+        if (availability === "emergency" && !worker.emergency_available) return false;
+        return true;
+      });
+      currentPage = 1;
+      renderWorkers();
+    }
+
+    function renderWorkers() {
+      const statusBox = document.getElementById("status");
+      const grid = document.getElementById("workers-grid");
+      const totalPages = Math.max(1, Math.ceil(filteredWorkers.length / pageSize));
+      currentPage = Math.min(currentPage, totalPages);
+      const startIndex = (currentPage - 1) * pageSize;
+      const pageItems = filteredWorkers.slice(startIndex, startIndex + pageSize);
+
+      statusBox.textContent = filteredWorkers.length
+        ? `${filteredWorkers.length} workers available. Page ${currentPage} of ${totalPages}.`
+        : "No workers matched the current filters.";
+
+      grid.innerHTML = pageItems.length ? pageItems.map((worker) => `
+        <article class="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-stone-200">
+          <div class="flex items-start gap-4">
+            <img src="${worker.profile_photo_url || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80'}" alt="${worker.full_name}" class="h-20 w-20 rounded-[1.5rem] object-cover ring-1 ring-stone-200">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="font-display text-2xl font-bold">${worker.full_name}</h2>
+                <span class="rounded-full ${worker.verification_status === 'approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">${worker.verification_status}</span>
+              </div>
+              <p class="mt-2 text-sm text-stone-600">${(worker.skills || []).slice(0, 3).join(" • ") || "General local services"}</p>
+            </div>
+          </div>
+          <div class="mt-5 grid grid-cols-2 gap-3 text-sm text-stone-600">
+            <div class="rounded-2xl bg-mist px-4 py-3">
+              <p class="text-xs uppercase tracking-[0.18em] text-stone-500">Daily rate</p>
+              <p class="mt-1 font-semibold text-ink">Rs ${Math.round(worker.daily_rate || 0)}</p>
+            </div>
+            <div class="rounded-2xl bg-mist px-4 py-3">
+              <p class="text-xs uppercase tracking-[0.18em] text-stone-500">Rating</p>
+              <p class="mt-1 font-semibold text-ink">${Number(worker.average_rating || 0).toFixed(1)} / 5</p>
+            </div>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs">
+            ${worker.available_today ? `<span class="rounded-full bg-emerald-100 px-3 py-1 font-semibold uppercase tracking-[0.18em] text-emerald-800">Available today</span>` : ""}
+            ${worker.emergency_available ? `<span class="rounded-full bg-red-100 px-3 py-1 font-semibold uppercase tracking-[0.18em] text-red-700">Emergency</span>` : ""}
+          </div>
+          <a href="/worker-profile/${worker.worker_id}" class="mt-5 inline-flex rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white">View profile</a>
+        </article>
+      `).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500 sm:col-span-2 xl:col-span-3">No workers matched the current filters.</div>`;
+
+      document.getElementById("pagination-status").textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById("prev-page").disabled = currentPage === 1;
+      document.getElementById("next-page").disabled = currentPage === totalPages;
+      document.getElementById("prev-page").classList.toggle("opacity-50", currentPage === 1);
+      document.getElementById("next-page").classList.toggle("opacity-50", currentPage === totalPages);
+    }
+
+    async function loadWorkers() {
+      const statusBox = document.getElementById("status");
+      try {
+        const response = await fetch("/workers/search");
+        const payload = await parseResponsePayload(response);
+        allWorkers = payload.data || [];
+        filteredWorkers = [...allWorkers];
+        renderWorkers();
+      } catch {
+        statusBox.textContent = "Unable to load workers right now.";
+      }
+    }
+
+    document.getElementById("category-filter").addEventListener("change", applyFilters);
+    document.getElementById("rating-filter").addEventListener("change", applyFilters);
+    document.getElementById("availability-filter").addEventListener("change", applyFilters);
+    document.getElementById("refresh-workers").addEventListener("click", loadWorkers);
+    document.getElementById("prev-page").addEventListener("click", () => {
+      currentPage = Math.max(1, currentPage - 1);
+      renderWorkers();
+    });
+    document.getElementById("next-page").addEventListener("click", () => {
+      currentPage += 1;
+      renderWorkers();
+    });
+
+    Promise.all([loadViewer(), loadCategories(), loadWorkers()]);
   </script>
 </body>
 </html>

@@ -54,7 +54,7 @@
             <h2 class="font-display text-3xl font-bold">Live rules</h2>
             <span class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-pine">Runtime</span>
           </div>
-          <p class="mt-2 text-sm text-stone-500">These switches affect `/profile-setup` immediately for everyone.</p>
+          <p class="mt-2 text-sm text-stone-500">These switches affect profile setup and work-request posting immediately for everyone.</p>
           <form id="settings-form" class="mt-5 space-y-4">
             <label class="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
               <input id="require-email-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
@@ -63,6 +63,10 @@
             <label class="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
               <input id="require-phone-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
               <span class="text-sm leading-6 text-stone-700">Require phone OTP verification before a profile can be submitted.</span>
+            </label>
+            <label class="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+              <input id="require-work-request-phone-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
+              <span class="text-sm leading-6 text-stone-700">Require phone OTP verification before a work request can be posted.</span>
             </label>
             <button class="w-full rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Save live rules</button>
           </form>
@@ -289,6 +293,7 @@
       const metrics = dashboard.data;
       document.getElementById("require-email-verification").checked = settings.data.profile_setup_require_email_verification;
       document.getElementById("require-phone-verification").checked = settings.data.profile_setup_require_phone_verification;
+      document.getElementById("require-work-request-phone-verification").checked = settings.data.work_request_require_phone_verification;
       document.getElementById("metrics-grid").innerHTML = [
         metricCard("Users", metrics.total_users),
         metricCard("Workers", metrics.total_workers),
@@ -340,7 +345,8 @@
           method: "PATCH",
           body: JSON.stringify({
             profile_setup_require_email_verification: document.getElementById("require-email-verification").checked,
-            profile_setup_require_phone_verification: document.getElementById("require-phone-verification").checked
+            profile_setup_require_phone_verification: document.getElementById("require-phone-verification").checked,
+            work_request_require_phone_verification: document.getElementById("require-work-request-phone-verification").checked
           })
         });
         statusBox.textContent = "Live rules updated successfully.";

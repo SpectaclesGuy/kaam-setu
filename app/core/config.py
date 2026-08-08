@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     default_admin_emails_raw: str = Field(default="", alias="DEFAULT_ADMIN_EMAILS")
     profile_setup_require_email_verification: bool = True
     profile_setup_require_phone_verification: bool = True
+    work_request_require_phone_verification: bool = True
     email_otp_provider: str = "mock"
     phone_otp_provider: str = "mock"
     smtp_host: str = "smtp.gmail.com"

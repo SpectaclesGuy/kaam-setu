@@ -124,6 +124,7 @@ def patch_admin_settings(
         db,
         profile_setup_require_email_verification=payload.profile_setup_require_email_verification,
         profile_setup_require_phone_verification=payload.profile_setup_require_phone_verification,
+        work_request_require_phone_verification=payload.work_request_require_phone_verification,
     )
     return api_response("Admin settings updated", data)
 

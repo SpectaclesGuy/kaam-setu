@@ -5,6 +5,7 @@ from app.runtime_settings.models import AppSetting
 
 PROFILE_REQUIRE_EMAIL_KEY = "profile_setup_require_email_verification"
 PROFILE_REQUIRE_PHONE_KEY = "profile_setup_require_phone_verification"
+WORK_REQUEST_REQUIRE_PHONE_KEY = "work_request_require_phone_verification"
 
 
 def _read_bool(value: str | None, default: bool) -> bool:
@@ -15,7 +16,7 @@ def _read_bool(value: str | None, default: bool) -> bool:
 
 def get_runtime_settings(db: Session) -> dict[str, bool]:
     rows = db.query(AppSetting).filter(
-        AppSetting.key.in_([PROFILE_REQUIRE_EMAIL_KEY, PROFILE_REQUIRE_PHONE_KEY])
+        AppSetting.key.in_([PROFILE_REQUIRE_EMAIL_KEY, PROFILE_REQUIRE_PHONE_KEY, WORK_REQUEST_REQUIRE_PHONE_KEY])
     ).all()
     mapped = {row.key: row.value for row in rows}
     return {
@@ -25,6 +26,9 @@ def get_runtime_settings(db: Session) -> dict[str, bool]:
         "profile_setup_require_phone_verification": _read_bool(
             mapped.get(PROFILE_REQUIRE_PHONE_KEY), settings.profile_setup_require_phone_verification
         ),
+        "work_request_require_phone_verification": _read_bool(
+            mapped.get(WORK_REQUEST_REQUIRE_PHONE_KEY), settings.work_request_require_phone_verification
+        ),
     }
 
 
@@ -33,10 +37,12 @@ def set_runtime_settings(
     *,
     profile_setup_require_email_verification: bool,
     profile_setup_require_phone_verification: bool,
+    work_request_require_phone_verification: bool,
 ) -> dict[str, bool]:
     updates = {
         PROFILE_REQUIRE_EMAIL_KEY: str(profile_setup_require_email_verification).lower(),
         PROFILE_REQUIRE_PHONE_KEY: str(profile_setup_require_phone_verification).lower(),
+        WORK_REQUEST_REQUIRE_PHONE_KEY: str(work_request_require_phone_verification).lower(),
     }
     for key, value in updates.items():
         row = db.get(AppSetting, key)
@@ -59,4 +65,5 @@ def get_public_client_config(db: Session) -> dict:
         "cloudinary_folder": settings.cloudinary_folder,
         "profile_setup_require_email_verification": runtime["profile_setup_require_email_verification"],
         "profile_setup_require_phone_verification": runtime["profile_setup_require_phone_verification"],
+        "work_request_require_phone_verification": runtime["work_request_require_phone_verification"],
     }

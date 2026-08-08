@@ -11,3 +11,4 @@ class AdminUserUpdate(BaseModel):
 class AdminSettingsUpdate(BaseModel):
     profile_setup_require_email_verification: bool
     profile_setup_require_phone_verification: bool
+    work_request_require_phone_verification: bool

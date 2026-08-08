@@ -55,7 +55,7 @@ async def google_callback(
         if user.role == UserRole.admin:
             destination = "/admin-panel"
         else:
-            destination = "/profile-setup" if not user.profile_completed else "/find-workers"
+            destination = "/services"
         return RedirectResponse(
             url=f"{settings.effective_frontend_url.rstrip('/')}{destination}?token={payload['access_token']}&profile_completed={str(user.profile_completed).lower()}"
         )

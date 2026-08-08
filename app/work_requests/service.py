@@ -3,15 +3,17 @@ from sqlalchemy.orm import Session
 
 from app.common.enums import ApplicationStatus, UserRole, WorkRequestStatus
 from app.profiles.models import WorkerProfile
+from app.runtime_settings.service import get_runtime_settings
 from app.users.models import User
 from app.work_requests.models import WorkRequest, WorkRequestApplication
 from app.work_requests.schemas import WorkRequestCreate, WorkRequestUpdate
 
 
 def create_work_request(db: Session, user: User, payload: WorkRequestCreate) -> WorkRequest:
+    runtime_settings = get_runtime_settings(db)
     if not user.profile_completed:
         raise HTTPException(status_code=403, detail="Complete your profile before posting a work request")
-    if not user.phone_number or not user.is_phone_verified:
+    if runtime_settings["work_request_require_phone_verification"] and (not user.phone_number or not user.is_phone_verified):
         raise HTTPException(status_code=403, detail="Verify your phone number before posting a work request")
     work_request = WorkRequest(posted_by_user_id=user.id, **payload.model_dump())
     db.add(work_request)
