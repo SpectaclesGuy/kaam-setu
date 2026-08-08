@@ -17,6 +17,7 @@ class UserRead(BaseModel):
     is_active: bool
     is_verified_user: bool
     profile_completed: bool
+    preferred_language: str
     created_at: datetime
     updated_at: datetime
 

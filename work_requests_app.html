@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Work Requests | KaramSetu</title>
+  <title data-i18n="work_requests.title">Work Requests | KaramSetu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="/app-i18n.js"></script>
   <script src="/app-shell.js"></script>
   <script>
     tailwind.config = {theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};
@@ -28,26 +29,26 @@
       <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl ring-1 ring-stone-200">
         <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80" alt="Planner reviewing a field work schedule" class="h-[clamp(16rem,30vw,24rem)] w-full object-cover object-center">
         <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
-          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Post local work</p>
-          <h1 class="mt-4 font-display text-4xl font-bold">Create a clear job request in a few short steps.</h1>
-          <p class="mt-4 text-sm leading-7 text-emerald-50">Choose the service type, pin the exact location, set the date and time, and publish a request workers can trust.</p>
+          <p data-i18n="work_requests.badge" class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Post local work</p>
+          <h1 data-i18n="work_requests.hero_title" class="mt-4 font-display text-4xl font-bold">Create a clear job request in a few short steps.</h1>
+          <p data-i18n="work_requests.hero_text" class="mt-4 text-sm leading-7 text-emerald-50">Choose the service type, pin the exact location, set the date and time, and publish a request workers can trust.</p>
         </div>
       </div>
 
       <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Work request</p>
-            <h2 class="mt-2 font-display text-3xl font-bold">Plan the job before you publish it</h2>
+            <p data-i18n="work_requests.section_badge" class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Work request</p>
+            <h2 data-i18n="work_requests.section_title" class="mt-2 font-display text-3xl font-bold">Plan the job before you publish it</h2>
           </div>
           <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking account</span>
         </div>
 
-        <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading work request tools...</div>
+        <div id="status" data-i18n="work_requests.loading" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading work request tools...</div>
 
         <div class="mt-6 flex flex-wrap gap-3">
-          <button id="tab-create-request" class="rounded-full bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Create new request</button>
-          <button id="tab-posted-requests" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700" type="button">Posted work status</button>
+          <button id="tab-create-request" data-i18n="work_requests.tab_create" class="rounded-full bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Create new request</button>
+          <button id="tab-posted-requests" data-i18n="work_requests.tab_status" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700" type="button">Posted work status</button>
         </div>
 
         <div id="create-request-panel" class="mt-6 space-y-6">

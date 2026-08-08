@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Services | KaramSetu</title>
+  <title data-i18n="services.title">Services | KaramSetu</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="/app-i18n.js"></script>
   <script src="/app-shell.js"></script>
   <script>
     tailwind.config = {
@@ -32,10 +33,10 @@
   <main class="mx-auto max-w-6xl px-6 py-10">
     <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-stone-200 lg:grid lg:grid-cols-[1fr_380px]">
       <div class="p-8">
-        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Service directory</p>
-        <h1 class="mt-3 font-display text-4xl font-bold">Browse verified local workers and hire with more confidence.</h1>
-        <p class="mt-4 max-w-3xl text-sm leading-7 text-stone-600">Explore workers by category, review their rates and availability, and open full profiles when you are ready to book or contact them.</p>
-        <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading worker directory...</div>
+        <p data-i18n="services.badge" class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Service directory</p>
+        <h1 data-i18n="services.hero_title" class="mt-3 font-display text-4xl font-bold">Browse verified local workers and hire with more confidence.</h1>
+        <p data-i18n="services.hero_text" class="mt-4 max-w-3xl text-sm leading-7 text-stone-600">Explore workers by category, review their rates and availability, and open full profiles when you are ready to book or contact them.</p>
+        <div id="status" data-i18n="services.loading" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading worker directory...</div>
       </div>
       <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80" alt="Skilled workers coordinating local jobs" class="h-full min-h-[260px] w-full object-cover">
     </section>
@@ -44,43 +45,43 @@
       <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <label class="block md:col-span-2 xl:col-span-1">
-            <span class="mb-2 block text-sm font-medium text-stone-700">Worker name</span>
-            <input id="name-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Search by name">
+            <span data-i18n="services.filter_name" class="mb-2 block text-sm font-medium text-stone-700">Worker name</span>
+            <input id="name-filter" data-i18n-placeholder="services.filter_name_placeholder" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Search by name">
           </label>
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-stone-700">Category</span>
+            <span data-i18n="services.filter_category" class="mb-2 block text-sm font-medium text-stone-700">Category</span>
             <select id="category-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-              <option value="">All categories</option>
+              <option data-i18n="services.filter_category_all" value="">All categories</option>
             </select>
           </label>
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-stone-700">Minimum rating</span>
+            <span data-i18n="services.filter_rating" class="mb-2 block text-sm font-medium text-stone-700">Minimum rating</span>
             <select id="rating-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-              <option value="">Any rating</option>
+              <option data-i18n="services.filter_rating_any" value="">Any rating</option>
               <option value="3">3.0+</option>
               <option value="4">4.0+</option>
               <option value="4.5">4.5+</option>
             </select>
           </label>
           <label class="block">
-            <span class="mb-2 block text-sm font-medium text-stone-700">Availability</span>
+            <span data-i18n="services.filter_availability" class="mb-2 block text-sm font-medium text-stone-700">Availability</span>
             <select id="availability-filter" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-              <option value="">Any</option>
-              <option value="today">Available today</option>
-              <option value="emergency">Emergency available</option>
+              <option data-i18n="services.filter_availability_any" value="">Any</option>
+              <option data-i18n="services.filter_availability_today" value="today">Available today</option>
+              <option data-i18n="services.filter_availability_emergency" value="emergency">Emergency available</option>
             </select>
           </label>
         </div>
-        <button id="refresh-workers" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Refresh workers</button>
+        <button id="refresh-workers" data-i18n="services.refresh" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Refresh workers</button>
       </div>
     </section>
 
     <section id="workers-grid" class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3"></section>
 
     <div class="mt-8 flex items-center justify-center gap-4">
-      <button id="prev-page" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Previous</button>
+      <button id="prev-page" data-i18n="services.pagination_prev" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Previous</button>
       <p id="pagination-status" class="text-sm text-stone-600">Page 1</p>
-      <button id="next-page" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Next</button>
+      <button id="next-page" data-i18n="services.pagination_next" class="rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700">Next</button>
     </div>
   </main>
 

@@ -21,6 +21,7 @@ class User(UUIDMixin, TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_verified_user: Mapped[bool] = mapped_column(Boolean, default=False)
     profile_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    preferred_language: Mapped[str] = mapped_column(String(10), default="en", server_default="en")
 
     worker_profile = relationship("WorkerProfile", back_populates="user", uselist=False)
     employer_profile = relationship("EmployerProfile", back_populates="user", uselist=False)

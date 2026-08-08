@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -11,6 +12,10 @@ from app.core.dependencies import get_current_user, get_db
 from app.users.schemas import UserRead
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+class PreferredLanguageUpdate(BaseModel):
+    preferred_language: str
 
 
 @router.get("/google/login")
@@ -72,6 +77,18 @@ def logout():
 @router.get("/me")
 def me(user=Depends(get_current_user)):
     return api_response("Authenticated user fetched", UserRead.model_validate(user).model_dump())
+
+
+@router.patch("/me/language")
+def update_preferred_language(payload: PreferredLanguageUpdate, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    language = payload.preferred_language.strip().lower()
+    if language not in {"en", "hi", "pa"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported language")
+    user.preferred_language = language
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return api_response("Preferred language updated", UserRead.model_validate(user).model_dump())
 
 
 @router.post("/refresh")

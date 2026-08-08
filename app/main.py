@@ -105,6 +105,19 @@ def app_shell_script():
     return FileResponse(BASE_DIR / "app_shell.js", media_type="application/javascript")
 
 
+@app.get("/app-i18n.js", include_in_schema=False)
+def app_i18n_script():
+    return FileResponse(BASE_DIR / "app_i18n.js", media_type="application/javascript")
+
+
+@app.get("/locales/{language}.json", include_in_schema=False)
+def locale_file(language: str):
+    locale_path = BASE_DIR / "locales" / f"{language}.json"
+    if not locale_path.exists():
+        locale_path = BASE_DIR / "locales" / "en.json"
+    return FileResponse(locale_path, media_type="application/json")
+
+
 @app.get("/find-workers", include_in_schema=False)
 def find_workers_page():
     return FileResponse(BASE_DIR / "find_workers.html")
