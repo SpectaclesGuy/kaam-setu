@@ -29,6 +29,7 @@ def serialize_work_request(item: WorkRequest):
         "latitude": item.latitude,
         "longitude": item.longitude,
         "date_required": item.date_required,
+        "time_required": item.time_required,
         "urgency": item.urgency.value,
         "budget_min": float(item.budget_min) if item.budget_min is not None else None,
         "budget_max": float(item.budget_max) if item.budget_max is not None else None,

@@ -186,15 +186,14 @@
                   <span class="mb-2 block text-sm font-medium text-stone-700">Other category</span>
                   <input id="categories-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter category">
                 </label>
-                <label class="block">
-                  <span class="mb-2 block text-sm font-medium text-stone-700">Skill</span>
-                  <select id="skills" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-                    <option value="">Select skill</option>
-                  </select>
-                </label>
+                <div class="block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Skills</span>
+                  <div id="skills-chip-list" class="flex flex-wrap gap-3"></div>
+                  <p class="mt-2 text-xs text-stone-500">Select one or more skills that match your category.</p>
+                </div>
                 <label id="skills-other-wrapper" class="hidden block">
                   <span class="mb-2 block text-sm font-medium text-stone-700">Other skill</span>
-                  <input id="skills-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter skill">
+                  <input id="skills-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter additional skill">
                 </label>
                 <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Languages (comma separated)</span><input id="languages" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Hindi, English"></label>
               </div>
@@ -348,6 +347,7 @@
     const verificationState = { emailVerified: false, phoneVerified: false, email: "", phoneNumber: "" };
     const selectedLocation = { latitude: null, longitude: null };
     const existingDocuments = {};
+    const selectedWorkerSkills = new Set();
     let currentStep = 1;
     const categorySkillMap = {
       electrician: ["Wiring", "Switchboard repair", "Fan installation", "Inverter setup", "Meter work", "Other"],
@@ -423,7 +423,7 @@
     }
 
     function syncSkillOtherVisibility() {
-      setFieldVisibility("skills-other-wrapper", document.getElementById("skills").value === "other");
+      setFieldVisibility("skills-other-wrapper", selectedWorkerSkills.has("Other"));
     }
 
     function selectedWorkerCategory() {
@@ -431,9 +431,11 @@
       return category === "other" ? document.getElementById("categories-other").value.trim() : categoryLabels[category] || category;
     }
 
-    function selectedWorkerSkill() {
-      const skill = document.getElementById("skills").value;
-      return skill === "other" ? document.getElementById("skills-other").value.trim() : skill;
+    function selectedWorkerSkillsList() {
+      const skills = Array.from(selectedWorkerSkills).filter((skill) => skill !== "Other");
+      const otherSkill = document.getElementById("skills-other").value.trim();
+      if (selectedWorkerSkills.has("Other") && otherSkill) skills.push(otherSkill);
+      return skills;
     }
 
     function selectedGender() {
@@ -452,15 +454,39 @@
       populateSelect(document.getElementById("work-categories"), options, "Select category");
     }
 
-    function refreshWorkerSkillOptions() {
+    function toggleWorkerSkill(skill) {
+      if (selectedWorkerSkills.has(skill)) {
+        selectedWorkerSkills.delete(skill);
+      } else {
+        selectedWorkerSkills.add(skill);
+      }
+      if (!selectedWorkerSkills.has("Other")) {
+        document.getElementById("skills-other").value = "";
+      }
+      renderWorkerSkillChips();
+    }
+
+    function renderWorkerSkillChips() {
       const categoryKey = document.getElementById("categories").value || "other";
       const skills = categorySkillMap[categoryKey] || categorySkillMap.other;
-      populateSelect(
-        document.getElementById("skills"),
-        skills.map((skill) => ({ value: skill === "Other" ? "other" : skill, label: skill })),
-        "Select skill"
-      );
+      const container = document.getElementById("skills-chip-list");
+      container.innerHTML = skills.map((skill) => {
+        const selected = selectedWorkerSkills.has(skill);
+        return `<button type="button" data-skill-chip="${skill}" class="rounded-full border px-4 py-2 text-sm font-semibold transition ${selected ? "border-pine bg-pine text-white" : "border-stone-300 bg-white text-stone-700 hover:border-pine hover:text-pine"}">${skill}</button>`;
+      }).join("");
+      container.querySelectorAll("[data-skill-chip]").forEach((button) => {
+        button.addEventListener("click", () => toggleWorkerSkill(button.getAttribute("data-skill-chip")));
+      });
       syncSkillOtherVisibility();
+    }
+
+    function refreshWorkerSkillOptions() {
+      const categoryKey = document.getElementById("categories").value || "other";
+      const allowedSkills = new Set(categorySkillMap[categoryKey] || categorySkillMap.other);
+      Array.from(selectedWorkerSkills).forEach((skill) => {
+        if (!allowedSkills.has(skill)) selectedWorkerSkills.delete(skill);
+      });
+      renderWorkerSkillChips();
     }
 
     function ensureMapVisible() {
@@ -666,7 +692,7 @@
         if (role === "worker") {
           return [
             document.getElementById("categories").value === "other" ? document.getElementById("categories-other") : document.getElementById("categories"),
-            document.getElementById("skills").value === "other" ? document.getElementById("skills-other") : document.getElementById("skills")
+            selectedWorkerSkills.has("Other") ? document.getElementById("skills-other") : { value: selectedWorkerSkillsList().join(",") }
           ];
         }
         if (role === "employer") return [document.getElementById("employer-type")];
@@ -1013,15 +1039,19 @@
         document.getElementById("categories").value = categoryKey || (workerCategory ? "other" : "");
         document.getElementById("categories-other").value = categoryKey ? "" : workerCategory;
         refreshWorkerSkillOptions();
-        const workerSkill = (worker.skills || [])[0] || "";
+        selectedWorkerSkills.clear();
         const skillOptions = categorySkillMap[document.getElementById("categories").value || "other"] || categorySkillMap.other;
-        if (skillOptions.includes(workerSkill)) {
-          document.getElementById("skills").value = workerSkill;
-          document.getElementById("skills-other").value = "";
-        } else if (workerSkill) {
-          document.getElementById("skills").value = "other";
-          document.getElementById("skills-other").value = workerSkill;
-        }
+        let otherSkill = "";
+        (worker.skills || []).forEach((skill) => {
+          if (skillOptions.includes(skill)) {
+            selectedWorkerSkills.add(skill);
+          } else if (skill) {
+            selectedWorkerSkills.add("Other");
+            otherSkill = skill;
+          }
+        });
+        document.getElementById("skills-other").value = otherSkill;
+        renderWorkerSkillChips();
         document.getElementById("languages").value = (worker.languages || []).join(", ");
         document.getElementById("available-today").checked = Boolean(worker.available_today);
         document.getElementById("emergency-available").checked = Boolean(worker.emergency_available);
@@ -1190,7 +1220,6 @@
     });
     document.getElementById("gender").addEventListener("change", syncGenderOtherVisibility);
     document.getElementById("work-categories").addEventListener("change", syncWorkCategoryOtherVisibility);
-    document.getElementById("skills").addEventListener("change", syncSkillOtherVisibility);
 
     document.getElementById("send-phone-otp").addEventListener("click", async () => {
       const token = localStorage.getItem("kaamsetu_access_token");
@@ -1281,7 +1310,7 @@
           gender: selectedGender() || null,
           primary_location: document.getElementById("location-input").value.trim(),
           service_radius_km: Number(document.getElementById("service-radius").value),
-          skills: selectedWorkerSkill() ? [selectedWorkerSkill()] : [],
+          skills: selectedWorkerSkillsList(),
           categories: selectedWorkerCategory() ? [selectedWorkerCategory()] : [],
           experience_years: Number(document.getElementById("experience-years").value),
           daily_rate: Number(document.getElementById("daily-rate").value),

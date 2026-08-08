@@ -12,6 +12,7 @@ class WorkRequestCreate(BaseModel):
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
     date_required: str
+    time_required: str | None = None
     urgency: WorkUrgency = WorkUrgency.normal
     budget_min: float | None = Field(default=None, ge=0)
     budget_max: float | None = Field(default=None, ge=0)
@@ -28,6 +29,7 @@ class WorkRequestUpdate(BaseModel):
     category_label: str | None = None
     title: str | None = None
     description: str | None = None
+    time_required: str | None = None
     status: WorkRequestStatus | None = None
 
 

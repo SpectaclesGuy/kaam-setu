@@ -3,12 +3,18 @@ from sqlalchemy.orm import Session
 
 from app.bookings.models import Booking
 from app.common.enums import BookingStatus, UserRole, WorkRequestStatus
+from app.contact_logs import ContactLog
+from app.contractor.models import SavedWorker
 from app.disputes.models import Dispute
+from app.notifications.models import Notification
+from app.otp.models import OTPChallenge
 from app.profiles.models import Category, EmployerProfile, WorkerProfile
+from app.profiles.models import ContractorProfile, OperatorProfile, WorkerAvailability, WorkerLanguage, WorkerSkill
+from app.reviews.models import Review
 from app.runtime_settings.service import get_runtime_settings, set_runtime_settings
 from app.users.models import User
 from app.verification.models import VerificationDocument
-from app.work_requests.models import WorkRequest
+from app.work_requests.models import WorkRequest, WorkRequestApplication
 
 
 def dashboard_metrics(db: Session) -> dict:
@@ -114,3 +120,79 @@ def update_admin_runtime_settings(
         profile_setup_require_email_verification=profile_setup_require_email_verification,
         profile_setup_require_phone_verification=profile_setup_require_phone_verification,
     )
+
+
+def delete_admin_user(db: Session, user: User) -> None:
+    worker_profile = db.query(WorkerProfile).filter(WorkerProfile.user_id == user.id).first()
+    worker_profile_id = worker_profile.id if worker_profile else None
+
+    request_ids = [
+        item_id for (item_id,) in db.query(WorkRequest.id).filter(WorkRequest.posted_by_user_id == user.id).all()
+    ]
+    booking_ids = {
+        item_id
+        for (item_id,) in db.query(Booking.id).filter(Booking.employer_user_id == user.id).all()
+    }
+    if worker_profile_id:
+        booking_ids.update(
+            item_id for (item_id,) in db.query(Booking.id).filter(Booking.worker_id == worker_profile_id).all()
+        )
+
+    if request_ids:
+        booking_ids.update(
+            item_id for (item_id,) in db.query(Booking.id).filter(Booking.work_request_id.in_(request_ids)).all()
+        )
+
+    if booking_ids:
+        db.query(Review).filter(Review.booking_id.in_(booking_ids)).delete(synchronize_session=False)
+        db.query(Dispute).filter(Dispute.booking_id.in_(booking_ids)).delete(synchronize_session=False)
+        db.query(OTPChallenge).filter(OTPChallenge.booking_id.in_(booking_ids)).delete(synchronize_session=False)
+
+    db.query(Review).filter(
+        (Review.reviewer_user_id == user.id) | (Review.reviewee_user_id == user.id)
+    ).delete(synchronize_session=False)
+    db.query(Dispute).filter(
+        (Dispute.raised_by_user_id == user.id) | (Dispute.against_user_id == user.id)
+    ).delete(synchronize_session=False)
+    db.query(Notification).filter(Notification.user_id == user.id).delete(synchronize_session=False)
+    db.query(OTPChallenge).filter(OTPChallenge.user_id == user.id).delete(synchronize_session=False)
+    db.query(VerificationDocument).filter(VerificationDocument.user_id == user.id).delete(synchronize_session=False)
+    db.query(VerificationDocument).filter(VerificationDocument.reviewed_by == user.id).update(
+        {
+            VerificationDocument.reviewed_by: None,
+            VerificationDocument.remarks: "Reviewer account removed by admin.",
+        },
+        synchronize_session=False,
+    )
+    db.query(ContactLog).filter(ContactLog.employer_user_id == user.id).delete(synchronize_session=False)
+    db.query(SavedWorker).filter(SavedWorker.contractor_user_id == user.id).delete(synchronize_session=False)
+
+    if worker_profile_id:
+        db.query(ContactLog).filter(ContactLog.worker_id == worker_profile_id).delete(synchronize_session=False)
+        db.query(SavedWorker).filter(SavedWorker.worker_id == worker_profile_id).delete(synchronize_session=False)
+        db.query(WorkRequestApplication).filter(WorkRequestApplication.worker_id == worker_profile_id).delete(
+            synchronize_session=False
+        )
+        db.query(Booking).filter(Booking.worker_id == worker_profile_id).delete(synchronize_session=False)
+        db.query(WorkerAvailability).filter(WorkerAvailability.worker_id == worker_profile_id).delete(
+            synchronize_session=False
+        )
+        db.query(WorkerLanguage).filter(WorkerLanguage.worker_id == worker_profile_id).delete(
+            synchronize_session=False
+        )
+        db.query(WorkerSkill).filter(WorkerSkill.worker_id == worker_profile_id).delete(synchronize_session=False)
+        db.query(WorkerProfile).filter(WorkerProfile.id == worker_profile_id).delete(synchronize_session=False)
+
+    if request_ids:
+        db.query(WorkRequestApplication).filter(WorkRequestApplication.work_request_id.in_(request_ids)).delete(
+            synchronize_session=False
+        )
+        db.query(Booking).filter(Booking.work_request_id.in_(request_ids)).delete(synchronize_session=False)
+        db.query(WorkRequest).filter(WorkRequest.id.in_(request_ids)).delete(synchronize_session=False)
+
+    db.query(Booking).filter(Booking.employer_user_id == user.id).delete(synchronize_session=False)
+    db.query(EmployerProfile).filter(EmployerProfile.user_id == user.id).delete(synchronize_session=False)
+    db.query(ContractorProfile).filter(ContractorProfile.user_id == user.id).delete(synchronize_session=False)
+    db.query(OperatorProfile).filter(OperatorProfile.user_id == user.id).delete(synchronize_session=False)
+    db.query(User).filter(User.id == user.id).delete(synchronize_session=False)
+    db.commit()

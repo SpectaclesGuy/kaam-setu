@@ -148,7 +148,7 @@
                 <span>Profile complete: ${item.profile_completed ? "yes" : "no"}</span>
               </div>
             </div>
-            <form data-user-form="${item.id}" class="grid gap-3 sm:grid-cols-[220px_160px_auto]">
+            <form data-user-form="${item.id}" class="grid gap-3 sm:grid-cols-[220px_160px_auto_auto]">
               <select data-role class="rounded-2xl border border-stone-300 px-4 py-3 text-sm">
                 <option value="" ${!item.role ? "selected" : ""}>No role</option>
                 <option value="worker" ${item.role === "worker" ? "selected" : ""}>Worker</option>
@@ -162,6 +162,7 @@
                 <option value="false" ${!item.is_active ? "selected" : ""}>Disabled</option>
               </select>
               <button class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Save access</button>
+              <button data-delete-user="true" class="rounded-2xl border border-red-300 px-5 py-3 text-sm font-semibold text-red-700" type="button">Delete profile</button>
             </form>
           </div>
         </article>
@@ -183,6 +184,20 @@
             await loadUsers();
           } catch (error) {
             statusBox.textContent = error.message || "We could not update that user.";
+          }
+        });
+
+        form.querySelector('[data-delete-user="true"]').addEventListener("click", async () => {
+          const userId = form.getAttribute("data-user-form");
+          const userName = form.closest("article")?.querySelector("h3")?.textContent || "this user";
+          if (!window.confirm(`Delete ${userName} and all linked profile data? This cannot be undone.`)) return;
+          statusBox.textContent = "Deleting user profile...";
+          try {
+            await api(`/admin/users/${userId}`, { method: "DELETE" });
+            statusBox.textContent = "User profile deleted successfully.";
+            await Promise.all([loadUsers(), loadVerificationQueue(), loadDashboard()]);
+          } catch (error) {
+            statusBox.textContent = error.message || "We could not delete that user.";
           }
         });
       });

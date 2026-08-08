@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.admin.schemas import AdminSettingsUpdate, AdminUserUpdate
 from app.admin.service import (
     dashboard_metrics,
+    delete_admin_user,
     list_admin_runtime_settings,
     list_admin_users,
     seed_categories,
@@ -91,6 +92,21 @@ def patch_user(
         is_active=payload.is_active,
     )
     return api_response("User updated", data)
+
+
+@router.delete("/users/{user_id}")
+def remove_user(
+    user_id: str,
+    user=Depends(require_roles(UserRole.admin)),
+    db: Session = Depends(get_db),
+):
+    if user.id == user_id:
+        raise HTTPException(status_code=400, detail="You cannot delete your own admin account from the admin panel.")
+    target = db.get(User, user_id)
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    delete_admin_user(db, target)
+    return api_response("User deleted", {"id": user_id})
 
 
 @router.get("/settings")

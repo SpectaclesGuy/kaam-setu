@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Work Requests | KaramSetu</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-  <script>tailwind.config={theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};</script>
+  <script>
+    tailwind.config = {theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};
+  </script>
 </head>
 <body class="bg-stone-50 font-body text-ink">
   <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
@@ -16,64 +19,162 @@
       <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
       <div class="hidden gap-6 text-sm font-medium md:flex">
         <a href="/find-workers" class="text-stone-600 hover:text-pine">Find Workers</a>
-        <a href="/work-requests-app" class="text-pine">Work Requests</a>
+        <a href="/work-requests-app" class="text-pine">Post Work</a>
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
       </div>
       <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
     </nav>
   </header>
+
   <main class="mx-auto max-w-7xl px-6 py-10">
-    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
+    <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-stone-200">
+      <div class="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+        <div class="p-8">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Work requests</p>
-          <h1 class="mt-2 font-display text-4xl font-bold">Post a job and manage your open requests.</h1>
+          <h1 class="mt-3 font-display text-4xl font-bold">Plan the job, pin the location, and publish the request with the right timing.</h1>
+          <p class="mt-4 max-w-2xl text-sm leading-7 text-stone-600">Post local work with a clear budget, service date, preferred time slot, and an exact map pin so workers know what they are responding to.</p>
+          <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading work requests...</div>
         </div>
-        <img src="https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=900&q=80" alt="Team discussing a work plan" class="h-40 w-full max-w-sm rounded-[1.5rem] object-cover">
+        <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
+          <img src="https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80" alt="Planner reviewing a field work schedule" class="h-56 w-full rounded-[1.5rem] object-cover object-center ring-1 ring-white/20">
+          <div class="mt-6 space-y-4 text-sm leading-7 text-emerald-50">
+            <p>Set a proper location pin instead of manually typing coordinates.</p>
+            <p>Add the service day and the time the worker should show up.</p>
+            <p>Use the budget hint as a local benchmark before you publish.</p>
+          </div>
+        </div>
       </div>
-      <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading work requests...</div>
     </section>
-    <section class="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
-      <form id="request-form" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 space-y-4">
-        <h2 class="font-display text-3xl font-bold">Create work request</h2>
-        <input id="category_label" placeholder="Service category, for example Electrician" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-        <input id="title" placeholder="Job title" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-        <textarea id="description" placeholder="Describe the work needed" class="min-h-32 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea>
-        <div class="grid gap-4 md:grid-cols-2">
-          <input id="location_text" placeholder="Location" class="rounded-2xl border border-stone-300 px-4 py-3">
-          <input id="date_required" type="date" class="rounded-2xl border border-stone-300 px-4 py-3">
-          <input id="latitude" type="number" step="any" value="28.6139" class="rounded-2xl border border-stone-300 px-4 py-3">
-          <input id="longitude" type="number" step="any" value="77.2090" class="rounded-2xl border border-stone-300 px-4 py-3">
-          <select id="urgency" class="rounded-2xl border border-stone-300 px-4 py-3">
-            <option value="normal">Normal</option>
-            <option value="low">Low</option>
-            <option value="urgent">Urgent</option>
-            <option value="emergency">Emergency</option>
-          </select>
-          <input id="workers_needed" type="number" min="1" value="1" class="rounded-2xl border border-stone-300 px-4 py-3">
-          <input id="budget_min" type="number" min="0" placeholder="Minimum budget" class="rounded-2xl border border-stone-300 px-4 py-3">
-          <input id="budget_max" type="number" min="0" placeholder="Maximum budget" class="rounded-2xl border border-stone-300 px-4 py-3">
+
+    <section class="mt-8 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <form id="request-form" class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200 space-y-6">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Create request</p>
+          <h2 class="mt-1 font-display text-3xl font-bold">Describe the job clearly</h2>
         </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Service category</span>
+            <select id="category_label" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="">Select category</option>
+            </select>
+          </label>
+          <label id="category-other-wrapper" class="hidden block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Other category</span>
+            <input id="category_other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter service category">
+          </label>
+          <label class="block md:col-span-2">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Job title</span>
+            <input id="title" placeholder="Need a skilled electrician for urgent switchboard repair" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+        </div>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-medium text-stone-700">Describe the work</span>
+          <textarea id="description" placeholder="Explain what needs to be done, what tools may be required, and anything the worker should know before arriving." class="min-h-36 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea>
+        </label>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Service date</span>
+            <input id="date_required" type="date" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Preferred time</span>
+            <input id="time_required" type="time" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Urgency</span>
+            <select id="urgency" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              <option value="normal">Normal</option>
+              <option value="low">Low</option>
+              <option value="urgent">Urgent</option>
+              <option value="emergency">Emergency</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Workers needed</span>
+            <input id="workers_needed" type="number" min="1" value="1" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Budget min</span>
+            <input id="budget_min" type="number" min="0" placeholder="300" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Budget max</span>
+            <input id="budget_max" type="number" min="0" placeholder="700" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+        </div>
+
         <div id="budget-hint" class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Add a service category and city to see a suggested local budget.</div>
-        <button class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white" type="submit">Post request</button>
+
+        <section class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Location</p>
+              <h3 class="mt-1 font-display text-2xl font-bold">Pin the service spot on the map</h3>
+              <p class="mt-2 text-sm text-stone-600">Use your live location, search an address, or drag the pin to the exact work site.</p>
+            </div>
+            <span id="map-provider-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Loading map</span>
+          </div>
+          <label class="mt-5 block">
+            <span class="mb-2 block text-sm font-medium text-stone-700">Location</span>
+            <input id="location_text" placeholder="Type the address or move the pin" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+          </label>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button id="use-live-location" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine" type="button">Use live location</button>
+            <button id="resolve-location" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Resolve typed location</button>
+          </div>
+          <div id="location-map" class="mt-5 h-[320px] overflow-hidden rounded-[1.5rem] ring-1 ring-stone-200"></div>
+          <p id="location-note" class="mt-3 text-sm text-stone-600">Map is loading. Click or drag the pin to lock the service location.</p>
+        </section>
+
+        <button class="w-full rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white" type="submit">Post work request</button>
       </form>
+
       <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
-        <h2 class="font-display text-3xl font-bold">My requests</h2>
-        <div id="requests-list" class="mt-5 space-y-3"></div>
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">My requests</p>
+            <h2 class="mt-1 font-display text-3xl font-bold">Published jobs</h2>
+          </div>
+          <button id="refresh-requests" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Refresh</button>
+        </div>
+        <div id="requests-list" class="mt-6 space-y-4"></div>
       </section>
     </section>
   </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const token = localStorage.getItem("kaamsetu_access_token");
     const statusBox = document.getElementById("status");
     const requestForm = document.getElementById("request-form");
+    const locationNote = document.getElementById("location-note");
+    const categoryLabels = {
+      electrician: "Electrician",
+      plumber: "Plumber",
+      carpenter: "Carpenter",
+      painter: "Painter",
+      mechanic: "Mechanic",
+      cleaner: "Cleaner",
+      appliance_repair: "Appliance Repair",
+      mason: "Mason",
+      welder: "Welder",
+      other: "Other"
+    };
+    const appConfig = { google_maps_api_key: null };
+    const selectedLocation = { latitude: 28.6139, longitude: 77.2090 };
+    const mapState = { provider: "openstreetmap", map: null, marker: null };
     let currentUser = null;
 
     async function parseResponsePayload(response) {
       const contentType = response.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        return response.json();
-      }
+      if (contentType.includes("application/json")) return response.json();
       const text = await response.text();
       return { detail: text || `Request failed with status ${response.status}` };
     }
@@ -99,6 +200,23 @@
       return payload;
     }
 
+    function selectedCategoryLabel() {
+      const value = document.getElementById("category_label").value;
+      return value === "other" ? document.getElementById("category_other").value.trim() : categoryLabels[value] || value;
+    }
+
+    function syncCategoryOtherVisibility() {
+      document.getElementById("category-other-wrapper").classList.toggle("hidden", document.getElementById("category_label").value !== "other");
+    }
+
+    function populateCategoryOptions() {
+      const select = document.getElementById("category_label");
+      select.innerHTML = Object.entries(categoryLabels).map(([value, label], index) => (
+        `<option value="${value}" ${index === 0 ? "" : ""}>${label}</option>`
+      )).join("");
+      select.insertAdjacentHTML("afterbegin", `<option value="" selected>Select category</option>`);
+    }
+
     function setFormEnabled(enabled) {
       requestForm.querySelectorAll("input, textarea, select, button").forEach((element) => {
         element.disabled = !enabled;
@@ -106,23 +224,108 @@
       requestForm.classList.toggle("opacity-60", !enabled);
     }
 
+    function setSelectedCoordinates(latitude, longitude, { pan = true } = {}) {
+      selectedLocation.latitude = Number(latitude);
+      selectedLocation.longitude = Number(longitude);
+      if (!mapState.marker) return;
+      mapState.marker.setLatLng([selectedLocation.latitude, selectedLocation.longitude]);
+      if (pan) mapState.map.panTo([selectedLocation.latitude, selectedLocation.longitude]);
+    }
+
+    async function reverseGeocode(latitude, longitude) {
+      const response = await fetch(`/location/reverse-geocode?lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}`);
+      const payload = await parseResponsePayload(response);
+      if (!response.ok) throw new Error("Could not reverse geocode this location.");
+      document.getElementById("location_text").value = payload.data.address || "";
+      return payload.data;
+    }
+
+    async function updateLocation(latitude, longitude, { updateAddress = true, pan = true } = {}) {
+      setSelectedCoordinates(latitude, longitude, { pan });
+      if (updateAddress) {
+        try {
+          await reverseGeocode(latitude, longitude);
+          locationNote.textContent = "Location pin updated successfully.";
+        } catch {
+          locationNote.textContent = "Pin updated, but the address could not be resolved automatically.";
+        }
+      }
+      updateBudgetHint();
+    }
+
+    async function geocodeTypedLocation() {
+      const locationText = document.getElementById("location_text").value.trim();
+      if (!locationText) {
+        locationNote.textContent = "Type a location first, or use your live location.";
+        return;
+      }
+      locationNote.textContent = "Resolving the typed location...";
+      try {
+        const response = await fetch(`/location/geocode?address=${encodeURIComponent(locationText)}`);
+        const payload = await parseResponsePayload(response);
+        if (!response.ok) throw new Error();
+        document.getElementById("location_text").value = payload.data.address || locationText;
+        await updateLocation(payload.data.latitude, payload.data.longitude, { updateAddress: false });
+        locationNote.textContent = "Location resolved successfully.";
+      } catch {
+        locationNote.textContent = "We could not resolve that typed location.";
+      }
+    }
+
+    async function useLiveLocation() {
+      if (!navigator.geolocation) {
+        locationNote.textContent = "This browser does not support live location.";
+        return;
+      }
+      locationNote.textContent = "Fetching your live location...";
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          await updateLocation(position.coords.latitude, position.coords.longitude, { updateAddress: true });
+          locationNote.textContent = "Live location fetched successfully.";
+        },
+        () => {
+          locationNote.textContent = "Location access was denied or unavailable.";
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    function initLeafletMap() {
+      document.getElementById("map-provider-badge").textContent = "OpenStreetMap";
+      mapState.map = L.map("location-map").setView([selectedLocation.latitude, selectedLocation.longitude], 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(mapState.map);
+      mapState.marker = L.marker([selectedLocation.latitude, selectedLocation.longitude], { draggable: true }).addTo(mapState.map);
+      mapState.map.on("click", (event) => updateLocation(event.latlng.lat, event.latlng.lng));
+      mapState.marker.on("dragend", () => {
+        const { lat, lng } = mapState.marker.getLatLng();
+        updateLocation(lat, lng, { pan: false });
+      });
+    }
+
+    async function loadPublicConfig() {
+      try {
+        const response = await fetch("/public-config");
+        const payload = await parseResponsePayload(response);
+        if (response.ok && payload.data) Object.assign(appConfig, payload.data);
+      } catch {}
+    }
+
     function validateRequestForm() {
       const title = document.getElementById("title").value.trim();
       const description = document.getElementById("description").value.trim();
       const locationText = document.getElementById("location_text").value.trim();
       const dateRequired = document.getElementById("date_required").value;
-      const latitude = Number(document.getElementById("latitude").value);
-      const longitude = Number(document.getElementById("longitude").value);
       const workersNeeded = Number(document.getElementById("workers_needed").value);
       const budgetMinValue = document.getElementById("budget_min").value;
       const budgetMaxValue = document.getElementById("budget_max").value;
       const budgetMin = budgetMinValue ? Number(budgetMinValue) : null;
       const budgetMax = budgetMaxValue ? Number(budgetMaxValue) : null;
 
+      if (!selectedCategoryLabel()) throw new Error("Select a service category first.");
       if (!title || !description || !locationText || !dateRequired) {
-        throw new Error("Title, description, location, and required date are mandatory.");
+        throw new Error("Category, title, description, location, and service date are mandatory.");
       }
-      if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+      if (Number.isNaN(selectedLocation.latitude) || Number.isNaN(selectedLocation.longitude)) {
         throw new Error("A valid location pin is required before posting a work request.");
       }
       if (!workersNeeded || workersNeeded < 1) {
@@ -134,25 +337,35 @@
     }
 
     function render(items) {
-      document.getElementById("requests-list").innerHTML = items.length
-        ? items.map((item) => `
-            <div class="rounded-2xl bg-mist px-4 py-3">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <p class="font-semibold text-ink">${item.title}</p>
-                  <p class="text-sm text-stone-600">${item.location_text} · ${item.date_required}</p>
-                  <p class="mt-1 text-xs uppercase tracking-[0.18em] text-pine">${item.category_label || "general work"}</p>
-                </div>
-                <span class="text-sm font-semibold text-pine">${item.status}</span>
+      document.getElementById("requests-list").innerHTML = items.length ? items.map((item) => `
+        <article class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-display text-2xl font-bold">${item.title}</h3>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">${item.category_label || "general work"}</span>
+                <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">${item.status}</span>
               </div>
-              <p class="mt-2 text-sm text-stone-600">${item.description}</p>
+              <p class="mt-3 text-sm text-stone-600">${item.description}</p>
+              <div class="mt-4 flex flex-wrap gap-3 text-xs text-stone-500">
+                <span>${item.location_text}</span>
+                <span>${item.date_required}</span>
+                ${item.time_required ? `<span>${item.time_required}</span>` : ""}
+                <span>${item.workers_needed} worker${item.workers_needed > 1 ? "s" : ""}</span>
+                <span>${item.urgency}</span>
+              </div>
             </div>
-          `).join("")
-        : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No work requests yet.</div>`;
+            <div class="rounded-2xl bg-white px-4 py-3 text-sm text-stone-600 ring-1 ring-stone-200">
+              <p>Budget</p>
+              <p class="mt-1 font-semibold text-ink">${item.budget_min || item.budget_max ? `Rs ${item.budget_min ?? "?"} - Rs ${item.budget_max ?? "?"}` : "Open budget"}</p>
+            </div>
+          </div>
+        </article>
+      `).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No work requests yet.</div>`;
     }
 
     async function updateBudgetHint() {
-      const category = document.getElementById("category_label").value.trim();
+      const category = selectedCategoryLabel();
       const city = document.getElementById("location_text").value.trim();
       const hint = document.getElementById("budget-hint");
       if (!category || !city) {
@@ -161,7 +374,7 @@
       }
       try {
         const response = await fetch(`/pricing-insights?category=${encodeURIComponent(category)}&city=${encodeURIComponent(city)}&rate_type=daily`);
-        const payload = await response.json();
+        const payload = await parseResponsePayload(response);
         if (!response.ok) throw new Error();
         const insight = payload.data;
         hint.textContent = `Suggested local budget for ${category} in ${insight.city}: Rs ${Math.round(insight.suggested_min)} to Rs ${Math.round(insight.suggested_max)} per day.`;
@@ -189,7 +402,7 @@
         } else if (!currentUser.is_phone_verified) {
           statusBox.textContent = "Verify your phone number first, then you can post work requests.";
         } else {
-          statusBox.textContent = "Manage your work requests here.";
+          statusBox.textContent = "Plan the job and publish it when everything looks right.";
         }
         render(requestsResponse.data || []);
       } catch (error) {
@@ -198,28 +411,25 @@
       }
     }
 
-    document.getElementById("request-form").addEventListener("submit", async (event) => {
+    requestForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       try {
-        if (!token) {
-          throw new Error("Please sign in first.");
-        }
-        if (!currentUser) {
-          throw new Error("Your account context is still loading. Please try again.");
-        }
+        if (!token) throw new Error("Please sign in first.");
+        if (!currentUser) throw new Error("Your account context is still loading. Please try again.");
         if (!currentUser.profile_completed) throw new Error("Complete your profile before posting a work request.");
         if (!currentUser.is_phone_verified) throw new Error("Verify your phone number before posting a work request.");
         validateRequestForm();
         await api("/work-requests", {
           method: "POST",
           body: JSON.stringify({
-            category_label: document.getElementById("category_label").value.trim() || null,
+            category_label: selectedCategoryLabel() || null,
             title: document.getElementById("title").value.trim(),
             description: document.getElementById("description").value.trim(),
             location_text: document.getElementById("location_text").value.trim(),
-            latitude: Number(document.getElementById("latitude").value),
-            longitude: Number(document.getElementById("longitude").value),
+            latitude: Number(selectedLocation.latitude),
+            longitude: Number(selectedLocation.longitude),
             date_required: document.getElementById("date_required").value,
+            time_required: document.getElementById("time_required").value || null,
             urgency: document.getElementById("urgency").value,
             budget_min: document.getElementById("budget_min").value ? Number(document.getElementById("budget_min").value) : null,
             budget_max: document.getElementById("budget_max").value ? Number(document.getElementById("budget_max").value) : null,
@@ -227,20 +437,39 @@
           })
         });
         statusBox.textContent = "Work request posted.";
-        event.target.reset();
-        document.getElementById("latitude").value = "28.6139";
-        document.getElementById("longitude").value = "77.2090";
+        requestForm.reset();
+        populateCategoryOptions();
+        syncCategoryOtherVisibility();
+        selectedLocation.latitude = 28.6139;
+        selectedLocation.longitude = 77.2090;
+        if (mapState.marker) {
+          setSelectedCoordinates(28.6139, 77.2090);
+        }
         document.getElementById("workers_needed").value = "1";
         document.getElementById("budget-hint").textContent = "Add a service category and city to see a suggested local budget.";
-        load();
+        locationNote.textContent = "Map is ready. Click or drag the pin to lock the service location.";
+        await load();
       } catch (error) {
         statusBox.textContent = error.message || "We could not post this work request.";
       }
     });
 
-    document.getElementById("category_label").addEventListener("input", updateBudgetHint);
+    document.getElementById("use-live-location").addEventListener("click", useLiveLocation);
+    document.getElementById("resolve-location").addEventListener("click", geocodeTypedLocation);
+    document.getElementById("refresh-requests").addEventListener("click", load);
+    document.getElementById("category_label").addEventListener("change", () => {
+      syncCategoryOtherVisibility();
+      updateBudgetHint();
+    });
+    document.getElementById("category_other").addEventListener("input", updateBudgetHint);
     document.getElementById("location_text").addEventListener("input", updateBudgetHint);
-    load();
+
+    populateCategoryOptions();
+    syncCategoryOtherVisibility();
+    loadPublicConfig().then(() => {
+      initLeafletMap();
+      load();
+    });
   </script>
 </body>
 </html>

@@ -17,6 +17,7 @@ class WorkRequest(UUIDMixin, TimestampMixin, Base):
     latitude: Mapped[float] = mapped_column(Float)
     longitude: Mapped[float] = mapped_column(Float)
     date_required: Mapped[str] = mapped_column(String(20))
+    time_required: Mapped[str | None] = mapped_column(String(20), nullable=True)
     urgency: Mapped[WorkUrgency] = mapped_column(Enum(WorkUrgency), default=WorkUrgency.normal)
     budget_min: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
     budget_max: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
