@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby Jobs | KaramSetu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>tailwind.config={theme:{extend:{colors:{pine:"#0f5132",clay:"#d46a3a",mist:"#eef4ef",ink:"#122018"},fontFamily:{display:["Space Grotesk","sans-serif"],body:["DM Sans","sans-serif"]}}}};</script>
+</head>
+<body class="bg-stone-50 font-body text-ink">
+  <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <a href="/" class="font-display text-2xl font-bold text-pine">KaramSetu</a>
+      <div class="hidden gap-6 text-sm font-medium md:flex">
+        <a href="/worker-jobs" class="text-pine">Nearby Jobs</a>
+        <a href="/worker-dashboard" class="text-stone-600 hover:text-pine">Worker Dashboard</a>
+        <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
+      </div>
+      <a href="/account" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">My Account</a>
+    </nav>
+  </header>
+  <main class="mx-auto max-w-6xl px-6 py-10">
+    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Nearby posted jobs</p>
+          <h1 class="mt-2 font-display text-4xl font-bold">See customer requests close to your service area.</h1>
+          <p class="mt-3 max-w-3xl text-sm leading-7 text-stone-600">Open nearby jobs, review the request details, and preview the route from your worker location to the customer pin before you apply.</p>
+        </div>
+        <button id="refresh-jobs" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh jobs</button>
+      </div>
+      <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading nearby jobs...</div>
+    </section>
+    <section class="mt-8 grid gap-6 xl:grid-cols-[1fr_380px]">
+      <div id="jobs-list" class="space-y-4"></div>
+      <aside class="rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-stone-200">
+        <div class="mb-3 flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Route view</p>
+            <h2 class="mt-1 font-display text-2xl font-bold">Worker to customer</h2>
+          </div>
+        </div>
+        <div id="route-map" class="h-[520px] rounded-[1.5rem]"></div>
+        <p id="route-note" class="mt-3 text-sm text-stone-600">Choose a nearby job to preview the customer location and direct route line.</p>
+      </aside>
+    </section>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const pageToken = new URLSearchParams(window.location.search).get("token");
+    if (pageToken) {
+      localStorage.setItem("kaamsetu_access_token", pageToken);
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("token");
+      cleanUrl.searchParams.delete("profile_completed");
+      window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+    }
+
+    const token = localStorage.getItem("kaamsetu_access_token");
+    const statusBox = document.getElementById("status");
+    const jobsList = document.getElementById("jobs-list");
+    const routeNote = document.getElementById("route-note");
+    let map;
+    let markers = [];
+    let routeLine = null;
+
+    function initMap() {
+      map = L.map("route-map").setView([28.6139, 77.2090], 11);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+    }
+
+    async function parseResponsePayload(response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) return response.json();
+      const text = await response.text();
+      return { detail: text || `Request failed with status ${response.status}` };
+    }
+
+    function extractErrorMessage(payload, fallbackMessage) {
+      if (!payload) return fallbackMessage;
+      if (typeof payload.detail === "string" && payload.detail.trim()) return payload.detail.trim();
+      if (typeof payload.message === "string" && payload.message.trim()) return payload.message.trim();
+      return fallbackMessage;
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const payload = await parseResponsePayload(response);
+      if (!response.ok) throw new Error(extractErrorMessage(payload, "Request failed"));
+      return payload;
+    }
+
+    function clearMap() {
+      markers.forEach((marker) => marker.remove());
+      markers = [];
+      if (routeLine) routeLine.remove();
+      routeLine = null;
+    }
+
+    function showRoute(item) {
+      clearMap();
+      const workerPoint = [item.worker_latitude, item.worker_longitude];
+      const customerPoint = [item.latitude, item.longitude];
+      markers.push(L.marker(workerPoint).addTo(map).bindPopup("Your worker location").openPopup());
+      markers.push(L.marker(customerPoint).addTo(map).bindPopup(item.title));
+      routeLine = L.polyline([workerPoint, customerPoint], { color: "#0f5132", weight: 5, opacity: 0.9 }).addTo(map);
+      map.fitBounds([workerPoint, customerPoint], { padding: [30, 30] });
+      routeNote.innerHTML = `Route preview loaded for <strong>${item.title}</strong>. Distance: ${item.distance_km} km. <a class="font-semibold text-pine underline" target="_blank" rel="noreferrer" href="https://www.google.com/maps/dir/${item.worker_latitude},${item.worker_longitude}/${item.latitude},${item.longitude}">Open turn-by-turn directions</a>`;
+    }
+
+    function renderJobs(items) {
+      jobsList.innerHTML = items.length ? items.map((item) => `
+        <article class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-display text-2xl font-bold">${item.title}</h3>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">${item.category_label || "general work"}</span>
+                <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">${item.distance_km} km away</span>
+              </div>
+              <p class="mt-3 text-sm text-stone-600">${item.description}</p>
+              <div class="mt-4 flex flex-wrap gap-3 text-xs text-stone-500">
+                <span>${item.location_text}</span>
+                <span>${item.date_required}</span>
+                ${item.time_required ? `<span>${item.time_required}</span>` : ""}
+                <span>${item.urgency}</span>
+                <span>${item.workers_needed} worker${item.workers_needed > 1 ? "s" : ""}</span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 lg:w-60">
+              <div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">
+                ${item.budget_min || item.budget_max ? `Budget: Rs ${item.budget_min ?? "?"} - Rs ${item.budget_max ?? "?"}` : "Budget not fixed"}
+              </div>
+              <button data-route="${item.id}" class="rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-700" type="button">Show route</button>
+              <button data-apply="${item.id}" class="rounded-2xl bg-pine px-4 py-3 text-sm font-semibold text-white" type="button">Apply to job</button>
+              <p id="job-note-${item.id}" class="text-xs text-stone-500"></p>
+            </div>
+          </div>
+        </article>
+      `).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No nearby jobs were found in your current radius.</div>`;
+
+      items.forEach((item) => {
+        document.querySelector(`[data-route="${item.id}"]`)?.addEventListener("click", () => showRoute(item));
+        document.querySelector(`[data-apply="${item.id}"]`)?.addEventListener("click", async () => {
+          const note = document.getElementById(`job-note-${item.id}`);
+          note.textContent = "Sending your application...";
+          try {
+            await api(`/work-requests/${item.id}/apply`, {
+              method: "POST",
+              body: JSON.stringify({ message: "Interested and available to take this job." })
+            });
+            note.textContent = "Application sent successfully.";
+            showRoute(item);
+          } catch (error) {
+            note.textContent = error.message || "We could not apply to this job.";
+          }
+        });
+      });
+    }
+
+    async function loadJobs() {
+      if (!token) {
+        statusBox.textContent = "Please sign in first.";
+        return;
+      }
+      try {
+        const payload = await api("/work-requests/nearby-worker?radius_km=30");
+        const items = payload.data || [];
+        statusBox.textContent = items.length ? `${items.length} nearby jobs found for your worker profile.` : "No nearby jobs found right now.";
+        renderJobs(items);
+        if (items[0]) showRoute(items[0]);
+      } catch (error) {
+        statusBox.textContent = error.message || "We could not load nearby jobs right now.";
+      }
+    }
+
+    document.getElementById("refresh-jobs").addEventListener("click", loadJobs);
+    initMap();
+    loadJobs();
+  </script>
+</body>
+</html>

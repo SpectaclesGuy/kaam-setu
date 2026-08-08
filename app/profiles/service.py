@@ -21,6 +21,8 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         profile_data = payload.worker_profile
         worker = user.worker_profile or WorkerProfile(user_id=user.id)
         user.phone_number = profile_data.phone_number
+        if profile_data.profile_picture_url:
+            user.profile_picture_url = profile_data.profile_picture_url
         worker.phone_number = profile_data.phone_number
         worker.aadhaar_number = profile_data.aadhaar_number
         worker.gender = profile_data.gender
@@ -43,6 +45,8 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         profile_data = payload.employer_profile
         employer = user.employer_profile or EmployerProfile(user_id=user.id)
         user.phone_number = profile_data.phone_number
+        if profile_data.profile_picture_url:
+            user.profile_picture_url = profile_data.profile_picture_url
         employer.phone_number = profile_data.phone_number
         employer.employer_type = profile_data.employer_type.value
         employer.organization_name = profile_data.organization_name
@@ -55,6 +59,8 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         profile_data = payload.contractor_profile
         contractor = user.contractor_profile or ContractorProfile(user_id=user.id)
         user.phone_number = profile_data.phone_number
+        if profile_data.profile_picture_url:
+            user.profile_picture_url = profile_data.profile_picture_url
         contractor.phone_number = profile_data.phone_number
         contractor.company_name = profile_data.company_name
         contractor.latitude = profile_data.latitude
@@ -69,6 +75,8 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         profile_data = payload.operator_profile
         operator = user.operator_profile or OperatorProfile(user_id=user.id)
         user.phone_number = profile_data.phone_number
+        if profile_data.profile_picture_url:
+            user.profile_picture_url = profile_data.profile_picture_url
         operator.phone_number = profile_data.phone_number
         operator.assigned_area = profile_data.assigned_area
         operator.latitude = profile_data.latitude
@@ -117,6 +125,8 @@ def update_worker_profile(db: Session, user: User, payload: WorkerProfileUpdate)
     data = payload.model_dump(exclude_unset=True)
     if "full_name" in data and data["full_name"] is not None:
         user.full_name = data.pop("full_name")
+    if "profile_picture_url" in data and data["profile_picture_url"] is not None:
+        user.profile_picture_url = data.pop("profile_picture_url")
     if "primary_location" in data:
         worker.location_text = data.pop("primary_location")
     if "work_gallery_urls" in data:

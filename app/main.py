@@ -125,6 +125,11 @@ def worker_dashboard_page():
     return FileResponse(BASE_DIR / "worker_dashboard.html")
 
 
+@app.get("/worker-jobs", include_in_schema=False)
+def worker_jobs_page():
+    return FileResponse(BASE_DIR / "worker_jobs.html")
+
+
 @app.get("/admin-panel", include_in_schema=False)
 def admin_panel_page():
     return FileResponse(BASE_DIR / "admin_panel.html")

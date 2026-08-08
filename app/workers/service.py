@@ -66,7 +66,7 @@ def search_workers(
                 "available_today": worker.available_today,
                 "emergency_available": worker.emergency_available,
                 "daily_rate": float(worker.daily_rate),
-                "profile_photo_url": worker.profile_photo_url,
+                "profile_photo_url": worker.profile_photo_url or worker.user.profile_picture_url,
             }
         )
     return sorted(workers, key=lambda item: (item["distance_km"] is None, item["distance_km"] or 0))

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.common.enums import UserRole
-from app.common.utils import api_response
+from app.common.utils import api_response, haversine_distance_km
 from app.core.dependencies import get_current_user, get_db
 from app.work_requests.schemas import ApplyToRequest, AssignWorkerRequest, WorkRequestCreate, WorkRequestUpdate
 from app.work_requests.service import (
@@ -52,6 +52,37 @@ def list_requests(scope: str = Query(default="all"), user=Depends(get_current_us
     if scope == "mine":
         items = [item for item in items if item.posted_by_user_id == user.id]
     return api_response("Work requests fetched", [serialize_work_request(item) for item in items])
+
+
+@router.get("/nearby-worker")
+def nearby_for_worker(
+    radius_km: float = Query(default=20, ge=1, le=100),
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user.role != UserRole.worker or not user.worker_profile:
+        raise HTTPException(status_code=403, detail="Worker access required")
+    items = list_work_requests(db, user)
+    results = []
+    for item in items:
+        if item.status != "open" and getattr(item.status, "value", item.status) != "open":
+            continue
+        distance = haversine_distance_km(
+            user.worker_profile.latitude,
+            user.worker_profile.longitude,
+            item.latitude,
+            item.longitude,
+        )
+        if distance > radius_km:
+            continue
+        serialized = serialize_work_request(item)
+        serialized["distance_km"] = round(distance, 2)
+        serialized["worker_latitude"] = user.worker_profile.latitude
+        serialized["worker_longitude"] = user.worker_profile.longitude
+        serialized["worker_location_text"] = user.worker_profile.location_text
+        results.append(serialized)
+    results.sort(key=lambda item: item["distance_km"])
+    return api_response("Nearby work requests fetched", results)
 
 
 @router.get("/{request_id}")

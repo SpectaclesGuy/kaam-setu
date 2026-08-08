@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.common.enums import UserRole
@@ -7,6 +7,7 @@ from app.core.dependencies import get_current_user, get_db
 from app.profiles.schemas import RoleSetupRequest, WorkerAvailabilityCreate, WorkerProfileUpdate
 from app.profiles.service import add_worker_availability, setup_role_profile, update_worker_profile
 from app.runtime_settings.service import get_runtime_settings
+from app.verification.service import upload_file_to_cloudinary
 
 router = APIRouter(prefix="/profile", tags=["profiles"])
 
@@ -56,6 +57,7 @@ def my_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
             "role": user.role,
             "full_name": user.full_name,
             "email": user.email,
+            "profile_picture_url": user.profile_picture_url,
             "phone_number": user.phone_number,
             "is_phone_verified": user.is_phone_verified,
             "profile_completed": user.profile_completed,
@@ -85,6 +87,7 @@ def my_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
         "role": user.role,
         "full_name": user.full_name,
         "email": user.email,
+        "profile_picture_url": user.profile_picture_url,
         "phone_number": user.phone_number,
         "is_phone_verified": user.is_phone_verified,
         "profile_completed": user.profile_completed,
@@ -127,6 +130,27 @@ def my_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
         "My profile fetched",
         data,
     )
+
+
+@router.post("/upload-photo")
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    user=Depends(get_current_user),
+):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed for profile photos.")
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    if len(file_bytes) > 8 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Profile photo must be under 8 MB.")
+    secure_url = await upload_file_to_cloudinary(
+        file_bytes=file_bytes,
+        filename=file.filename or "profile-photo.jpg",
+        content_type=file.content_type,
+        tag="profile-photo",
+    )
+    return api_response("Profile photo uploaded", {"url": secure_url})
 
 
 @router.patch("/me/worker")

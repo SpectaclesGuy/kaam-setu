@@ -54,6 +54,8 @@ async def google_callback(
     if should_redirect:
         if user.role == UserRole.admin:
             destination = "/admin-panel"
+        elif user.role == UserRole.worker and user.profile_completed and user.worker_profile:
+            destination = "/worker-jobs"
         else:
             destination = "/services"
         return RedirectResponse(

@@ -116,7 +116,7 @@ def get_worker(worker_id: str, db: Session = Depends(get_db)):
             "available_today": worker.available_today,
             "daily_rate": float(worker.daily_rate),
             "bio": worker.bio,
-            "profile_photo_url": worker.profile_photo_url,
+            "profile_photo_url": worker.profile_photo_url or worker.user.profile_picture_url,
             "work_gallery_urls": worker.work_gallery_urls.split(",") if worker.work_gallery_urls else [],
         },
     )

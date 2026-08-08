@@ -8,6 +8,7 @@ from app.common.enums import EmployerType, UserRole
 class BaseProfileSchema(BaseModel):
     full_name: str
     phone_number: str
+    profile_picture_url: str | None = None
     latitude: float = Field(ge=-90, le=90)
     longitude: float = Field(ge=-180, le=180)
 
@@ -31,6 +32,7 @@ class WorkerProfileSetup(BaseProfileSchema):
 class WorkerProfileUpdate(BaseModel):
     full_name: str | None = None
     phone_number: str | None = None
+    profile_picture_url: str | None = None
     aadhaar_number: str | None = None
     gender: str | None = None
     primary_location: str | None = None
