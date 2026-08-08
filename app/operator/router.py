@@ -22,8 +22,8 @@ def create_worker_for_operator(payload: WorkerProfileSetup, user=Depends(get_cur
     worker = WorkerProfile(
         user_id=shadow_user.id,
         phone_number=payload.phone_number,
+        aadhaar_number=payload.aadhaar_number,
         gender=payload.gender,
-        profile_photo_url=payload.profile_photo_url,
         location_text=payload.primary_location,
         latitude=payload.latitude,
         longitude=payload.longitude,
@@ -31,7 +31,6 @@ def create_worker_for_operator(payload: WorkerProfileSetup, user=Depends(get_cur
         experience_years=payload.experience_years,
         daily_rate=payload.daily_rate,
         hourly_rate=payload.hourly_rate,
-        bio=payload.bio,
         available_today=payload.available_today,
         emergency_available=payload.emergency_available,
     )

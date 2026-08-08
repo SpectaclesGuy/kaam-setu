@@ -10,7 +10,22 @@ from app.verification.schemas import VerificationReview, VerificationUpload
 
 
 def upload_document(db: Session, user: User, payload: VerificationUpload) -> VerificationDocument:
-    document = VerificationDocument(user_id=user.id, **payload.model_dump())
+    document = (
+        db.query(VerificationDocument)
+        .filter(
+            VerificationDocument.user_id == user.id,
+            VerificationDocument.document_type == payload.document_type,
+        )
+        .first()
+    )
+    if not document:
+        document = VerificationDocument(user_id=user.id, **payload.model_dump())
+    else:
+        document.document_url = payload.document_url
+        document.status = VerificationStatus.pending
+        document.remarks = None
+        document.reviewed_by = None
+        document.reviewed_at = None
     db.add(document)
     db.commit()
     db.refresh(document)

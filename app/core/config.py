@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     smtp_use_ssl: bool = False
     msg91_auth_key: str | None = None
     msg91_template_id: str | None = None
+    cloudinary_cloud_name: str | None = None
+    cloudinary_api_key: str | None = None
+    cloudinary_api_secret: str | None = None
+    cloudinary_upload_preset: str | None = None
+    cloudinary_folder: str = "karamsetu"
 
     @property
     def effective_google_redirect_uri(self) -> str:

@@ -62,6 +62,7 @@ def my_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
             "worker_profile": {
                 "id": worker.id,
                 "phone_number": worker.phone_number,
+                "aadhaar_number": worker.aadhaar_number,
                 "gender": worker.gender,
                 "profile_photo_url": worker.profile_photo_url,
                 "location_text": worker.location_text,
@@ -71,7 +72,6 @@ def my_profile(user=Depends(get_current_user), db: Session = Depends(get_db)):
                 "experience_years": worker.experience_years,
                 "daily_rate": float(worker.daily_rate),
                 "hourly_rate": float(worker.hourly_rate) if worker.hourly_rate is not None else None,
-                "bio": worker.bio,
                 "work_gallery_urls": worker.work_gallery_urls.split(",") if worker.work_gallery_urls else [],
                 "available_today": worker.available_today,
                 "emergency_available": worker.emergency_available,

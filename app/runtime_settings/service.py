@@ -54,6 +54,9 @@ def get_public_client_config(db: Session) -> dict:
     return {
         "maps_provider": "google" if settings.google_maps_api_key else "openstreetmap",
         "google_maps_api_key": settings.google_maps_api_key,
+        "cloudinary_cloud_name": settings.cloudinary_cloud_name,
+        "cloudinary_upload_preset": settings.cloudinary_upload_preset,
+        "cloudinary_folder": settings.cloudinary_folder,
         "profile_setup_require_email_verification": runtime["profile_setup_require_email_verification"],
         "profile_setup_require_phone_verification": runtime["profile_setup_require_phone_verification"],
     }

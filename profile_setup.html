@@ -44,130 +44,130 @@
   </header>
 
   <main class="mx-auto max-w-6xl px-6 py-10">
-    <section class="grid gap-8 lg:grid-cols-[0.88fr_1.12fr]">
+    <section class="grid gap-8 lg:grid-cols-[0.84fr_1.16fr]">
       <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl ring-1 ring-stone-200">
-        <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80" alt="A worker and customer meeting during a home service visit" class="h-64 w-full object-cover">
+        <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80" alt="Worker and customer discussing a local service" class="h-64 w-full object-cover">
         <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Join KaramSetu</p>
-          <h1 class="mt-4 font-display text-4xl font-bold">Verify your account, pin your real location, and personalize your work profile.</h1>
-          <p class="mt-4 text-sm leading-7 text-emerald-50">The location experience now uses a live map pin so users can fix their area visually, just like a ride-booking app.</p>
+          <h1 class="mt-4 font-display text-4xl font-bold">Verify your account, drop your pin, and complete your local work profile.</h1>
+          <p class="mt-4 text-sm leading-7 text-emerald-50">Workers can now submit Aadhaar and a KYC photo for admin review, while every user can set their service point directly on the map.</p>
         </div>
       </div>
 
-      <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
+      <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200 lg:max-h-[calc(100vh-7rem)] lg:overflow-hidden">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Profile setup</p>
-            <h2 class="mt-2 font-display text-3xl font-bold">Finish your account and location profile</h2>
+            <h2 class="mt-2 font-display text-3xl font-bold">Finish your account and identity details</h2>
           </div>
           <span id="auth-state" class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-pine">Checking sign-in</span>
         </div>
 
         <div id="status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Join with Google to begin your KaramSetu profile.</div>
 
-        <section id="email-verification-section" class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Account email</p>
-              <h3 class="mt-1 font-display text-2xl font-bold">Verify your sign-in email</h3>
-              <p class="mt-2 text-sm text-stone-600">This OTP is sent to the Google account you used to sign in.</p>
-            </div>
-            <span id="email-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
-          </div>
-          <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Signed-in email</span>
-              <input id="verify-email" class="w-full rounded-2xl border border-stone-300 px-4 py-3" readonly>
-            </label>
-            <button id="send-email-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send email code</button>
-          </div>
-          <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Email OTP</span>
-              <input id="email-otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the code from your email">
-            </label>
-            <button id="verify-email-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify email</button>
-          </div>
-          <p id="email-note" class="mt-3 text-sm text-stone-600">We will send the code to your signed-in email address.</p>
-        </section>
-
-        <section id="phone-verification-section" class="mt-6 rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
-          <div class="flex items-start justify-between gap-4">
-            <div>
-              <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Phone check</p>
-              <h3 class="mt-1 font-display text-2xl font-bold">Verify your phone number</h3>
-              <p class="mt-2 text-sm text-stone-600">This OTP is sent through MSG91 and is also used later before starting a service.</p>
-            </div>
-            <span id="phone-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
-          </div>
-          <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Phone number with country code</span>
-              <input id="verify-phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="+919999999999">
-            </label>
-            <button id="send-phone-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send phone code</button>
-          </div>
-          <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Phone OTP</span>
-              <input id="phone-otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the code from SMS">
-            </label>
-            <button id="verify-phone-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify phone</button>
-          </div>
-          <p id="phone-note" class="mt-3 text-sm text-stone-600">Use the same verified number in the form below.</p>
-        </section>
-
-        <form id="profile-form" class="mt-8 space-y-6">
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Role</span>
-              <select id="role" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
-                <option value="worker">Worker</option>
-                <option value="employer">Employer / Customer</option>
-                <option value="contractor">Contractor</option>
-                <option value="operator">Local Operator</option>
-              </select>
-            </label>
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Full name</span>
-              <input id="full-name" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
-            </label>
-          </div>
-
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Phone number</span>
-              <input id="phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
-            </label>
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-stone-700">Location text</span>
-              <input id="location-text" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Type your area or move the pin" required>
-            </label>
-          </div>
-
-          <section class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
-            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="mt-6 space-y-6 lg:max-h-[calc(100vh-15rem)] lg:overflow-y-auto lg:pr-3">
+          <section id="email-verification-section" class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+            <div class="flex items-start justify-between gap-4">
               <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Location pin</p>
-                <h3 class="mt-1 font-display text-2xl font-bold">Fix your exact service location on the map</h3>
-                <p class="mt-2 text-sm text-stone-600">Drag the pin or tap on the map to adjust your real location. This is what search and booking coverage use.</p>
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Account email</p>
+                <h3 class="mt-1 font-display text-2xl font-bold">Verify your sign-in email</h3>
+                <p class="mt-2 text-sm text-stone-600">We send this code to the Google account you used to join.</p>
               </div>
-              <span id="map-provider-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Loading map</span>
+              <span id="email-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
             </div>
-
-            <div class="mt-5 flex flex-wrap gap-3">
-              <button id="use-live-location" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine" type="button">Use live location</button>
-              <button id="resolve-location" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Resolve typed location</button>
+            <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Signed-in email</span>
+                <input id="verify-email" class="w-full rounded-2xl border border-stone-300 px-4 py-3" readonly>
+              </label>
+              <button id="send-email-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send email code</button>
             </div>
-
-            <div id="location-map" class="mt-5 h-[360px] overflow-hidden rounded-[1.5rem] ring-1 ring-stone-200"></div>
-            <p id="location-note" class="mt-3 text-sm text-stone-600">Map is loading. Once ready, drag the pin to fine-tune your location.</p>
+            <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Email OTP</span>
+                <input id="email-otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the code from your email">
+              </label>
+              <button id="verify-email-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify email</button>
+            </div>
+            <p id="email-note" class="mt-3 text-sm text-stone-600">We will send the code to your signed-in email address.</p>
           </section>
 
-          <div id="dynamic-fields" class="space-y-6"></div>
+          <section id="phone-verification-section" class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Phone check</p>
+                <h3 class="mt-1 font-display text-2xl font-bold">Verify your phone number</h3>
+                <p class="mt-2 text-sm text-stone-600">This OTP is also reused before a service starts.</p>
+              </div>
+              <span id="phone-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Pending</span>
+            </div>
+            <div class="mt-5 grid gap-4 md:grid-cols-[1fr_auto]">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Phone number with country code</span>
+                <input id="verify-phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="+919999999999">
+              </label>
+              <button id="send-phone-otp" class="self-end rounded-2xl border border-pine px-5 py-3 text-sm font-semibold text-pine" type="button">Send phone code</button>
+            </div>
+            <div class="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Phone OTP</span>
+                <input id="phone-otp-code" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter the code from SMS">
+              </label>
+              <button id="verify-phone-otp" class="self-end rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="button">Verify phone</button>
+            </div>
+            <p id="phone-note" class="mt-3 text-sm text-stone-600">Use the same verified number in the form below.</p>
+          </section>
 
-          <button id="profile-submit" class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white shadow-sm" type="submit">Submit profile setup</button>
-        </form>
+          <form id="profile-form" class="space-y-6">
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Role</span>
+                <select id="role" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                  <option value="worker">Worker</option>
+                  <option value="employer">Employer / Customer</option>
+                  <option value="contractor">Contractor</option>
+                  <option value="operator">Local Operator</option>
+                </select>
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Full name</span>
+                <input id="full-name" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
+              </label>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Phone number</span>
+                <input id="phone-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" required>
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Location</span>
+                <input id="location-input" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Type your area or move the pin" required>
+              </label>
+            </div>
+
+            <section class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+              <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Map pin</p>
+                  <h3 class="mt-1 font-display text-2xl font-bold">Set your exact service point</h3>
+                  <p class="mt-2 text-sm text-stone-600">Drag the pin or tap the map, Uber-style, to fix your actual location.</p>
+                </div>
+                <span id="map-provider-badge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Loading map</span>
+              </div>
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button id="use-live-location" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine" type="button">Use live location</button>
+                <button id="resolve-location" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700" type="button">Resolve typed location</button>
+              </div>
+              <div id="location-map" class="mt-5 h-[360px] overflow-hidden rounded-[1.5rem] ring-1 ring-stone-200"></div>
+              <p id="location-note" class="mt-3 text-sm text-stone-600">Map is loading. Drag the pin to fine-tune your location.</p>
+            </section>
+
+            <div id="dynamic-fields" class="space-y-6"></div>
+
+            <button id="profile-submit" class="rounded-2xl bg-pine px-6 py-4 text-sm font-semibold text-white shadow-sm" type="submit">Submit profile setup</button>
+          </form>
+        </div>
       </section>
     </section>
   </main>
@@ -186,27 +186,18 @@
     const profileSubmit = document.getElementById("profile-submit");
     const roleField = document.getElementById("role");
     const tokenFromQuery = new URLSearchParams(window.location.search).get("token");
-    const verificationState = {
-      emailVerified: false,
-      phoneVerified: false,
-      email: "",
-      phoneNumber: ""
-    };
+    const verificationState = { emailVerified: false, phoneVerified: false, email: "", phoneNumber: "" };
+    const selectedLocation = { latitude: null, longitude: null };
+    const existingDocuments = {};
     const appConfig = {
-      maps_provider: "openstreetmap",
       google_maps_api_key: null,
+      cloudinary_cloud_name: null,
+      cloudinary_upload_preset: null,
+      cloudinary_folder: "karamsetu",
       profile_setup_require_email_verification: true,
       profile_setup_require_phone_verification: true
     };
-    const selectedLocation = {
-      latitude: null,
-      longitude: null
-    };
-    const mapState = {
-      provider: "openstreetmap",
-      map: null,
-      marker: null
-    };
+    const mapState = { provider: "openstreetmap", map: null, marker: null };
 
     if (tokenFromQuery) {
       localStorage.setItem("kaamsetu_access_token", tokenFromQuery);
@@ -252,12 +243,8 @@
     function applyVerificationRequirements() {
       document.getElementById("email-verification-section").classList.toggle("hidden", !appConfig.profile_setup_require_email_verification);
       document.getElementById("phone-verification-section").classList.toggle("hidden", !appConfig.profile_setup_require_phone_verification);
-      if (!appConfig.profile_setup_require_email_verification) {
-        emailNote.textContent = "Email verification is currently disabled by the admin panel.";
-      }
-      if (!appConfig.profile_setup_require_phone_verification) {
-        phoneNote.textContent = "Phone verification is currently disabled by the admin panel.";
-      }
+      if (!appConfig.profile_setup_require_email_verification) emailNote.textContent = "Email verification is currently optional.";
+      if (!appConfig.profile_setup_require_phone_verification) phoneNote.textContent = "Phone verification is currently optional.";
     }
 
     function updateVerificationUI() {
@@ -283,11 +270,24 @@
       return fallbackMessage;
     }
 
+    function documentLabel(type) {
+      if (type === "government_id") return "Aadhaar card";
+      if (type === "skill_proof") return "Worker photo";
+      return type.replaceAll("_", " ");
+    }
+
+    function documentStatusMarkup(type) {
+      const doc = existingDocuments[type];
+      if (!doc) return `<p class="mt-2 text-xs text-stone-500">Not uploaded yet.</p>`;
+      const color = doc.status === "approved" ? "text-emerald-700" : doc.status === "rejected" ? "text-red-700" : "text-amber-700";
+      return `<p class="mt-2 text-xs ${color}">${documentLabel(type)} status: ${doc.status}${doc.remarks ? ` (${doc.remarks})` : ""}</p>`;
+    }
+
     function workerFields() {
       return `
         <div class="grid gap-4 md:grid-cols-2">
           <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Gender</span><input id="gender" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
-          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Profile photo URL</span><input id="profile-photo-url" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+          <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Aadhaar number</span><input id="aadhaar-number" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="1234 5678 9012"></label>
         </div>
         <div class="grid gap-4 md:grid-cols-2">
           <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Service radius km</span><input id="service-radius" type="number" min="1" max="100" value="10" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
@@ -301,11 +301,30 @@
         <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Categories (comma separated)</span><input id="categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Electrician, Mechanic"></label>
         <div id="pricing-hint" class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">Add a category and city to see the going rate nearby.</div>
         <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Languages (comma separated)</span><input id="languages" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Hindi, English"></label>
-        <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Bio</span><textarea id="bio" class="min-h-28 w-full rounded-2xl border border-stone-300 px-4 py-3"></textarea></label>
         <div class="flex flex-wrap gap-6">
           <label class="flex items-center gap-3"><input id="available-today" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine"><span class="text-sm text-stone-700">Available today</span></label>
           <label class="flex items-center gap-3"><input id="emergency-available" type="checkbox" class="h-4 w-4 rounded border-stone-300 text-pine"><span class="text-sm text-stone-700">Emergency available</span></label>
         </div>
+        <section class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-pine">Worker KYC</p>
+            <h3 class="mt-1 font-display text-2xl font-bold">Send identity proofs for admin review</h3>
+            <p class="mt-2 text-sm text-stone-600">Upload a readable Aadhaar image and a clear worker photo. These go to the admin verification queue.</p>
+          </div>
+          <div class="mt-5 grid gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Aadhaar card image</span>
+              <input id="aadhaar-file" type="file" accept="image/*" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              ${documentStatusMarkup("government_id")}
+            </label>
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-stone-700">Worker photo for KYC</span>
+              <input id="worker-photo-file" type="file" accept="image/*" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+              ${documentStatusMarkup("skill_proof")}
+            </label>
+          </div>
+          <p id="kyc-note" class="mt-3 text-sm text-stone-600">Cloudinary upload will run automatically when you save your worker profile.</p>
+        </section>
       `;
     }
 
@@ -357,7 +376,7 @@
 
     async function fetchPricingHint() {
       const categoriesInput = document.getElementById("categories");
-      const locationInput = document.getElementById("location-text");
+      const locationInput = document.getElementById("location-input");
       const hint = document.getElementById("pricing-hint");
       if (!categoriesInput || !locationInput || !hint) return;
       const category = splitList(categoriesInput.value)[0];
@@ -379,7 +398,7 @@
 
     function attachPricingHintEvents() {
       const categoriesInput = document.getElementById("categories");
-      const locationInput = document.getElementById("location-text");
+      const locationInput = document.getElementById("location-input");
       if (categoriesInput) categoriesInput.addEventListener("input", fetchPricingHint);
       if (locationInput) locationInput.addEventListener("input", fetchPricingHint);
     }
@@ -390,11 +409,11 @@
       if (mapState.provider === "google" && mapState.marker) {
         const position = { lat: selectedLocation.latitude, lng: selectedLocation.longitude };
         mapState.marker.setPosition(position);
-        if (pan && mapState.map) mapState.map.panTo(position);
+        if (pan) mapState.map.panTo(position);
       }
       if (mapState.provider === "openstreetmap" && mapState.marker) {
         mapState.marker.setLatLng([selectedLocation.latitude, selectedLocation.longitude]);
-        if (pan && mapState.map) mapState.map.panTo([selectedLocation.latitude, selectedLocation.longitude]);
+        if (pan) mapState.map.panTo([selectedLocation.latitude, selectedLocation.longitude]);
       }
     }
 
@@ -402,13 +421,12 @@
       const response = await fetch(`/location/reverse-geocode?lat=${encodeURIComponent(latitude)}&lng=${encodeURIComponent(longitude)}`);
       const payload = await parseResponsePayload(response);
       if (!response.ok) throw new Error("Could not reverse geocode this location.");
-      document.getElementById("location-text").value = payload.data.address || "";
+      document.getElementById("location-input").value = payload.data.address || "";
       return payload.data;
     }
 
-    async function updateLocation(latitude, longitude, { updateAddress = true, pan = true, note = null } = {}) {
+    async function updateLocation(latitude, longitude, { updateAddress = true, pan = true } = {}) {
       setSelectedCoordinates(latitude, longitude, { pan });
-      if (note) locationNote.textContent = note;
       if (updateAddress) {
         try {
           await reverseGeocode(latitude, longitude);
@@ -420,7 +438,7 @@
     }
 
     async function geocodeTypedLocation() {
-      const locationText = document.getElementById("location-text").value.trim();
+      const locationText = document.getElementById("location-input").value.trim();
       if (!locationText) {
         locationNote.textContent = "Type a location first, or use your live location.";
         return;
@@ -430,8 +448,9 @@
         const response = await fetch(`/location/geocode?address=${encodeURIComponent(locationText)}`);
         const payload = await parseResponsePayload(response);
         if (!response.ok) throw new Error();
-        document.getElementById("location-text").value = payload.data.address || locationText;
-        await updateLocation(payload.data.latitude, payload.data.longitude, { updateAddress: false, note: "Location resolved successfully." });
+        document.getElementById("location-input").value = payload.data.address || locationText;
+        await updateLocation(payload.data.latitude, payload.data.longitude, { updateAddress: false });
+        locationNote.textContent = "Location resolved successfully.";
       } catch {
         locationNote.textContent = "We could not resolve that typed location.";
       }
@@ -445,8 +464,8 @@
       locationNote.textContent = "Fetching your live location...";
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const { latitude, longitude } = position.coords;
-          await updateLocation(latitude, longitude, { updateAddress: true, note: "Live location fetched successfully." });
+          await updateLocation(position.coords.latitude, position.coords.longitude, { updateAddress: true });
+          locationNote.textContent = "Live location fetched successfully.";
         },
         () => {
           locationNote.textContent = "Location access was denied or unavailable.";
@@ -457,10 +476,7 @@
 
     function loadGoogleMapsScript(apiKey) {
       return new Promise((resolve, reject) => {
-        if (window.google?.maps) {
-          resolve();
-          return;
-        }
+        if (window.google?.maps) return resolve();
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}`;
         script.async = true;
@@ -476,9 +492,7 @@
       document.getElementById("map-provider-badge").textContent = "OpenStreetMap";
       const center = [selectedLocation.latitude ?? 28.6139, selectedLocation.longitude ?? 77.2090];
       mapState.map = L.map("location-map").setView(center, 13);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(mapState.map);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(mapState.map);
       mapState.marker = L.marker(center, { draggable: true }).addTo(mapState.map);
       mapState.map.on("click", (event) => updateLocation(event.latlng.lat, event.latlng.lng));
       mapState.marker.on("dragend", () => {
@@ -500,11 +514,7 @@
         mapTypeControl: false,
         fullscreenControl: false
       });
-      mapState.marker = new google.maps.Marker({
-        position: center,
-        map: mapState.map,
-        draggable: true
-      });
+      mapState.marker = new google.maps.Marker({ position: center, map: mapState.map, draggable: true });
       mapState.map.addListener("click", (event) => updateLocation(event.latLng.lat(), event.latLng.lng()));
       mapState.marker.addListener("dragend", (event) => updateLocation(event.latLng.lat(), event.latLng.lng(), { pan: false }));
       setSelectedCoordinates(center.lat, center.lng, { pan: false });
@@ -525,6 +535,86 @@
       }
     }
 
+    async function uploadFileToCloudinary(file, tag) {
+      if (!appConfig.cloudinary_cloud_name || !appConfig.cloudinary_upload_preset) {
+        throw new Error("Cloudinary is not configured yet. Ask the admin to set the Cloudinary environment variables.");
+      }
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", appConfig.cloudinary_upload_preset);
+      formData.append("folder", appConfig.cloudinary_folder || "karamsetu");
+      formData.append("tags", tag);
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(appConfig.cloudinary_cloud_name)}/image/upload`, {
+        method: "POST",
+        body: formData
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error?.message || "Cloudinary upload failed.");
+      return payload.secure_url;
+    }
+
+    async function saveVerificationDocument(token, documentType, documentUrl) {
+      const response = await fetch("/verification/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ document_type: documentType, document_url: documentUrl })
+      });
+      const payload = await parseResponsePayload(response);
+      if (!response.ok) throw new Error(extractErrorMessage(payload, "Verification upload failed."));
+      return payload;
+    }
+
+    async function loadVerificationDocuments(token) {
+      if (!token) return;
+      try {
+        const response = await fetch("/verification/me", { headers: { Authorization: `Bearer ${token}` } });
+        const payload = await parseResponsePayload(response);
+        if (!response.ok) return;
+        for (const item of payload.data || []) existingDocuments[item.document_type] = item;
+      } catch {}
+    }
+
+    function workerKycSatisfied() {
+      const aadhaarNumber = document.getElementById("aadhaar-number")?.value.trim();
+      if (!aadhaarNumber) return false;
+      const aadhaarDoc = existingDocuments.government_id;
+      const photoDoc = existingDocuments.skill_proof;
+      const aadhaarFile = document.getElementById("aadhaar-file")?.files?.[0];
+      const workerPhotoFile = document.getElementById("worker-photo-file")?.files?.[0];
+      const aadhaarReady = aadhaarFile || (aadhaarDoc && aadhaarDoc.status !== "rejected");
+      const photoReady = workerPhotoFile || (photoDoc && photoDoc.status !== "rejected");
+      return Boolean(aadhaarReady && photoReady);
+    }
+
+    async function handleWorkerKycUploads(token) {
+      const aadhaarNumber = document.getElementById("aadhaar-number").value.trim();
+      const aadhaarFile = document.getElementById("aadhaar-file").files[0];
+      const workerPhotoFile = document.getElementById("worker-photo-file").files[0];
+      const aadhaarExisting = existingDocuments.government_id;
+      const photoExisting = existingDocuments.skill_proof;
+
+      if (!aadhaarNumber) throw new Error("Aadhaar number is required for workers.");
+      if (!aadhaarFile && (!aadhaarExisting || aadhaarExisting.status === "rejected")) {
+        throw new Error("Upload an Aadhaar card image before saving your worker profile.");
+      }
+      if (!workerPhotoFile && (!photoExisting || photoExisting.status === "rejected")) {
+        throw new Error("Upload a worker photo for KYC before saving your worker profile.");
+      }
+
+      const kycNote = document.getElementById("kyc-note");
+      if (aadhaarFile) {
+        kycNote.textContent = "Uploading Aadhaar card image...";
+        const aadhaarUrl = await uploadFileToCloudinary(aadhaarFile, "aadhaar-card");
+        await saveVerificationDocument(token, "government_id", aadhaarUrl);
+      }
+      if (workerPhotoFile) {
+        kycNote.textContent = "Uploading worker photo...";
+        const workerPhotoUrl = await uploadFileToCloudinary(workerPhotoFile, "worker-kyc-photo");
+        await saveVerificationDocument(token, "skill_proof", workerPhotoUrl);
+      }
+      kycNote.textContent = "Worker KYC submitted to the admin verification queue.";
+    }
+
     function populateRoleProfile(user) {
       if (!user?.role) return;
       setRoleValue(user.role);
@@ -533,7 +623,6 @@
         roleField.classList.add("bg-stone-100", "text-stone-500", "cursor-not-allowed");
         profileSubmit.textContent = "Save profile changes";
       }
-
       const worker = user.worker_profile;
       const employer = user.employer_profile;
       const contractor = user.contractor_profile;
@@ -541,8 +630,8 @@
 
       if (worker) {
         document.getElementById("gender").value = worker.gender || "";
-        document.getElementById("profile-photo-url").value = worker.profile_photo_url || "";
-        document.getElementById("location-text").value = worker.location_text || "";
+        document.getElementById("aadhaar-number").value = worker.aadhaar_number || "";
+        document.getElementById("location-input").value = worker.location_text || "";
         document.getElementById("service-radius").value = worker.service_radius_km ?? 10;
         document.getElementById("experience-years").value = worker.experience_years ?? 0;
         document.getElementById("daily-rate").value = worker.daily_rate ?? "";
@@ -550,7 +639,6 @@
         document.getElementById("skills").value = (worker.skills || []).join(", ");
         document.getElementById("categories").value = (worker.skills || []).join(", ");
         document.getElementById("languages").value = (worker.languages || []).join(", ");
-        document.getElementById("bio").value = worker.bio || "";
         document.getElementById("available-today").checked = Boolean(worker.available_today);
         document.getElementById("emergency-available").checked = Boolean(worker.emergency_available);
         if (worker.latitude != null && worker.longitude != null) {
@@ -561,7 +649,7 @@
       if (employer) {
         document.getElementById("employer-type").value = employer.employer_type || "household";
         document.getElementById("organization-name").value = employer.organization_name || "";
-        document.getElementById("location-text").value = employer.location || "";
+        document.getElementById("location-input").value = employer.location || "";
         if (employer.latitude != null && employer.longitude != null) {
           selectedLocation.latitude = employer.latitude;
           selectedLocation.longitude = employer.longitude;
@@ -572,7 +660,7 @@
         document.getElementById("bulk-hiring-enabled").value = contractor.bulk_hiring_enabled ? "true" : "false";
         document.getElementById("work-categories").value = (contractor.work_categories || []).join(", ");
         document.getElementById("frequent-locations").value = (contractor.frequent_locations || []).join(", ");
-        document.getElementById("location-text").value = contractor.location || "";
+        document.getElementById("location-input").value = contractor.location || "";
         if (contractor.latitude != null && contractor.longitude != null) {
           selectedLocation.latitude = contractor.latitude;
           selectedLocation.longitude = contractor.longitude;
@@ -596,17 +684,16 @@
         return;
       }
 
+      await loadVerificationDocuments(token);
       try {
-        const response = await fetch("/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await fetch("/auth/me", { headers: { Authorization: `Bearer ${token}` } });
         if (!response.ok) throw new Error("Session invalid");
         const payload = await parseResponsePayload(response);
         const user = payload.data;
         authState.textContent = user.profile_completed ? "Ready to go" : "Profile needed";
         statusBox.textContent = user.profile_completed
-          ? `Signed in as ${user.full_name || user.email}. You can edit your profile here and re-run verification if needed.`
-          : `Signed in as ${user.full_name || user.email}. Finish the verification requirements and complete your profile below.`;
+          ? `Signed in as ${user.full_name || user.email}. You can edit your profile and resend worker KYC if needed.`
+          : `Signed in as ${user.full_name || user.email}. Complete the active verification steps and finish your profile below.`;
         document.getElementById("full-name").value = user.full_name || "";
         document.getElementById("verify-email").value = user.email || "";
         verificationState.email = user.email || "";
@@ -623,6 +710,8 @@
         if (selectedLocation.latitude != null && selectedLocation.longitude != null) {
           setSelectedCoordinates(selectedLocation.latitude, selectedLocation.longitude, { pan: true });
         }
+        renderRoleFields();
+        populateRoleProfile(user);
         updateVerificationUI();
       } catch {
         authState.textContent = "Sign-in needed";
@@ -669,9 +758,7 @@
         });
         const payload = await parseResponsePayload(response);
         if (!response.ok) throw new Error(extractErrorMessage(payload, "We could not send an email code right now."));
-        emailNote.textContent = payload.data.test_code
-          ? `Email code sent. For testing, use ${payload.data.test_code}.`
-          : `Email code sent to ${email}. Please check your inbox.`;
+        emailNote.textContent = payload.data.test_code ? `Email code sent. For testing, use ${payload.data.test_code}.` : `Email code sent to ${email}. Please check your inbox.`;
       } catch (error) {
         emailNote.textContent = error.message || "We could not send an email code right now.";
       }
@@ -729,9 +816,7 @@
         if (!response.ok) throw new Error(extractErrorMessage(payload, "We could not send a phone code right now."));
         verificationState.phoneNumber = phoneNumber;
         verificationState.phoneVerified = false;
-        phoneNote.textContent = payload.data.test_code
-          ? `Phone code sent. For testing, use ${payload.data.test_code}.`
-          : "Phone code sent. Please check your SMS inbox.";
+        phoneNote.textContent = payload.data.test_code ? `Phone code sent. For testing, use ${payload.data.test_code}.` : "Phone code sent. Please check your SMS inbox.";
         updateVerificationUI();
       } catch (error) {
         phoneNote.textContent = error.message || "We could not send a phone code right now.";
@@ -782,6 +867,11 @@
       }
 
       const role = roleSelect.value;
+      if (role === "worker" && !workerKycSatisfied()) {
+        statusBox.textContent = "Workers must provide Aadhaar details and KYC images before saving.";
+        return;
+      }
+
       const common = {
         full_name: document.getElementById("full-name").value.trim(),
         phone_number: document.getElementById("phone-number").value.trim(),
@@ -793,9 +883,9 @@
       if (role === "worker") {
         payload.worker_profile = {
           ...common,
+          aadhaar_number: document.getElementById("aadhaar-number").value.trim() || null,
           gender: document.getElementById("gender").value.trim() || null,
-          profile_photo_url: document.getElementById("profile-photo-url").value.trim() || null,
-          primary_location: document.getElementById("location-text").value.trim(),
+          primary_location: document.getElementById("location-input").value.trim(),
           service_radius_km: Number(document.getElementById("service-radius").value),
           skills: splitList(document.getElementById("skills").value),
           categories: splitList(document.getElementById("categories").value),
@@ -805,7 +895,6 @@
           languages: splitList(document.getElementById("languages").value),
           available_today: document.getElementById("available-today").checked,
           emergency_available: document.getElementById("emergency-available").checked,
-          bio: document.getElementById("bio").value.trim() || null,
           work_gallery_urls: []
         };
       }
@@ -814,7 +903,7 @@
           ...common,
           employer_type: document.getElementById("employer-type").value,
           organization_name: document.getElementById("organization-name").value.trim() || null,
-          location: document.getElementById("location-text").value.trim()
+          location: document.getElementById("location-input").value.trim()
         };
       }
       if (role === "contractor") {
@@ -824,7 +913,7 @@
           work_categories: splitList(document.getElementById("work-categories").value),
           frequent_locations: splitList(document.getElementById("frequent-locations").value),
           bulk_hiring_enabled: document.getElementById("bulk-hiring-enabled").value === "true",
-          location: document.getElementById("location-text").value.trim()
+          location: document.getElementById("location-input").value.trim()
         };
       }
       if (role === "operator") {
@@ -844,7 +933,14 @@
         });
         const responsePayload = await parseResponsePayload(response);
         if (!response.ok) throw new Error(extractErrorMessage(responsePayload, "Profile setup failed"));
-        statusBox.textContent = "Your profile is ready. You can now explore services and connect with the right people.";
+        if (role === "worker") {
+          await handleWorkerKycUploads(token);
+          await loadVerificationDocuments(token);
+        }
+        statusBox.textContent = role === "worker"
+          ? "Your profile is saved and your KYC has been sent to the admin review queue."
+          : "Your profile is ready. You can now explore services and connect with the right people.";
+        renderRoleFields();
       } catch (error) {
         statusBox.textContent = error.message || "We could not save your profile right now.";
       }

@@ -10,6 +10,7 @@ class WorkerProfile(UUIDMixin, TimestampMixin, Base):
 
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
     phone_number: Mapped[str] = mapped_column(String(20))
+    aadhaar_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
     gender: Mapped[str | None] = mapped_column(String(50), nullable=True)
     profile_photo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     location_text: Mapped[str] = mapped_column(String(255))

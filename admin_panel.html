@@ -20,55 +20,78 @@
         <a href="/account" class="text-stone-600 hover:text-pine">My Account</a>
         <a href="/admin-panel" class="text-pine">Admin Panel</a>
       </div>
-      <button id="refresh-admin" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh</button>
+      <button id="refresh-admin" class="rounded-full border border-pine px-4 py-2 text-sm font-semibold text-pine">Refresh dashboard</button>
     </nav>
   </header>
 
   <main class="mx-auto max-w-7xl px-6 py-10">
-    <section class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-stone-200">
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Admin control</p>
-          <h1 class="mt-2 font-display text-4xl font-bold">Manage users, roles, and profile verification rules.</h1>
+    <section class="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-stone-200">
+      <div class="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+        <div class="p-8">
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Operations cockpit</p>
+          <h1 class="mt-3 font-display text-4xl font-bold">Control roles, profile rules, and worker verification from one place.</h1>
+          <p class="mt-4 max-w-2xl text-sm leading-7 text-stone-600">This admin panel lets you assign access levels, disable profile verification gates temporarily, and review worker KYC submissions before they go live as trusted providers.</p>
+          <div id="admin-status" class="mt-6 rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading admin dashboard...</div>
         </div>
-        <div id="admin-status" class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-700">Loading admin panel...</div>
+        <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
+          <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Admin priorities</p>
+          <ul class="mt-5 space-y-4 text-sm leading-7 text-emerald-50">
+            <li>Approve Aadhaar and worker identity uploads before field activation.</li>
+            <li>Assign or revoke roles, including admin access, without touching the database manually.</li>
+            <li>Relax email or phone verification requirements temporarily when onboarding needs to move faster.</li>
+          </ul>
+        </div>
       </div>
     </section>
 
-    <section class="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">
-      <aside class="space-y-6">
+    <section class="mt-8 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <div class="space-y-6">
         <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
-          <h2 class="font-display text-2xl font-bold">Runtime settings</h2>
+          <div class="flex items-center justify-between">
+            <h2 class="font-display text-3xl font-bold">Live rules</h2>
+            <span class="rounded-full bg-mist px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-pine">Runtime</span>
+          </div>
+          <p class="mt-2 text-sm text-stone-500">These switches affect `/profile-setup` immediately for everyone.</p>
           <form id="settings-form" class="mt-5 space-y-4">
-            <label class="flex items-start gap-3 rounded-2xl bg-mist px-4 py-3">
+            <label class="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
               <input id="require-email-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
-              <span class="text-sm text-stone-700">Require email verification before `/profile-setup` can be submitted.</span>
+              <span class="text-sm leading-6 text-stone-700">Require email verification before a profile can be submitted.</span>
             </label>
-            <label class="flex items-start gap-3 rounded-2xl bg-mist px-4 py-3">
+            <label class="flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
               <input id="require-phone-verification" type="checkbox" class="mt-1 h-4 w-4 rounded border-stone-300 text-pine">
-              <span class="text-sm text-stone-700">Require phone OTP verification before `/profile-setup` can be submitted.</span>
+              <span class="text-sm leading-6 text-stone-700">Require phone OTP verification before a profile can be submitted.</span>
             </label>
-            <button class="w-full rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Save settings</button>
+            <button class="w-full rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Save live rules</button>
           </form>
-          <p class="mt-3 text-xs text-stone-500">These switches affect the profile setup page immediately for all users.</p>
         </section>
 
         <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
-          <h2 class="font-display text-2xl font-bold">Platform overview</h2>
+          <h2 class="font-display text-3xl font-bold">Platform snapshot</h2>
           <div id="metrics-grid" class="mt-5 grid grid-cols-2 gap-3"></div>
         </section>
-      </aside>
+      </div>
 
       <section class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 class="font-display text-3xl font-bold">Registered users</h2>
-            <p class="mt-1 text-sm text-stone-500">Change roles, including admin, and enable or disable accounts.</p>
+            <h2 class="font-display text-3xl font-bold">Worker verification queue</h2>
+            <p class="mt-1 text-sm text-stone-500">Review Aadhaar cards and worker identity photos waiting for approval.</p>
           </div>
-          <input id="user-filter" class="rounded-2xl border border-stone-300 px-4 py-3 text-sm" placeholder="Filter by name or email">
+          <button id="refresh-verification" class="rounded-full border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">Refresh queue</button>
         </div>
-        <div id="users-list" class="mt-6 space-y-4"></div>
+        <div id="verification-queue" class="mt-6 space-y-4"></div>
       </section>
+    </section>
+
+    <section class="mt-8 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-stone-200">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 class="font-display text-3xl font-bold">Registered users</h2>
+          <p class="mt-1 text-sm text-stone-500">Search by name or email, then change access levels or disable an account.</p>
+        </div>
+        <input id="user-filter" class="rounded-2xl border border-stone-300 px-4 py-3 text-sm md:w-80" placeholder="Filter by name or email">
+      </div>
+      <div id="users-list" class="mt-6 space-y-4"></div>
     </section>
   </main>
 
@@ -76,6 +99,7 @@
     const token = localStorage.getItem("kaamsetu_access_token");
     const statusBox = document.getElementById("admin-status");
     let allUsers = [];
+    let verificationQueue = [];
 
     function metricCard(label, value) {
       return `<div class="rounded-2xl bg-mist p-4"><p class="text-xs uppercase tracking-[0.15em] text-stone-500">${label}</p><p class="mt-2 font-display text-3xl font-bold text-pine">${value}</p></div>`;
@@ -101,7 +125,7 @@
       const items = allUsers.filter((item) => !query || item.email.toLowerCase().includes(query) || item.full_name.toLowerCase().includes(query));
       document.getElementById("users-list").innerHTML = items.length ? items.map((item) => `
         <article class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
               <div class="flex flex-wrap items-center gap-2">
                 <h3 class="font-display text-2xl font-bold">${item.full_name}</h3>
@@ -110,12 +134,12 @@
               </div>
               <p class="mt-2 text-sm text-stone-600">${item.email}</p>
               <div class="mt-3 flex flex-wrap gap-3 text-xs text-stone-500">
-                <span>Email verification: ${item.is_verified_user ? "on" : "off"}</span>
-                <span>Phone verification: ${item.is_phone_verified ? "on" : "off"}</span>
+                <span>Email verified: ${item.is_verified_user ? "yes" : "no"}</span>
+                <span>Phone verified: ${item.is_phone_verified ? "yes" : "no"}</span>
                 <span>Profile complete: ${item.profile_completed ? "yes" : "no"}</span>
               </div>
             </div>
-            <form data-user-form="${item.id}" class="grid gap-3 sm:grid-cols-[200px_160px_auto]">
+            <form data-user-form="${item.id}" class="grid gap-3 sm:grid-cols-[220px_160px_auto]">
               <select data-role class="rounded-2xl border border-stone-300 px-4 py-3 text-sm">
                 <option value="" ${!item.role ? "selected" : ""}>No role</option>
                 <option value="worker" ${item.role === "worker" ? "selected" : ""}>Worker</option>
@@ -128,7 +152,7 @@
                 <option value="true" ${item.is_active ? "selected" : ""}>Active</option>
                 <option value="false" ${!item.is_active ? "selected" : ""}>Disabled</option>
               </select>
-              <button class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Update user</button>
+              <button class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Save access</button>
             </form>
           </div>
         </article>
@@ -140,19 +164,115 @@
           const userId = form.getAttribute("data-user-form");
           const role = form.querySelector("[data-role]").value || null;
           const is_active = form.querySelector("[data-active]").value === "true";
-          statusBox.textContent = "Updating user...";
+          statusBox.textContent = "Saving user access changes...";
           try {
             await api(`/admin/users/${userId}`, {
               method: "PATCH",
               body: JSON.stringify({ role, is_active })
             });
-            statusBox.textContent = "User updated successfully.";
-            await load();
+            statusBox.textContent = "User access updated successfully.";
+            await loadUsers();
           } catch (error) {
             statusBox.textContent = error.message || "We could not update that user.";
           }
         });
       });
+    }
+
+    function documentLabel(type) {
+      if (type === "government_id") return "Aadhaar card";
+      if (type === "skill_proof") return "Worker photo";
+      return type.replaceAll("_", " ");
+    }
+
+    function renderVerificationQueue() {
+      document.getElementById("verification-queue").innerHTML = verificationQueue.length ? verificationQueue.map((item) => `
+        <article class="rounded-[1.75rem] border border-stone-200 bg-stone-50 p-5">
+          <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div class="flex gap-4">
+              <img src="${item.document_url}" alt="${documentLabel(item.document_type)}" class="h-28 w-28 rounded-[1.25rem] object-cover ring-1 ring-stone-200">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="font-display text-2xl font-bold">${item.user_name || "Unknown user"}</h3>
+                  <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">${item.user_role || "no role"}</span>
+                </div>
+                <p class="mt-2 text-sm text-stone-600">${item.user_email || "No email available"}</p>
+                <div class="mt-3 flex flex-wrap gap-3 text-xs text-stone-500">
+                  <span>Document: ${documentLabel(item.document_type)}</span>
+                  ${item.aadhaar_number ? `<span>Aadhaar: ${item.aadhaar_number}</span>` : ""}
+                  <span>Submitted: ${item.created_at ? new Date(item.created_at).toLocaleString() : "unknown"}</span>
+                </div>
+                <a href="${item.document_url}" target="_blank" rel="noreferrer" class="mt-4 inline-flex text-sm font-semibold text-pine hover:underline">Open full image</a>
+              </div>
+            </div>
+            <form data-review-form="${item.id}" class="flex w-full max-w-md flex-col gap-3">
+              <textarea data-remarks class="min-h-24 rounded-2xl border border-stone-300 px-4 py-3 text-sm" placeholder="Optional review note for the worker or operator"></textarea>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <button data-review-status="approved" class="rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white" type="submit">Approve</button>
+                <button data-review-status="rejected" class="rounded-2xl border border-clay px-5 py-3 text-sm font-semibold text-clay" type="button">Reject</button>
+              </div>
+            </form>
+          </div>
+        </article>
+      `).join("") : `<div class="rounded-2xl bg-mist px-4 py-3 text-sm text-stone-500">No verification items are waiting right now.</div>`;
+
+      document.querySelectorAll("[data-review-form]").forEach((form) => {
+        const submitReview = async (status) => {
+          const documentId = form.getAttribute("data-review-form");
+          const remarks = form.querySelector("[data-remarks]").value.trim() || null;
+          statusBox.textContent = `Marking document as ${status}...`;
+          try {
+            await api(`/verification/admin/verification/${documentId}/review`, {
+              method: "PATCH",
+              body: JSON.stringify({ status, remarks })
+            });
+            statusBox.textContent = `Verification document ${status}.`;
+            await loadVerificationQueue();
+            await loadUsers();
+          } catch (error) {
+            statusBox.textContent = error.message || "We could not review that document.";
+          }
+        };
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          await submitReview("approved");
+        });
+
+        form.querySelector('[data-review-status="rejected"]').addEventListener("click", async () => {
+          await submitReview("rejected");
+        });
+      });
+    }
+
+    async function loadUsers() {
+      const users = await api("/admin/users");
+      allUsers = users.data || [];
+      renderUsers();
+    }
+
+    async function loadVerificationQueue() {
+      const queue = await api("/verification/admin/verification/pending");
+      verificationQueue = queue.data || [];
+      renderVerificationQueue();
+    }
+
+    async function loadDashboard() {
+      const [dashboard, settings] = await Promise.all([
+        api("/admin/dashboard"),
+        api("/admin/settings")
+      ]);
+      const metrics = dashboard.data;
+      document.getElementById("require-email-verification").checked = settings.data.profile_setup_require_email_verification;
+      document.getElementById("require-phone-verification").checked = settings.data.profile_setup_require_phone_verification;
+      document.getElementById("metrics-grid").innerHTML = [
+        metricCard("Users", metrics.total_users),
+        metricCard("Workers", metrics.total_workers),
+        metricCard("Employers", metrics.total_employers),
+        metricCard("Open jobs", metrics.active_jobs),
+        metricCard("Completed bookings", metrics.completed_bookings),
+        metricCard("Pending verification", metrics.pending_verification_count)
+      ].join("");
     }
 
     async function load() {
@@ -161,33 +281,16 @@
         return;
       }
       try {
-        const [dashboard, users, settings] = await Promise.all([
-          api("/admin/dashboard"),
-          api("/admin/users"),
-          api("/admin/settings")
-        ]);
-        const metrics = dashboard.data;
-        allUsers = users.data || [];
-        document.getElementById("require-email-verification").checked = settings.data.profile_setup_require_email_verification;
-        document.getElementById("require-phone-verification").checked = settings.data.profile_setup_require_phone_verification;
-        document.getElementById("metrics-grid").innerHTML = [
-          metricCard("Users", metrics.total_users),
-          metricCard("Workers", metrics.total_workers),
-          metricCard("Employers", metrics.total_employers),
-          metricCard("Open jobs", metrics.active_jobs),
-          metricCard("Completed bookings", metrics.completed_bookings),
-          metricCard("Pending verification", metrics.pending_verification_count)
-        ].join("");
-        renderUsers();
-        statusBox.textContent = "Admin panel is up to date.";
+        await Promise.all([loadDashboard(), loadUsers(), loadVerificationQueue()]);
+        statusBox.textContent = "Admin dashboard is up to date.";
       } catch (error) {
-        statusBox.textContent = error.message || "We could not load the admin panel.";
+        statusBox.textContent = error.message || "We could not load the admin dashboard.";
       }
     }
 
     document.getElementById("settings-form").addEventListener("submit", async (event) => {
       event.preventDefault();
-      statusBox.textContent = "Saving admin settings...";
+      statusBox.textContent = "Saving live rules...";
       try {
         await api("/admin/settings", {
           method: "PATCH",
@@ -196,14 +299,15 @@
             profile_setup_require_phone_verification: document.getElementById("require-phone-verification").checked
           })
         });
-        statusBox.textContent = "Admin settings updated.";
-        await load();
+        statusBox.textContent = "Live rules updated successfully.";
+        await loadDashboard();
       } catch (error) {
-        statusBox.textContent = error.message || "We could not update admin settings.";
+        statusBox.textContent = error.message || "We could not update the live rules.";
       }
     });
 
     document.getElementById("refresh-admin").addEventListener("click", load);
+    document.getElementById("refresh-verification").addEventListener("click", loadVerificationQueue);
     document.getElementById("user-filter").addEventListener("input", renderUsers);
     load();
   </script>

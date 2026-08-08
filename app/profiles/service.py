@@ -22,8 +22,8 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         worker = user.worker_profile or WorkerProfile(user_id=user.id)
         user.phone_number = profile_data.phone_number
         worker.phone_number = profile_data.phone_number
+        worker.aadhaar_number = profile_data.aadhaar_number
         worker.gender = profile_data.gender
-        worker.profile_photo_url = profile_data.profile_photo_url
         worker.location_text = profile_data.primary_location
         worker.latitude = profile_data.latitude
         worker.longitude = profile_data.longitude
@@ -31,7 +31,6 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         worker.experience_years = profile_data.experience_years
         worker.daily_rate = profile_data.daily_rate
         worker.hourly_rate = profile_data.hourly_rate
-        worker.bio = profile_data.bio
         worker.work_gallery_urls = ",".join(profile_data.work_gallery_urls) if profile_data.work_gallery_urls else None
         worker.available_today = profile_data.available_today
         worker.emergency_available = profile_data.emergency_available
@@ -40,7 +39,6 @@ def setup_role_profile(db: Session, user: User, payload: RoleSetupRequest) -> Us
         worker.languages = [WorkerLanguage(language=language) for language in profile_data.languages]
         db.add(worker)
         user.full_name = profile_data.full_name
-        user.profile_picture_url = profile_data.profile_photo_url
     elif payload.role == UserRole.employer and payload.employer_profile:
         profile_data = payload.employer_profile
         employer = user.employer_profile or EmployerProfile(user_id=user.id)
