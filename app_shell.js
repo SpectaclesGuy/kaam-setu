@@ -144,13 +144,24 @@
   }
 
   async function initNavbar(options = {}) {
-    await window.KaramSetuI18n?.init?.();
-    const user = await getCurrentUser();
-    if (user?.preferred_language && window.KaramSetuI18n?.getCurrentLanguage?.() !== user.preferred_language) {
-      await window.KaramSetuI18n.setLanguage(user.preferred_language, { persist: true, syncUser: false, apply: false });
-    }
+    let user = null;
+    try {
+      if (window.KaramSetuI18n?.init) {
+        await window.KaramSetuI18n.init();
+      }
+    } catch {}
+    try {
+      user = await getCurrentUser();
+    } catch {}
+    try {
+      if (user?.preferred_language && window.KaramSetuI18n?.getCurrentLanguage?.() !== user.preferred_language) {
+        await window.KaramSetuI18n.setLanguage(user.preferred_language, { persist: true, syncUser: false, apply: false });
+      }
+    } catch {}
     renderNavbar(user, options);
-    window.KaramSetuI18n?.applyTranslations?.();
+    try {
+      window.KaramSetuI18n?.applyTranslations?.();
+    } catch {}
     return user;
   }
 
