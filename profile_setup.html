@@ -46,7 +46,7 @@
   <main class="mx-auto max-w-6xl px-6 py-10">
     <section class="grid gap-8 lg:grid-cols-[0.84fr_1.16fr]">
       <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl ring-1 ring-stone-200">
-        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80" alt="Local service professional preparing for work" class="h-64 w-full object-cover">
+        <img src="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1400&q=80" alt="Local service professional arriving for work" class="h-[clamp(16rem,32vw,24rem)] w-full object-cover object-center">
         <div class="bg-gradient-to-br from-pine via-emerald-700 to-clay p-8 text-white">
           <p class="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-100">Join KaramSetu</p>
           <h1 class="mt-4 font-display text-4xl font-bold">Verify your account, drop your pin, and complete your local work profile.</h1>
@@ -154,9 +154,20 @@
                 </label>
                 <label id="gender-wrapper" class="block">
                   <span class="mb-2 block text-sm font-medium text-stone-700">Gender</span>
-                  <input id="gender" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                  <select id="gender" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="non_binary">Non-binary</option>
+                    <option value="prefer_not_to_say">Prefer not to say</option>
+                    <option value="other">Other</option>
+                  </select>
                 </label>
               </div>
+              <label id="gender-other-wrapper" class="hidden block">
+                <span class="mb-2 block text-sm font-medium text-stone-700">Other gender</span>
+                <input id="gender-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter gender">
+              </label>
             </section>
 
             <section data-step="2" class="hidden space-y-6">
@@ -165,8 +176,26 @@
                 <h3 class="mt-1 font-display text-2xl font-bold">Type of work, categories, and skills</h3>
               </div>
               <div id="step-two-worker" class="space-y-4">
-                <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Categories (comma separated)</span><input id="categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Electrician, Mechanic"></label>
-                <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Skills (comma separated)</span><input id="skills" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Wiring, Repair, Installation"></label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Category</span>
+                  <select id="categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                    <option value="">Select category</option>
+                  </select>
+                </label>
+                <label id="categories-other-wrapper" class="hidden block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Other category</span>
+                  <input id="categories-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter category">
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Skill</span>
+                  <select id="skills" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                    <option value="">Select skill</option>
+                  </select>
+                </label>
+                <label id="skills-other-wrapper" class="hidden block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Other skill</span>
+                  <input id="skills-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter skill">
+                </label>
                 <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Languages (comma separated)</span><input id="languages" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Hindi, English"></label>
               </div>
               <div id="step-two-employer" class="hidden grid gap-4 md:grid-cols-2">
@@ -184,7 +213,16 @@
               </div>
               <div id="step-two-contractor" class="hidden space-y-4">
                 <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Company name</span><input id="company-name" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
-                <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Work categories (comma separated)</span><input id="work-categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Work category</span>
+                  <select id="work-categories" class="w-full rounded-2xl border border-stone-300 px-4 py-3">
+                    <option value="">Select category</option>
+                  </select>
+                </label>
+                <label id="work-categories-other-wrapper" class="hidden block">
+                  <span class="mb-2 block text-sm font-medium text-stone-700">Other work category</span>
+                  <input id="work-categories-other" class="w-full rounded-2xl border border-stone-300 px-4 py-3" placeholder="Enter work category">
+                </label>
               </div>
               <div id="step-two-operator" class="hidden space-y-4">
                 <label class="block"><span class="mb-2 block text-sm font-medium text-stone-700">Assigned area</span><input id="assigned-area" class="w-full rounded-2xl border border-stone-300 px-4 py-3"></label>
@@ -311,6 +349,30 @@
     const selectedLocation = { latitude: null, longitude: null };
     const existingDocuments = {};
     let currentStep = 1;
+    const categorySkillMap = {
+      electrician: ["Wiring", "Switchboard repair", "Fan installation", "Inverter setup", "Meter work", "Other"],
+      plumber: ["Leak repair", "Tap fitting", "Pipeline work", "Bathroom fitting", "Water tank setup", "Other"],
+      carpenter: ["Furniture repair", "Door fitting", "Modular work", "Polish work", "Custom shelves", "Other"],
+      painter: ["Interior painting", "Exterior painting", "Texture finish", "Waterproof coating", "Putty work", "Other"],
+      mechanic: ["Bike repair", "Car servicing", "Engine diagnostics", "Battery replacement", "Puncture repair", "Other"],
+      cleaner: ["Home deep cleaning", "Office cleaning", "Sofa cleaning", "Kitchen cleaning", "Bathroom cleaning", "Other"],
+      appliance_repair: ["AC repair", "Washing machine repair", "Refrigerator repair", "RO service", "TV repair", "Other"],
+      mason: ["Brick work", "Tile fitting", "Plaster work", "Concrete work", "Renovation support", "Other"],
+      welder: ["Gate welding", "Grill fabrication", "Steel repair", "Frame setup", "Workshop welding", "Other"],
+      other: ["Other"]
+    };
+    const categoryLabels = {
+      electrician: "Electrician",
+      plumber: "Plumber",
+      carpenter: "Carpenter",
+      painter: "Painter",
+      mechanic: "Mechanic",
+      cleaner: "Cleaner",
+      appliance_repair: "Appliance Repair",
+      mason: "Mason",
+      welder: "Welder",
+      other: "Other"
+    };
     const appConfig = {
       google_maps_api_key: null,
       cloudinary_cloud_name: null,
@@ -319,7 +381,7 @@
       profile_setup_require_email_verification: true,
       profile_setup_require_phone_verification: true
     };
-    const mapState = { provider: "openstreetmap", map: null, marker: null };
+    const mapState = { provider: "openstreetmap", map: null, marker: null, initialized: false };
 
     if (tokenFromQuery) {
       localStorage.setItem("kaamsetu_access_token", tokenFromQuery);
@@ -332,6 +394,95 @@
 
     function sanitizeAadhaarValue(value) {
       return (value || "").replace(/\D/g, "").slice(0, 12);
+    }
+
+    function populateSelect(select, options, placeholder) {
+      const currentValue = select.value;
+      select.innerHTML = [`<option value="">${placeholder}</option>`]
+        .concat(options.map((option) => `<option value="${option.value}">${option.label}</option>`))
+        .join("");
+      if (options.some((option) => option.value === currentValue)) {
+        select.value = currentValue;
+      }
+    }
+
+    function setFieldVisibility(wrapperId, isVisible) {
+      document.getElementById(wrapperId)?.classList.toggle("hidden", !isVisible);
+    }
+
+    function syncGenderOtherVisibility() {
+      setFieldVisibility("gender-other-wrapper", roleSelect.value === "worker" && document.getElementById("gender").value === "other");
+    }
+
+    function syncCategoryOtherVisibility() {
+      setFieldVisibility("categories-other-wrapper", document.getElementById("categories").value === "other");
+    }
+
+    function syncWorkCategoryOtherVisibility() {
+      setFieldVisibility("work-categories-other-wrapper", document.getElementById("work-categories").value === "other");
+    }
+
+    function syncSkillOtherVisibility() {
+      setFieldVisibility("skills-other-wrapper", document.getElementById("skills").value === "other");
+    }
+
+    function selectedWorkerCategory() {
+      const category = document.getElementById("categories").value;
+      return category === "other" ? document.getElementById("categories-other").value.trim() : categoryLabels[category] || category;
+    }
+
+    function selectedWorkerSkill() {
+      const skill = document.getElementById("skills").value;
+      return skill === "other" ? document.getElementById("skills-other").value.trim() : skill;
+    }
+
+    function selectedGender() {
+      const gender = document.getElementById("gender").value;
+      return gender === "other" ? document.getElementById("gender-other").value.trim() : gender;
+    }
+
+    function selectedContractorCategory() {
+      const category = document.getElementById("work-categories").value;
+      return category === "other" ? document.getElementById("work-categories-other").value.trim() : categoryLabels[category] || category;
+    }
+
+    function setupWorkerCategoryOptions() {
+      const options = Object.entries(categoryLabels).map(([value, label]) => ({ value, label }));
+      populateSelect(document.getElementById("categories"), options, "Select category");
+      populateSelect(document.getElementById("work-categories"), options, "Select category");
+    }
+
+    function refreshWorkerSkillOptions() {
+      const categoryKey = document.getElementById("categories").value || "other";
+      const skills = categorySkillMap[categoryKey] || categorySkillMap.other;
+      populateSelect(
+        document.getElementById("skills"),
+        skills.map((skill) => ({ value: skill === "Other" ? "other" : skill, label: skill })),
+        "Select skill"
+      );
+      syncSkillOtherVisibility();
+    }
+
+    function ensureMapVisible() {
+      if (currentStep !== 4) return;
+      if (!mapState.initialized) {
+        initMapExperience();
+        return;
+      }
+      window.setTimeout(() => {
+        if (mapState.provider === "openstreetmap" && mapState.map) {
+          mapState.map.invalidateSize();
+        }
+        if (mapState.provider === "google" && mapState.map && window.google?.maps?.event) {
+          const center = mapState.marker?.getPosition?.();
+          google.maps.event.trigger(mapState.map, "resize");
+          if (center?.lat && center?.lng) {
+            mapState.map.setCenter(center);
+          } else {
+            mapState.map.setCenter({ lat: selectedLocation.latitude ?? 28.6139, lng: selectedLocation.longitude ?? 77.2090 });
+          }
+        }
+      }, 120);
     }
 
     function setRoleValue(value) {
@@ -498,6 +649,7 @@
       stepNextButton.textContent = currentStep === stepSections.length - 1 ? "Save & review" : "Save & continue";
       profileSubmit.classList.toggle("hidden", currentStep !== stepSections.length);
       updateVerificationUI();
+      ensureMapVisible();
     }
 
     function getStepFields(step) {
@@ -507,13 +659,18 @@
           document.getElementById("role"),
           document.getElementById("full-name"),
           document.getElementById("phone-number"),
-          role === "worker" ? document.getElementById("gender") : null
+          role === "worker" ? (document.getElementById("gender").value === "other" ? document.getElementById("gender-other") : document.getElementById("gender")) : null
         ].filter(Boolean);
       }
       if (step === 2) {
-        if (role === "worker") return [document.getElementById("categories"), document.getElementById("skills")];
+        if (role === "worker") {
+          return [
+            document.getElementById("categories").value === "other" ? document.getElementById("categories-other") : document.getElementById("categories"),
+            document.getElementById("skills").value === "other" ? document.getElementById("skills-other") : document.getElementById("skills")
+          ];
+        }
         if (role === "employer") return [document.getElementById("employer-type")];
-        if (role === "contractor") return [document.getElementById("company-name"), document.getElementById("work-categories")];
+        if (role === "contractor") return [document.getElementById("company-name"), document.getElementById("work-categories").value === "other" ? document.getElementById("work-categories-other") : document.getElementById("work-categories")];
         if (role === "operator") return [document.getElementById("assigned-area")];
       }
       if (step === 3) {
@@ -567,6 +724,10 @@
     function renderRoleFields() {
       updateRoleStepVisibility();
       attachPricingHintEvents();
+      syncGenderOtherVisibility();
+      syncCategoryOtherVisibility();
+      syncWorkCategoryOtherVisibility();
+      refreshWorkerSkillOptions();
       renderStep();
     }
 
@@ -575,7 +736,7 @@
       const locationInput = document.getElementById("location-input");
       const hint = document.getElementById("pricing-hint");
       if (!categoriesInput || !locationInput || !hint) return;
-      const category = splitList(categoriesInput.value)[0];
+      const category = selectedWorkerCategory();
       const city = locationInput.value.trim();
       if (!category || !city) {
         hint.textContent = "Add a category and city to see the going rate nearby.";
@@ -594,10 +755,19 @@
 
     function attachPricingHintEvents() {
       const categoriesInput = document.getElementById("categories");
+      const categoriesOtherInput = document.getElementById("categories-other");
       const locationInput = document.getElementById("location-input");
       if (categoriesInput && categoriesInput.dataset.pricingBound !== "true") {
-        categoriesInput.addEventListener("input", fetchPricingHint);
+        categoriesInput.addEventListener("change", () => {
+          syncCategoryOtherVisibility();
+          refreshWorkerSkillOptions();
+          fetchPricingHint();
+        });
         categoriesInput.dataset.pricingBound = "true";
+      }
+      if (categoriesOtherInput && categoriesOtherInput.dataset.pricingBound !== "true") {
+        categoriesOtherInput.addEventListener("input", fetchPricingHint);
+        categoriesOtherInput.dataset.pricingBound = "true";
       }
       if (locationInput && locationInput.dataset.pricingBound !== "true") {
         locationInput.addEventListener("input", fetchPricingHint);
@@ -690,6 +860,7 @@
     }
 
     function initLeafletMap() {
+      if (mapState.map) return;
       mapState.provider = "openstreetmap";
       document.getElementById("map-provider-badge").textContent = "OpenStreetMap";
       const center = [selectedLocation.latitude ?? 28.6139, selectedLocation.longitude ?? 77.2090];
@@ -701,10 +872,12 @@
         const { lat, lng } = mapState.marker.getLatLng();
         updateLocation(lat, lng, { pan: false });
       });
+      mapState.initialized = true;
       setSelectedCoordinates(center[0], center[1], { pan: false });
     }
 
     async function initGoogleMap(apiKey) {
+      if (mapState.map) return;
       await loadGoogleMapsScript(apiKey);
       mapState.provider = "google";
       document.getElementById("map-provider-badge").textContent = "Google Maps";
@@ -719,10 +892,15 @@
       mapState.marker = new google.maps.Marker({ position: center, map: mapState.map, draggable: true });
       mapState.map.addListener("click", (event) => updateLocation(event.latLng.lat(), event.latLng.lng()));
       mapState.marker.addListener("dragend", (event) => updateLocation(event.latLng.lat(), event.latLng.lng(), { pan: false }));
+      mapState.initialized = true;
       setSelectedCoordinates(center.lat, center.lng, { pan: false });
     }
 
     async function initMapExperience() {
+      if (mapState.initialized) {
+        ensureMapVisible();
+        return;
+      }
       locationNote.textContent = "Loading the map experience...";
       try {
         if (appConfig.google_maps_api_key) {
@@ -737,49 +915,14 @@
       }
     }
 
-    async function uploadFileToCloudinary(file, tag) {
-      if (!appConfig.cloudinary_cloud_name || !appConfig.cloudinary_upload_preset) {
-        throw new Error("Cloudinary is not configured yet. Ask the admin to set the Cloudinary environment variables.");
-      }
-      if (!file.type.startsWith("image/")) {
-        throw new Error("Only image files can be uploaded for worker verification.");
-      }
-      if (file.size > 8 * 1024 * 1024) {
-        throw new Error("Each verification image must be under 8 MB.");
-      }
+    async function uploadVerificationFile(token, file, documentType) {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", appConfig.cloudinary_upload_preset);
-      formData.append("folder", appConfig.cloudinary_folder || "karamsetu");
-      formData.append("tags", tag);
-      const controller = new AbortController();
-      const timeout = window.setTimeout(() => controller.abort(), 25000);
-      try {
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(appConfig.cloudinary_cloud_name)}/image/upload`, {
-          method: "POST",
-          body: formData,
-          signal: controller.signal
-        });
-        const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(payload.error?.message || "Cloudinary upload failed. Check your cloud name and unsigned upload preset.");
-        }
-        return payload.secure_url;
-      } catch (error) {
-        if (error.name === "AbortError") {
-          throw new Error("Cloudinary upload timed out after 25 seconds. Check your internet connection, Cloudinary cloud name, and unsigned upload preset.");
-        }
-        throw error;
-      } finally {
-        window.clearTimeout(timeout);
-      }
-    }
-
-    async function saveVerificationDocument(token, documentType, documentUrl) {
-      const response = await fetch("/verification/upload", {
+      formData.append("document_type", documentType);
+      const response = await fetch("/verification/upload-file", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ document_type: documentType, document_url: documentUrl })
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
       });
       const payload = await parseResponsePayload(response);
       if (!response.ok) throw new Error(extractErrorMessage(payload, "Verification upload failed."));
@@ -827,14 +970,12 @@
       const kycNote = document.getElementById("kyc-note");
       if (aadhaarFile) {
         kycNote.textContent = "Uploading Aadhaar card image...";
-        const aadhaarUrl = await uploadFileToCloudinary(aadhaarFile, "aadhaar-card");
-        await saveVerificationDocument(token, "government_id", aadhaarUrl);
+        await uploadVerificationFile(token, aadhaarFile, "government_id");
         kycNote.textContent = "Aadhaar card uploaded. Uploading worker photo...";
       }
       if (workerPhotoFile) {
         if (!aadhaarFile) kycNote.textContent = "Uploading worker photo...";
-        const workerPhotoUrl = await uploadFileToCloudinary(workerPhotoFile, "worker-kyc-photo");
-        await saveVerificationDocument(token, "skill_proof", workerPhotoUrl);
+        await uploadVerificationFile(token, workerPhotoFile, "skill_proof");
       }
       kycNote.textContent = "Worker KYC submitted to the admin verification queue.";
     }
@@ -853,18 +994,40 @@
       const operator = user.operator_profile;
 
       if (worker) {
-        document.getElementById("gender").value = worker.gender || "";
+        const normalizedGender = (worker.gender || "").toLowerCase();
+        if (["male", "female", "non_binary", "prefer_not_to_say"].includes(normalizedGender)) {
+          document.getElementById("gender").value = normalizedGender;
+          document.getElementById("gender-other").value = "";
+        } else if (worker.gender) {
+          document.getElementById("gender").value = "other";
+          document.getElementById("gender-other").value = worker.gender;
+        }
         document.getElementById("aadhaar-number").value = sanitizeAadhaarValue(worker.aadhaar_number || "");
         document.getElementById("location-input").value = worker.location_text || "";
         document.getElementById("service-radius").value = worker.service_radius_km ?? 10;
         document.getElementById("experience-years").value = worker.experience_years ?? 0;
         document.getElementById("daily-rate").value = worker.daily_rate ?? "";
         document.getElementById("hourly-rate").value = worker.hourly_rate ?? "";
-        document.getElementById("skills").value = (worker.skills || []).join(", ");
-        document.getElementById("categories").value = (worker.categories || worker.skills || []).join(", ");
+        const workerCategory = (worker.categories || worker.skills || [])[0] || "";
+        const categoryKey = Object.entries(categoryLabels).find(([, label]) => label.toLowerCase() === workerCategory.toLowerCase())?.[0];
+        document.getElementById("categories").value = categoryKey || (workerCategory ? "other" : "");
+        document.getElementById("categories-other").value = categoryKey ? "" : workerCategory;
+        refreshWorkerSkillOptions();
+        const workerSkill = (worker.skills || [])[0] || "";
+        const skillOptions = categorySkillMap[document.getElementById("categories").value || "other"] || categorySkillMap.other;
+        if (skillOptions.includes(workerSkill)) {
+          document.getElementById("skills").value = workerSkill;
+          document.getElementById("skills-other").value = "";
+        } else if (workerSkill) {
+          document.getElementById("skills").value = "other";
+          document.getElementById("skills-other").value = workerSkill;
+        }
         document.getElementById("languages").value = (worker.languages || []).join(", ");
         document.getElementById("available-today").checked = Boolean(worker.available_today);
         document.getElementById("emergency-available").checked = Boolean(worker.emergency_available);
+        syncGenderOtherVisibility();
+        syncCategoryOtherVisibility();
+        syncSkillOtherVisibility();
         if (worker.latitude != null && worker.longitude != null) {
           selectedLocation.latitude = worker.latitude;
           selectedLocation.longitude = worker.longitude;
@@ -882,7 +1045,11 @@
       if (contractor) {
         document.getElementById("company-name").value = contractor.company_name || "";
         document.getElementById("bulk-hiring-enabled").value = contractor.bulk_hiring_enabled ? "true" : "false";
-        document.getElementById("work-categories").value = (contractor.work_categories || []).join(", ");
+        const contractorCategory = (contractor.work_categories || [])[0] || "";
+        const contractorCategoryKey = Object.entries(categoryLabels).find(([, label]) => label.toLowerCase() === contractorCategory.toLowerCase())?.[0];
+        document.getElementById("work-categories").value = contractorCategoryKey || (contractorCategory ? "other" : "");
+        document.getElementById("work-categories-other").value = contractorCategoryKey ? "" : contractorCategory;
+        syncWorkCategoryOtherVisibility();
         document.getElementById("frequent-locations").value = (contractor.frequent_locations || []).join(", ");
         document.getElementById("location-input").value = contractor.location || "";
         if (contractor.latitude != null && contractor.longitude != null) {
@@ -930,10 +1097,6 @@
         if (verificationState.emailVerified) emailNote.textContent = `Verified email: ${user.email}`;
         if (verificationState.phoneVerified && user.phone_number) phoneNote.textContent = `Verified number: ${user.phone_number}`;
         populateRoleProfile(user);
-        await initMapExperience();
-        if (selectedLocation.latitude != null && selectedLocation.longitude != null) {
-          setSelectedCoordinates(selectedLocation.latitude, selectedLocation.longitude, { pan: true });
-        }
         renderRoleFields();
         fetchPricingHint();
         updateVerificationUI();
@@ -1025,6 +1188,9 @@
     document.getElementById("aadhaar-number").addEventListener("input", (event) => {
       event.target.value = sanitizeAadhaarValue(event.target.value);
     });
+    document.getElementById("gender").addEventListener("change", syncGenderOtherVisibility);
+    document.getElementById("work-categories").addEventListener("change", syncWorkCategoryOtherVisibility);
+    document.getElementById("skills").addEventListener("change", syncSkillOtherVisibility);
 
     document.getElementById("send-phone-otp").addEventListener("click", async () => {
       const token = localStorage.getItem("kaamsetu_access_token");
@@ -1112,11 +1278,11 @@
         payload.worker_profile = {
           ...common,
           aadhaar_number: sanitizeAadhaarValue(document.getElementById("aadhaar-number").value) || null,
-          gender: document.getElementById("gender").value.trim() || null,
+          gender: selectedGender() || null,
           primary_location: document.getElementById("location-input").value.trim(),
           service_radius_km: Number(document.getElementById("service-radius").value),
-          skills: splitList(document.getElementById("skills").value),
-          categories: splitList(document.getElementById("categories").value),
+          skills: selectedWorkerSkill() ? [selectedWorkerSkill()] : [],
+          categories: selectedWorkerCategory() ? [selectedWorkerCategory()] : [],
           experience_years: Number(document.getElementById("experience-years").value),
           daily_rate: Number(document.getElementById("daily-rate").value),
           hourly_rate: document.getElementById("hourly-rate").value ? Number(document.getElementById("hourly-rate").value) : null,
@@ -1138,7 +1304,7 @@
         payload.contractor_profile = {
           ...common,
           company_name: document.getElementById("company-name").value.trim() || null,
-          work_categories: splitList(document.getElementById("work-categories").value),
+          work_categories: selectedContractorCategory() ? [selectedContractorCategory()] : [],
           frequent_locations: splitList(document.getElementById("frequent-locations").value),
           bulk_hiring_enabled: document.getElementById("bulk-hiring-enabled").value === "true",
           location: document.getElementById("location-input").value.trim()
@@ -1177,6 +1343,7 @@
     roleSelect.addEventListener("change", renderRoleFields);
     stepBackButton.addEventListener("click", previousStep);
     stepNextButton.addEventListener("click", nextStep);
+    setupWorkerCategoryOptions();
     renderRoleFields();
     loadPublicConfig().then(hydrateSessionState);
   </script>

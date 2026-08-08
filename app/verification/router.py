@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
+from app.common.enums import DocumentType
 from app.common.enums import VerificationStatus
 from app.common.utils import api_response
 from app.core.dependencies import get_current_user, get_db
 from app.users.models import User
 from app.verification.models import VerificationDocument
 from app.verification.schemas import VerificationReview, VerificationUpload
-from app.verification.service import review_document, upload_document
+from app.verification.service import review_document, upload_document, upload_file_to_cloudinary, verification_tag
 
 router = APIRouter(prefix="/verification", tags=["verification"])
 
@@ -16,6 +17,31 @@ router = APIRouter(prefix="/verification", tags=["verification"])
 def upload(payload: VerificationUpload, user=Depends(get_current_user), db: Session = Depends(get_db)):
     document = upload_document(db, user, payload)
     return api_response("Verification document uploaded", {"id": document.id})
+
+
+@router.post("/upload-file")
+async def upload_file(
+    document_type: DocumentType = Form(...),
+    file: UploadFile = File(...),
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed for verification upload.")
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+    if len(file_bytes) > 8 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Each verification image must be under 8 MB.")
+
+    secure_url = await upload_file_to_cloudinary(
+        file_bytes=file_bytes,
+        filename=file.filename or f"{document_type.value}.jpg",
+        content_type=file.content_type,
+        tag=verification_tag(document_type),
+    )
+    document = upload_document(db, user, VerificationUpload(document_type=document_type, document_url=secure_url))
+    return api_response("Verification document uploaded", {"id": document.id, "document_url": secure_url})
 
 
 @router.get("/me")
