@@ -52,16 +52,21 @@
 
   function languageSelector() {
     const currentLanguage = window.KaramSetuI18n?.getCurrentLanguage?.() || "en";
-    const options = Object.entries(window.KaramSetuI18n?.SUPPORTED_LANGUAGES || {}).map(([code, label]) => `
+    const supportedLanguages = window.KaramSetuI18n?.SUPPORTED_LANGUAGES || {
+      en: "English",
+      hi: "Hindi",
+      pa: "Punjabi",
+    };
+    const options = Object.entries(supportedLanguages).map(([code, label]) => `
       <option value="${code}" ${code === currentLanguage ? "selected" : ""}>${label}</option>
     `).join("");
     return `
-      <label class="flex items-center gap-2 rounded-full border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700">
-        <span class="hidden sm:inline">${t("lang.label", "Language")}</span>
-        <select id="language-switcher" class="bg-transparent text-sm font-medium outline-none">
+      <div class="flex items-center gap-2 rounded-full border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700">
+        <label for="language-switcher" class="hidden sm:inline">${t("lang.label", "Language")}</label>
+        <select id="language-switcher" class="min-w-[7rem] bg-white text-sm font-medium text-stone-700 outline-none">
           ${options}
         </select>
-      </label>
+      </div>
     `;
   }
 
@@ -133,10 +138,11 @@
     if (languageSwitcher) {
       languageSwitcher.addEventListener("change", async (event) => {
         const nextLanguage = event.target.value;
-        await window.KaramSetuI18n.setLanguage(nextLanguage, { persist: true, syncUser: Boolean(user), apply: true });
+        if (window.KaramSetuI18n?.setLanguage) {
+          await window.KaramSetuI18n.setLanguage(nextLanguage, { persist: true, syncUser: Boolean(user), apply: true });
+        }
         renderNavbar(user, options);
-        window.KaramSetuI18n.applyTranslations();
-        window.location.reload();
+        window.KaramSetuI18n?.applyTranslations?.();
       });
     }
     const logoutButton = document.getElementById("nav-logout");
